@@ -6,6 +6,7 @@ import { useSocket } from '../services/useSocket';
 import Kirish from '../components/Kirish';
 import Chat from '../components/Chat';
 import Baholash from '../components/Baholash';
+import MashinaProfili, { mashinaMatn } from '../components/MashinaProfili';
 
 export default function HaydovchiSahifa() {
   const [user, setUser] = useState(() => {
@@ -34,6 +35,8 @@ function Ichki({ user, onChiqish }) {
   const [faolSafar, setFaolSafar] = useState(null); // {rideId, narx, mijoz_ism} — қабул қилинган сафар
   const [chatOchiq, setChatOchiq] = useState(false);
   const [baholashUchun, setBaholashUchun] = useState(null); // {rideId, ism} — модаль очилади
+  const [mashina, setMashina] = useState(null); // {mashina_modeli, mashina_raqami, mashina_rangi}
+  const [profilOchiq, setProfilOchiq] = useState(false);
 
   const statsYukla = async () => {
     try {
@@ -41,7 +44,16 @@ function Ichki({ user, onChiqish }) {
       setStats(data);
     } catch {}
   };
-  useEffect(() => { statsYukla(); }, []);
+  const profilYukla = async () => {
+    try {
+      const { data } = await api.get('/driver/profile');
+      setMashina(data);
+    } catch {}
+  };
+  useEffect(() => { statsYukla(); profilYukla(); }, []);
+
+  const mashinaToldirilganmi = !!(mashina?.mashina_modeli && mashina?.mashina_raqami);
+  const mashinaJamiMatn = mashinaMatn(mashina);
 
   const { yubor } = useSocket({
     buyurtma_keldi: (b) => setBuyurtmalar((oldin) => [...oldin, b]),
@@ -79,12 +91,10 @@ function Ichki({ user, onChiqish }) {
     }
   };
 
-  const mashina = 'Машина'; // кейин ҳайдовчи профилидан олиниши мумкин
-
   const roziBolish = (b) => {
     yubor('narx_taklif', {
       rideId: b.id, haydovchi_ism: user.ism, haydovchi_narx: b.narx,
-      reyting: Number(user.reyting) || 5, mashina, min: Math.ceil(Math.random() * 6) + 2,
+      reyting: Number(user.reyting) || 5, mashina: mashinaJamiMatn, min: Math.ceil(Math.random() * 6) + 2,
     });
     setBuyurtmalar(buyurtmalar.filter((x) => x.id !== b.id));
   };
@@ -92,7 +102,7 @@ function Ichki({ user, onChiqish }) {
   const oznarxYuborish = () => {
     yubor('narx_taklif', {
       rideId: tanlangan.id, haydovchi_ism: user.ism, haydovchi_narx: oznarx,
-      reyting: Number(user.reyting) || 5, mashina, min: Math.ceil(Math.random() * 6) + 2,
+      reyting: Number(user.reyting) || 5, mashina: mashinaJamiMatn, min: Math.ceil(Math.random() * 6) + 2,
     });
     setTanlangan(null);
   };
@@ -102,6 +112,7 @@ function Ichki({ user, onChiqish }) {
       <div style={st.header}>
         <div style={st.logo}>🚕 Tez Taxi · {user.ism}</div>
         <div style={{ display: 'flex', gap: 8 }}>
+          <button style={st.tarixTugma} onClick={() => setProfilOchiq(true)} title="Машинам">🚗</button>
           <button style={st.tarixTugma} onClick={() => navigate('/tarix')} title="Сафар тарихи">🕒</button>
           <button style={st.chiqish} onClick={onChiqish}>Чиқиш</button>
           <button style={{ ...st.statusTugma, background: onlayn ? 'var(--yashil)' : 'var(--kulrang)' }} onClick={statusOzgartir}>
@@ -109,6 +120,12 @@ function Ichki({ user, onChiqish }) {
           </button>
         </div>
       </div>
+
+      {!mashinaToldirilganmi && (
+        <div style={st.ogohlantirish} onClick={() => setProfilOchiq(true)}>
+          ⚠️ Машина маълумотлари тўлдирилмаган. Йўловчилар буни кўриши керак — <b>тўлдириш</b>
+        </div>
+      )}
 
       <div style={st.daromad}>
         <div>
@@ -144,6 +161,13 @@ function Ichki({ user, onChiqish }) {
           kimni="mijoz"
           ism={baholashUchun.ism}
           onYopish={() => setBaholashUchun(null)}
+        />
+      )}
+
+      {profilOchiq && (
+        <MashinaProfili
+          onYopish={() => setProfilOchiq(false)}
+          onSaqlandi={(yangi) => setMashina(yangi)}
         />
       )}
 
@@ -219,6 +243,7 @@ const st = {
   logo: { fontWeight: 800, fontSize: 14, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   chiqish: { background: 'var(--och-kulrang)', padding: '8px 12px', borderRadius: 16, fontWeight: 600, fontSize: 12 },
   tarixTugma: { background: 'var(--och-kulrang)', width: 36, height: 36, borderRadius: '50%', fontSize: 16 },
+  ogohlantirish: { margin: '0 16px 12px', padding: 12, background: '#FEF3C7', color: '#92400E', borderRadius: 12, fontSize: 13, cursor: 'pointer', borderLeft: '4px solid #F59E0B' },
   statusTugma: { color: 'var(--oq)', padding: '8px 16px', borderRadius: 20, fontWeight: 700, fontSize: 13 },
   daromad: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 16, padding: 20, background: 'var(--qora)', borderRadius: 18, color: 'var(--oq)' },
   faolSafar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 16px 16px', padding: 16, background: 'var(--yashil)', borderRadius: 16, color: 'var(--oq)', gap: 8 },
