@@ -62,9 +62,21 @@ export default function YolovchiSahifa() {
       setTakliflar((oldin) => [...oldin, taklif]);
       bildir('💰 Янги таклиф', `${taklif.haydovchi_ism} · ${Number(taklif.haydovchi_narx).toLocaleString()} сўм · ${taklif.min} мин`, { tag: 'taklif' });
     },
-    // Ҳайдовчи сафарни тугатганда — баҳолаш модалини кўрсатамиз
+    // Ҳайдовчи сафар ҳолатини янгилаганда
     holat_yangilandi: (data) => {
-      if (data.holat === 'yakunlandi' && Number(data.rideId) === Number(rideId)) {
+      if (Number(data.rideId) !== Number(rideId)) return;
+      if (data.holat === 'yetib_keldi') {
+        bildir(t('wait.driverArrived'), t('wait.comeOut'));
+        setHaydovchiInfo((h) => h && ({ ...h, holati: 'yetib_keldi', kelgan_vaqti: Date.now() }));
+      }
+      if (data.holat === 'yolda') {
+        setHaydovchiInfo((h) => h && ({
+          ...h, holati: 'yolda',
+          narx: data.yangi_narx ?? h.narx,
+          kutish_haqi: data.kutish_haqi || 0,
+        }));
+      }
+      if (data.holat === 'yakunlandi') {
         bildir(t('notif.rideEnded'), t('rate.askPassenger'));
         setBaholashUchun({ rideId, ism: haydovchiInfo?.ism || t('home.driver') });
       }
@@ -236,7 +248,11 @@ export default function YolovchiSahifa() {
 
         {bosqich === 'safar' && haydovchiInfo && (
           <>
-            <h2 style={st.sarlavha}>{t('pass.inRide')}</h2>
+            <h2 style={st.sarlavha}>
+              {haydovchiInfo.holati === 'yetib_keldi' ? t('wait.driverHere')
+               : haydovchiInfo.holati === 'yolda' ? t('pass.inRide')
+               : t('wait.driverComing')}
+            </h2>
             <div style={st.haydovchi}>
               <div style={st.avatar}>{haydovchiInfo.ism[0]}</div>
               <div style={{ flex: 1 }}>
@@ -244,6 +260,20 @@ export default function YolovchiSahifa() {
                 <div style={st.hMashina}>{haydovchiInfo.mashina} · {Number(haydovchiInfo.narx).toLocaleString()}</div>
               </div>
             </div>
+
+            {/* Кутиш огоҳлантириш — ҳайдовчи етиб келганда */}
+            {haydovchiInfo.holati === 'yetib_keldi' && (
+              <div style={st.kutishOgoh}>
+                ⚠️ {t('wait.passengerHurry')}
+              </div>
+            )}
+
+            {/* Кутиш ҳақи қўшилган бўлса — кўрсатамиз */}
+            {haydovchiInfo.kutish_haqi > 0 && (
+              <div style={st.kutishQushilgan}>
+                {t('wait.feeAdded')}: <b>+{Number(haydovchiInfo.kutish_haqi).toLocaleString()}</b>
+              </div>
+            )}
             <div style={{ display: 'flex', gap: 8 }}>
               <button style={{ ...st.tugma, flex: 1 }} onClick={() => setChatOchiq(true)}>{t('pass.chatWithDriver')}</button>
               <button style={st.tolovTugma} onClick={() => setTolovOchiq(true)}>{t('pay.open')}</button>
@@ -346,6 +376,8 @@ const st = {
   ulashishTugma: { width: '100%', background: 'var(--och-kulrang)', padding: 12, borderRadius: 12, fontSize: 14, fontWeight: 700, marginTop: 8 },
   tezManzillar: { display: 'flex', gap: 8, marginTop: 8, marginBottom: 8 },
   tezTugma: { flex: 1, background: 'var(--och-kulrang)', padding: 10, borderRadius: 10, fontSize: 13, fontWeight: 700 },
+  kutishOgoh: { background: '#FEF3C7', borderLeft: '4px solid #F59E0B', padding: '10px 12px', borderRadius: 10, marginBottom: 10, fontSize: 13, color: '#92400E', fontWeight: 600 },
+  kutishQushilgan: { background: '#FEE2E2', padding: 8, borderRadius: 8, fontSize: 13, color: '#991B1B', textAlign: 'center', marginBottom: 10 },
   panel: { position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 1000, background: 'var(--oq)', borderRadius: '24px 24px 0 0', padding: 24, boxShadow: '0 -4px 20px rgba(0,0,0,0.1)' },
   sarlavha: { fontSize: 22, fontWeight: 800, marginBottom: 16 },
   izoh: { color: 'var(--kulrang)', fontSize: 14, marginBottom: 16 },

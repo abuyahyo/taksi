@@ -2,6 +2,10 @@
 const jwt = require('jsonwebtoken');
 const { query } = require('../config/db');
 
+// Кутиш ҳақи параметрлари
+const KUTISH_TEKIN_DAQ = 3;      // 3 дақиқа бепул кутиш
+const KUTISH_NARX_DAQ  = 500;    // кейин 500 сўм/дақ
+
 // Фаол буюртмалар: rideId -> buyurtma ma'lumoti
 const faolBuyurtmalar = new Map();
 
@@ -140,32 +144,65 @@ module.exports = (io) => {
       }
     });
 
-    // САФАР ҲОЛАТИ ўзгариши (ҳайдовчи юборади) — yakunlandi бўлса БАЗАНИ янгилаймиз
+    // САФАР ҲОЛАТИ ўзгариши (ҳайдовчи юборади)
     socket.on('safar_holati', async (data) => {
       console.log(`🚦 Сафар #${data.rideId}: ${data.holat}`);
+      const javob = { ...data };
 
-      // "Етиб келдим" — GPS текшируви (рақобатчи муаммосидан ўрганилган)
-      if (data.holat === 'yetib_keldi' && data.masofa_m != null && data.masofa_m > 200) {
-        socket.emit('holat_rad', {
-          rideId: data.rideId,
-          sabab: `Сиз йўловчидан ${Math.round(data.masofa_m)} м узоқдасиз. 200 м ичида бўлинг.`,
-        });
-        return;
+      // "Етиб келдим" — GPS текшируви + кутиш таймерини бошлаш
+      if (data.holat === 'yetib_keldi') {
+        if (data.masofa_m != null && data.masofa_m > 200) {
+          socket.emit('holat_rad', {
+            rideId: data.rideId,
+            sabab: `Сиз йўловчидан ${Math.round(data.masofa_m)} м узоқдасиз. 200 м ичида бўлинг.`,
+          });
+          return;
+        }
+        try {
+          await query(
+            `UPDATE rides SET kelgan_vaqti = NOW() WHERE id = $1 AND kelgan_vaqti IS NULL`,
+            [data.rideId]
+          );
+        } catch (err) { console.error('kelgan_vaqti xato:', err.message); }
       }
 
-      // Сафар тугади — базага yakun_vaqti'ни ёзамиз
+      // "Йўлга чиқдик" — кутиш ҳақини ҳисоблаб нархни янгилаймиз
+      if (data.holat === 'yolda') {
+        try {
+          const r = await query(
+            `SELECT EXTRACT(EPOCH FROM (NOW() - kelgan_vaqti))/60 AS daqiqa,
+                    kelishilgan_narx
+             FROM rides WHERE id = $1 AND kelgan_vaqti IS NOT NULL AND yolga_chiqqan_vaqti IS NULL`,
+            [data.rideId]
+          );
+          if (r.rows[0]) {
+            // floor — фақат тўла пуллик дақиқалар учун ҳақ оламиз (йўловчи учун адолатли)
+            const totalDaq = parseFloat(r.rows[0].daqiqa);
+            const kutib_daq = Math.floor(Math.max(0, totalDaq - KUTISH_TEKIN_DAQ));
+            const haq = kutib_daq * KUTISH_NARX_DAQ;
+            const eskiNarx = Number(r.rows[0].kelishilgan_narx) || 0;
+            const yangiNarx = eskiNarx + haq;
+            await query(
+              `UPDATE rides SET yolga_chiqqan_vaqti = NOW(), kutish_haqi = $2, kelishilgan_narx = $3 WHERE id = $1`,
+              [data.rideId, haq, yangiNarx]
+            );
+            javob.kutish_haqi = haq;
+            javob.yangi_narx  = yangiNarx;
+          }
+        } catch (err) { console.error('yolda xato:', err.message); }
+      }
+
+      // Сафар тугади
       if (data.holat === 'yakunlandi') {
         try {
           await query(
             `UPDATE rides SET holat = 'yakunlandi', yakun_vaqti = NOW() WHERE id = $1`,
             [data.rideId]
           );
-        } catch (err) {
-          console.error('yakunlandi xato:', err.message);
-        }
+        } catch (err) { console.error('yakunlandi xato:', err.message); }
       }
 
-      io.to(`ride_${data.rideId}`).emit('holat_yangilandi', data);
+      io.to(`ride_${data.rideId}`).emit('holat_yangilandi', javob);
     });
 
     socket.on('joylashuv', (data) => {

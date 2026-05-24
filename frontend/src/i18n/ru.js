@@ -175,6 +175,21 @@ export default {
   'prof.useHome':        '🏠 Дом',
   'prof.useWork':        '🏢 Работа',
 
+  // Плата за ожидание
+  'wait.driving':        'Еду к пассажиру',
+  'wait.arrived':        'Жду пассажира',
+  'wait.iArrived':       'Я приехал',
+  'wait.startDrive':     'Поехали',
+  'wait.freeWait':       '✅ Бесплатное ожидание',
+  'wait.feeAccruing':    '⏱ Начисляется плата',
+  'wait.sum':            'сум',
+  'wait.driverComing':   'Водитель в пути',
+  'wait.driverHere':     '🚗 Водитель приехал!',
+  'wait.driverArrived':  '🚗 Водитель приехал',
+  'wait.comeOut':        'Пожалуйста, выходите — через 3 мин начнётся плата за ожидание',
+  'wait.passengerHurry': 'Водитель ждёт — 3 мин бесплатно, далее 500 сум/мин',
+  'wait.feeAdded':       'Добавлена плата за ожидание',
+
   // Поиск адреса
   'geo.searchPlaceholder': 'Поиск адреса (например, "Чиланзар")',
   'geo.noResults':         'Не найдено',

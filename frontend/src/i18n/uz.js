@@ -175,6 +175,21 @@ export default {
   'prof.useHome':        '🏠 Уй',
   'prof.useWork':        '🏢 Иш',
 
+  // Кутиш ҳақи
+  'wait.driving':        'Йўловчига боряпман',
+  'wait.arrived':        'Йўловчини кутаяпман',
+  'wait.iArrived':       'Етиб келдим',
+  'wait.startDrive':     'Йўлга чиқдик',
+  'wait.freeWait':       '✅ Бепул кутиш',
+  'wait.feeAccruing':    '⏱ Ҳақ ҳисобланмоқда',
+  'wait.sum':            'сўм',
+  'wait.driverComing':   'Ҳайдовчи йўлда',
+  'wait.driverHere':     '🚗 Ҳайдовчи етиб келди!',
+  'wait.driverArrived':  '🚗 Ҳайдовчи етиб келди',
+  'wait.comeOut':        'Илтимос, чиқинг — 3 дақиқадан сўнг кутиш ҳақи',
+  'wait.passengerHurry': 'Ҳайдовчи кутмоқда — 3 дақ. бепул, кейин 500 сўм/мин',
+  'wait.feeAdded':       'Кутиш ҳақи қўшилди',
+
   // Манзил қидируви
   'geo.searchPlaceholder': 'Манзил қидириш (масалан "Чилонзор")',
   'geo.noResults':         'Топилмади',

@@ -36,8 +36,9 @@ function Ichki({ user, onChiqish }) {
   const [tanlangan, setTanlangan] = useState(null);
   const [oznarx, setOznarx] = useState(0);
   const [stats, setStats] = useState({ daromad: 0, safar: 0 });
-  const [faolSafar, setFaolSafar] = useState(null); // {rideId, narx, mijoz_ism} — қабул қилинган сафар
+  const [faolSafar, setFaolSafar] = useState(null); // {rideId, narx, mijoz_ism, holati: 'kelmoqda'|'yetib_keldi'|'yolda', kelgan_vaqti, kutish_haqi}
   const [chatOchiq, setChatOchiq] = useState(false);
+  const [hozir, setHozir] = useState(Date.now()); // таймер учун
   const [baholashUchun, setBaholashUchun] = useState(null); // {rideId, ism} — модаль очилади
   const [mashina, setMashina] = useState(null); // {mashina_modeli, mashina_raqami, mashina_rangi}
   const [profilOchiq, setProfilOchiq] = useState(false);
@@ -90,13 +91,41 @@ function Ichki({ user, onChiqish }) {
       if (Number(x.yuboruvchi_id) === Number(user.id)) return; // ўз хабарим
       if (!chatOchiq) bildir(`💬 ${x.yuboruvchi_ism}`, x.matn, { tag: `chat-${x.ride_id}` });
     },
-    // Йўловчи мени танлади — сафар бошланди
+    // Йўловчи мени танлади — сафар бошланди (ҳайдовчи "келмоқда" ҳолатда)
     tasdiqlandi: (data) => {
       if (data.haydovchi_id === user.id) {
-        setFaolSafar({ rideId: data.rideId, narx: data.narx, mijoz_ism: data.mijoz_ism });
+        setFaolSafar({ rideId: data.rideId, narx: data.narx, mijoz_ism: data.mijoz_ism, holati: 'kelmoqda', kutish_haqi: 0 });
+      }
+    },
+    // Кутиш ҳақи ҳисобланди — нархни янгилаймиз
+    holat_yangilandi: (data) => {
+      if (!faolSafar || Number(data.rideId) !== Number(faolSafar.rideId)) return;
+      if (data.holat === 'yolda' && data.yangi_narx != null) {
+        setFaolSafar((s) => s && ({ ...s, holati: 'yolda', narx: data.yangi_narx, kutish_haqi: data.kutish_haqi || 0 }));
       }
     },
   });
+
+  // Кутиш ҳолатида таймерни ҳар сонияда янгилаймиз (UI учун)
+  useEffect(() => {
+    if (faolSafar?.holati !== 'yetib_keldi') return;
+    const id = setInterval(() => setHozir(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [faolSafar?.holati]);
+
+  // Ҳайдовчи "Етиб келдим" дейди — кутиш таймери бошланади
+  const yetibKeldim = () => {
+    if (!faolSafar) return;
+    yubor('safar_holati', { rideId: faolSafar.rideId, holat: 'yetib_keldi' });
+    setFaolSafar((s) => s && ({ ...s, holati: 'yetib_keldi', kelgan_vaqti: Date.now() }));
+  };
+
+  // Ҳайдовчи "Йўлга чиқдик" дейди — кутиш таймери тўхтайди, кутиш ҳақи нархга қўшилади
+  const yolgaChiqdik = () => {
+    if (!faolSafar) return;
+    yubor('safar_holati', { rideId: faolSafar.rideId, holat: 'yolda' });
+    // narx ва kutish_haqi server holat_yangilandi'дан келади
+  };
 
   // Сафар тугатиш — backend rides.holat = 'yakunlandi', сўнг баҳолаш модаль
   const safarTugatish = () => {
@@ -107,6 +136,20 @@ function Ichki({ user, onChiqish }) {
     setChatOchiq(false);
     setTimeout(statsYukla, 600);
   };
+
+  // Кутиш дисплейи: дақиқа:сония + ҳақ (агар грация ўтган бўлса)
+  const kutishHisobi = () => {
+    if (faolSafar?.holati !== 'yetib_keldi' || !faolSafar.kelgan_vaqti) return null;
+    const sek = Math.max(0, Math.floor((hozir - faolSafar.kelgan_vaqti) / 1000));
+    const mm = String(Math.floor(sek / 60)).padStart(2, '0');
+    const ss = String(sek % 60).padStart(2, '0');
+    const tekin = 3 * 60;
+    // floor — backend билан мос (фақат тўла пуллик дақиқалар)
+    const haqDaq = sek > tekin ? Math.floor((sek - tekin) / 60) : 0;
+    const haq = haqDaq * 500;
+    return { vaqt: `${mm}:${ss}`, haq, tekin: sek <= tekin };
+  };
+  const kutish = kutishHisobi();
 
   // Онлайн/офлайн ўзгартириш
   const statusOzgartir = () => {
@@ -168,20 +211,49 @@ function Ichki({ user, onChiqish }) {
         </div>
       </div>
 
-      {/* Қабул қилинган сафар — чат ва "Сафар тугади" тугмалари */}
+      {/* Қабул қилинган сафар — 3 та босқич: kelmoqda → yetib_keldi → yolda */}
       {faolSafar && (
-        <div style={st.faolSafar}>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 800, fontSize: 16 }}>Сафар жараёнда</div>
-            <div style={{ fontSize: 13, opacity: 0.8 }}>
-              #{faolSafar.rideId} · {Number(faolSafar.narx).toLocaleString()} · {joylashuvOchiqmi ? t('drv.gpsOn') : t('drv.gpsWait')}
+        <>
+          <div style={st.faolSafar}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 800, fontSize: 16 }}>
+                {faolSafar.holati === 'kelmoqda' ? t('wait.driving')
+                 : faolSafar.holati === 'yetib_keldi' ? t('wait.arrived')
+                 : t('drv.activeRide')}
+              </div>
+              <div style={{ fontSize: 13, opacity: 0.8 }}>
+                #{faolSafar.rideId} · {Number(faolSafar.narx).toLocaleString()} · {joylashuvOchiqmi ? t('drv.gpsOn') : t('drv.gpsWait')}
+              </div>
             </div>
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
             <button style={st.chatTugma} onClick={() => setChatOchiq(true)}>💬</button>
-            <button style={st.tugatTugma} onClick={safarTugatish}>{t('drv.endRide')}</button>
           </div>
-        </div>
+
+          {/* Кутиш таймери (yetib_keldi ҳолатида) */}
+          {kutish && (
+            <div style={{ ...st.kutishKarta, background: kutish.tekin ? '#DCFCE7' : '#FEF3C7', borderLeft: `4px solid ${kutish.tekin ? '#16A34A' : '#F59E0B'}` }}>
+              <div>
+                <div style={st.kutishMatn}>{kutish.tekin ? t('wait.freeWait') : t('wait.feeAccruing')}</div>
+                <div style={st.kutishVaqt}>{kutish.vaqt}</div>
+              </div>
+              {kutish.haq > 0 && (
+                <div style={st.kutishHaq}>+{kutish.haq.toLocaleString()} {t('wait.sum')}</div>
+              )}
+            </div>
+          )}
+
+          {/* Тугмалар - ҳолатга қараб */}
+          <div style={st.tugmaQator}>
+            {faolSafar.holati === 'kelmoqda' && (
+              <button style={st.harakatTugma} onClick={yetibKeldim}>🚗 {t('wait.iArrived')}</button>
+            )}
+            {faolSafar.holati === 'yetib_keldi' && (
+              <button style={st.harakatTugma} onClick={yolgaChiqdik}>🛣 {t('wait.startDrive')}</button>
+            )}
+            {faolSafar.holati === 'yolda' && (
+              <button style={st.harakatTugma} onClick={safarTugatish}>{t('drv.endRide')}</button>
+            )}
+          </div>
+        </>
       )}
       {chatOchiq && faolSafar && (
         <Chat rideId={faolSafar.rideId} meId={user.id} hamrohIsm={`💬 ${faolSafar.mijoz_ism || t('chat.guestName')}`} onClose={() => setChatOchiq(false)} />
@@ -281,9 +353,15 @@ const st = {
   ogohlantirish: { margin: '0 16px 12px', padding: 12, background: '#FEF3C7', color: '#92400E', borderRadius: 12, fontSize: 13, cursor: 'pointer', borderLeft: '4px solid #F59E0B' },
   statusTugma: { color: 'var(--oq)', padding: '8px 16px', borderRadius: 20, fontWeight: 700, fontSize: 13 },
   daromad: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 16, padding: 20, background: 'var(--qora)', borderRadius: 18, color: 'var(--oq)' },
-  faolSafar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 16px 16px', padding: 16, background: 'var(--yashil)', borderRadius: 16, color: 'var(--oq)', gap: 8 },
+  faolSafar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 16px 10px', padding: 16, background: 'var(--yashil)', borderRadius: 16, color: 'var(--oq)', gap: 8 },
   tugatTugma: { background: 'var(--oq)', color: 'var(--yashil)', padding: '10px 12px', borderRadius: 12, fontWeight: 800, fontSize: 12 },
   chatTugma: { background: 'rgba(255,255,255,.2)', color: 'var(--oq)', width: 40, height: 40, borderRadius: '50%', fontSize: 18 },
+  kutishKarta: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 16px 10px', padding: 12, borderRadius: 12 },
+  kutishMatn: { fontSize: 12, fontWeight: 700, color: 'var(--kulrang)' },
+  kutishVaqt: { fontSize: 24, fontWeight: 800, fontFamily: 'monospace', marginTop: 2 },
+  kutishHaq: { fontSize: 18, fontWeight: 800, color: '#92400E' },
+  tugmaQator: { margin: '0 16px 16px' },
+  harakatTugma: { width: '100%', background: 'var(--sariq)', color: 'var(--qora)', padding: 16, borderRadius: 14, fontWeight: 800, fontSize: 16 },
   daromadRaqam: { fontSize: 28, fontWeight: 800, color: 'var(--sariq)' },
   kichikRaqam: { fontSize: 28, fontWeight: 800 },
   daromadMatn: { fontSize: 12, color: '#9CA3AF', marginTop: 2 },

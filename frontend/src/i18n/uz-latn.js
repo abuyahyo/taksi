@@ -175,6 +175,21 @@ export default {
   'prof.useHome':        '🏠 Uy',
   'prof.useWork':        '🏢 Ish',
 
+  // Kutish haqi
+  'wait.driving':        'Yoʻlovchiga boryapman',
+  'wait.arrived':        'Yoʻlovchini kutayapman',
+  'wait.iArrived':       'Yetib keldim',
+  'wait.startDrive':     'Yoʻlga chiqdik',
+  'wait.freeWait':       '✅ Bepul kutish',
+  'wait.feeAccruing':    '⏱ Haq hisoblanmoqda',
+  'wait.sum':            'soʻm',
+  'wait.driverComing':   'Haydovchi yoʻlda',
+  'wait.driverHere':     '🚗 Haydovchi yetib keldi!',
+  'wait.driverArrived':  '🚗 Haydovchi yetib keldi',
+  'wait.comeOut':        'Iltimos, chiqing — 3 daqiqadan soʻng kutish haqi',
+  'wait.passengerHurry': 'Haydovchi kutmoqda — 3 daq. bepul, keyin 500 soʻm/min',
+  'wait.feeAdded':       'Kutish haqi qoʻshildi',
+
   // Manzil qidiruvi
   'geo.searchPlaceholder': 'Manzil qidirish (masalan "Chilonzor")',
   'geo.noResults':         'Topilmadi',

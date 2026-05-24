@@ -56,6 +56,10 @@ CREATE TABLE IF NOT EXISTS rides (
   -- Ҳолат
   holat VARCHAR(20) DEFAULT 'kutilmoqda',
   -- kutilmoqda, qabul_qilindi, yo'lda, yakunlandi, bekor_qilindi
+  -- Кутиш ҳақи — ҳайдовчи ёлғизланган кутиш муддати ва ҳақи
+  kelgan_vaqti TIMESTAMP,           -- ҳайдовчи "етиб келдим" деган вақт
+  yolga_chiqqan_vaqti TIMESTAMP,    -- "йўлга чиқдик" деган вақт
+  kutish_haqi INTEGER DEFAULT 0,    -- сўмда, асосий нархга қўшилади
   -- Вақтлар
   yaratilgan TIMESTAMP DEFAULT NOW(),
   qabul_vaqti TIMESTAMP,
