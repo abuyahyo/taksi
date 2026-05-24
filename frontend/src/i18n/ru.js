@@ -146,6 +146,7 @@ export default {
 
   // Язык
   'lang.label':          'Язык',
-  'lang.uz':             'Oʻzbekcha',
+  'lang.uz':             'Ўзбекча',
+  'lang.uz-latn':        'Oʻzbekcha',
   'lang.ru':             'Русский',
 };

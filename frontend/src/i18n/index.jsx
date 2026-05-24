@@ -1,15 +1,17 @@
 // Кичик i18n кутубхонаси — Provider + t() + til свитчер
 import { createContext, useContext, useEffect, useState } from 'react';
 import uz from './uz';
+import uzLatn from './uz-latn';
 import ru from './ru';
 
-const TILLAR = { uz, ru };
+const TILLAR = { uz, 'uz-latn': uzLatn, ru };
 const I18nCtx = createContext(null);
 
 function brauserTil() {
   if (typeof navigator === 'undefined') return 'uz';
   const l = (navigator.language || '').toLowerCase();
   if (l.startsWith('ru')) return 'ru';
+  // uz-latn brauzer тилидан осон аниқлаб бўлмайди, шунинг учун дефолт uz (кирилл)
   return 'uz';
 }
 
@@ -53,19 +55,25 @@ export function useT() {
   return ctx;
 }
 
-// Кичик "UZ ⇄ RU" свитчер
+// "Кир / Lat / Рус" свитчер
 export function TilTanlovchi({ style }) {
   const { til, setTil } = useT();
   const ulanish = (k) => ({
     background: til === k ? 'var(--qora)' : 'transparent',
     color: til === k ? 'var(--oq)' : 'var(--qora)',
-    padding: '4px 10px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+    padding: '4px 8px', borderRadius: 8, fontSize: 11, fontWeight: 700,
     border: '1px solid #E5E7EB',
   });
+  const tugmalar = [
+    ['uz',      'Кир'],
+    ['uz-latn', 'Lat'],
+    ['ru',      'Рус'],
+  ];
   return (
-    <div style={{ display: 'inline-flex', gap: 4, background: 'var(--oq)', padding: 3, borderRadius: 10, ...style }}>
-      <button style={ulanish('uz')} onClick={() => setTil('uz')}>UZ</button>
-      <button style={ulanish('ru')} onClick={() => setTil('ru')}>RU</button>
+    <div style={{ display: 'inline-flex', gap: 3, background: 'var(--oq)', padding: 3, borderRadius: 10, ...style }}>
+      {tugmalar.map(([k, label]) => (
+        <button key={k} style={ulanish(k)} onClick={() => setTil(k)}>{label}</button>
+      ))}
     </div>
   );
 }
