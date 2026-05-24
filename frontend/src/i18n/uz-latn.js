@@ -1,7 +1,7 @@
 // Oʻzbek lotin alifbosi (uz-Latn)
 export default {
   // Umumiy
-  'common.app':          'Tez Taxi',
+  'common.app':          'Safar Taksi',
   'common.continue':     'Davom etish',
   'common.back':         'Orqaga',
   'common.cancel':       'Bekor qilish',
@@ -122,7 +122,7 @@ export default {
   'hist.status.bekor_qilindi': 'Bekor qilindi',
 
   // Admin
-  'admin.title':         '🚕 Tez Taxi · Admin',
+  'admin.title':         '🚕 Safar Taksi · Admin',
   'admin.titleShort':    'Admin',
   'admin.titleLogin':    'Admin paneliga kirish',
   'admin.tab.stats':     '📊 Statistika',

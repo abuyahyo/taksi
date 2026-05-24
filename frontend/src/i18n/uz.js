@@ -1,7 +1,7 @@
 // Ўзбек тилидаги матнлар (асосий)
 export default {
   // Умумий
-  'common.app':          'Tez Taxi',
+  'common.app':          'Safar Taksi',
   'common.continue':     'Давом этиш',
   'common.back':         'Орқага',
   'common.cancel':       'Бекор қилиш',
@@ -122,7 +122,7 @@ export default {
   'hist.status.bekor_qilindi': 'Бекор қилинди',
 
   // Админ
-  'admin.title':         '🚕 Tez Taxi · Админ',
+  'admin.title':         '🚕 Safar Taksi · Админ',
   'admin.titleShort':    'Админ',
   'admin.titleLogin':    'Админ панелига кириш',
   'admin.tab.stats':     '📊 Статистика',

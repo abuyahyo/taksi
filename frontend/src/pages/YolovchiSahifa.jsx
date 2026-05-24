@@ -176,7 +176,7 @@ export default function YolovchiSahifa() {
       <div style={st.harita}>
         <Harita markaz={TOSHKENT} boshlanish={boshlanish} tugash={tugash} haydovchi={haydovchiNuqta} onBosish={haritaBosildi} />
       </div>
-      <div style={st.logo}>🚕 Tez Taxi</div>
+      <div style={st.logo}>🚕 Safar Taksi</div>
       <div style={st.tilWrap}><TilTanlovchi /></div>
       <button
         style={st.profilTugma}

@@ -1,7 +1,7 @@
 // Русские переводы
 export default {
   // Общие
-  'common.app':          'Tez Taxi',
+  'common.app':          'Safar Taksi',
   'common.continue':     'Продолжить',
   'common.back':         'Назад',
   'common.cancel':       'Отмена',
@@ -122,7 +122,7 @@ export default {
   'hist.status.bekor_qilindi': 'Отменён',
 
   // Админ
-  'admin.title':         '🚕 Tez Taxi · Админ',
+  'admin.title':         '🚕 Safar Taksi · Админ',
   'admin.titleShort':    'Админ',
   'admin.titleLogin':    'Вход в админ-панель',
   'admin.tab.stats':     '📊 Статистика',

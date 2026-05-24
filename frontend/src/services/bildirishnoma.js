@@ -48,7 +48,7 @@ export function bildir(sarlavha, matn, opts = {}) {
     try {
       const n = new Notification(sarlavha, {
         body: matn,
-        tag: opts.tag || 'tez-taxi',
+        tag: opts.tag || 'safar-taksi',
         silent: false,
       });
       n.onclick = () => { window.focus(); n.close(); };

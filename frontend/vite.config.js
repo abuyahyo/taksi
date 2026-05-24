@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',           // Янги версия → дарҳол кешни алмаштириш
       includeAssets: ['favicon.svg', 'icons.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Tez Taxi — inDrive услуби',
-        short_name: 'Tez Taxi',
+        name: 'Safar Taksi — inDrive услуби',
+        short_name: 'Safar Taksi',
         description: 'Нархни ўзингиз белгилайдиган такси хизмати',
         lang: 'uz',
         theme_color: '#FACC15',
