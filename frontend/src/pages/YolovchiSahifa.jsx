@@ -5,6 +5,9 @@ import Harita from '../components/Harita';
 import Chat from '../components/Chat';
 import Baholash from '../components/Baholash';
 import { useSocket } from '../services/useSocket';
+import { bildir, ruxsatSora } from '../services/bildirishnoma';
+
+if (typeof window !== 'undefined') ruxsatSora();
 
 const TOSHKENT = [41.2995, 69.2401];
 
@@ -34,10 +37,12 @@ export default function YolovchiSahifa() {
     },
     yangi_taklif: (taklif) => {
       setTakliflar((oldin) => [...oldin, taklif]);
+      bildir('💰 Янги таклиф', `${taklif.haydovchi_ism} · ${Number(taklif.haydovchi_narx).toLocaleString()} сўм · ${taklif.min} мин`, { tag: 'taklif' });
     },
     // Ҳайдовчи сафарни тугатганда — баҳолаш модалини кўрсатамиз
     holat_yangilandi: (data) => {
       if (data.holat === 'yakunlandi' && Number(data.rideId) === Number(rideId)) {
+        bildir('✅ Сафар тугади', 'Илтимос, ҳайдовчини баҳоланг');
         setBaholashUchun({ rideId, ism: haydovchiInfo?.ism || 'Ҳайдовчи' });
       }
     },
@@ -46,6 +51,11 @@ export default function YolovchiSahifa() {
       if (Number(data.rideId) === Number(rideId) && data.lat != null && data.lng != null) {
         setHaydovchiNuqta([data.lat, data.lng]);
       }
+    },
+    // Чат ёпиқ бўлганда хабар келса — билдирамиз
+    xabar_keldi: (x) => {
+      if (meId && Number(x.yuboruvchi_id) === Number(meId)) return; // ўз хабарим
+      if (!chatOchiq) bildir(`💬 ${x.yuboruvchi_ism}`, x.matn, { tag: `chat-${x.ride_id}` });
     },
   });
 

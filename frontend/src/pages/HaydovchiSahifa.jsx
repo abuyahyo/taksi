@@ -7,6 +7,7 @@ import Kirish from '../components/Kirish';
 import Chat from '../components/Chat';
 import Baholash from '../components/Baholash';
 import MashinaProfili, { mashinaMatn } from '../components/MashinaProfili';
+import { bildir, ruxsatSora } from '../services/bildirishnoma';
 
 export default function HaydovchiSahifa() {
   const [user, setUser] = useState(() => {
@@ -51,7 +52,7 @@ function Ichki({ user, onChiqish }) {
       setMashina(data);
     } catch {}
   };
-  useEffect(() => { statsYukla(); profilYukla(); }, []);
+  useEffect(() => { statsYukla(); profilYukla(); ruxsatSora(); }, []);
 
   const mashinaToldirilganmi = !!(mashina?.mashina_modeli && mashina?.mashina_raqami);
   const mashinaJamiMatn = mashinaMatn(mashina);
@@ -73,10 +74,18 @@ function Ichki({ user, onChiqish }) {
   }, [faolSafar]);
 
   const { yubor } = useSocket({
-    buyurtma_keldi: (b) => setBuyurtmalar((oldin) => [...oldin, b]),
+    buyurtma_keldi: (b) => {
+      setBuyurtmalar((oldin) => [...oldin, b]);
+      bildir('🚖 Янги буюртма', `${Number(b.narx).toLocaleString()} сўм · ${b.boshlanish} → ${b.tugash}`, { tag: `buyurtma-${b.id}` });
+    },
     mavjud_buyurtmalar: (royxat) => setBuyurtmalar(royxat),
     buyurtma_yopildi: ({ rideId }) => {
       setBuyurtmalar((oldin) => oldin.filter((x) => x.id !== rideId));
+    },
+    // Чат ёпиқ бўлганда хабар келса — билдирамиз
+    xabar_keldi: (x) => {
+      if (Number(x.yuboruvchi_id) === Number(user.id)) return; // ўз хабарим
+      if (!chatOchiq) bildir(`💬 ${x.yuboruvchi_ism}`, x.matn, { tag: `chat-${x.ride_id}` });
     },
     // Йўловчи мени танлади — сафар бошланди
     tasdiqlandi: (data) => {
