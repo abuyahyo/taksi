@@ -4,6 +4,7 @@ import KirishSahifa from './pages/KirishSahifa';
 import YolovchiSahifa from './pages/YolovchiSahifa';
 import HaydovchiSahifa from './pages/HaydovchiSahifa';
 import AdminSahifa from './pages/AdminSahifa';
+import SafarTarixi from './pages/SafarTarixi';
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
         <Route path="/yolovchi" element={<YolovchiSahifa />} />
         <Route path="/haydovchi" element={<HaydovchiSahifa />} />
         <Route path="/admin" element={<AdminSahifa />} />
+        <Route path="/tarix" element={<SafarTarixi />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,5 +1,6 @@
 // Йўловчи саҳифаси — socket билан реал вақтда уланган
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Harita from '../components/Harita';
 import Chat from '../components/Chat';
 import { useSocket } from '../services/useSocket';
@@ -7,6 +8,7 @@ import { useSocket } from '../services/useSocket';
 const TOSHKENT = [41.2995, 69.2401];
 
 export default function YolovchiSahifa() {
+  const navigate = useNavigate();
   const [boshlanish, setBoshlanish] = useState(null);
   const [tugash, setTugash] = useState(null);
   const [tanlovRejimi, setTanlovRejimi] = useState('boshlanish');
@@ -120,6 +122,7 @@ export default function YolovchiSahifa() {
         <Harita markaz={TOSHKENT} boshlanish={boshlanish} tugash={tugash} onBosish={haritaBosildi} />
       </div>
       <div style={st.logo}>🚕 Tez Taxi</div>
+      <button style={st.tarixTugma} onClick={() => navigate('/tarix')} title="Сафар тарихи">🕒</button>
       <div style={st.yordam}>Ёрдам 24/7</div>
 
       <div style={st.panel}>
@@ -214,6 +217,7 @@ const st = {
   harita: { position: 'absolute', inset: 0 },
   logo: { position: 'absolute', top: 16, left: 16, zIndex: 1000, background: 'var(--sariq)', padding: '8px 16px', borderRadius: 12, fontWeight: 800, fontSize: 18, boxShadow: 'var(--soya)' },
   yordam: { position: 'absolute', top: 16, right: 16, zIndex: 1000, background: 'var(--oq)', padding: '8px 14px', borderRadius: 12, fontWeight: 600, fontSize: 13, boxShadow: 'var(--soya)', color: 'var(--kulrang)' },
+  tarixTugma: { position: 'absolute', top: 16, right: 116, zIndex: 1000, background: 'var(--oq)', width: 38, height: 38, borderRadius: '50%', fontSize: 16, boxShadow: 'var(--soya)' },
   panel: { position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 1000, background: 'var(--oq)', borderRadius: '24px 24px 0 0', padding: 24, boxShadow: '0 -4px 20px rgba(0,0,0,0.1)' },
   sarlavha: { fontSize: 22, fontWeight: 800, marginBottom: 16 },
   izoh: { color: 'var(--kulrang)', fontSize: 14, marginBottom: 16 },

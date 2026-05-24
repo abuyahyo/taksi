@@ -1,5 +1,6 @@
 // Ҳайдовчи саҳифаси — socket билан реал вақтда уланган
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useSocket } from '../services/useSocket';
 import Kirish from '../components/Kirish';
@@ -23,6 +24,7 @@ export default function HaydovchiSahifa() {
 }
 
 function Ichki({ user, onChiqish }) {
+  const navigate = useNavigate();
   const [onlayn, setOnlayn] = useState(false);
   const [buyurtmalar, setBuyurtmalar] = useState([]);
   const [tanlangan, setTanlangan] = useState(null);
@@ -96,6 +98,7 @@ function Ichki({ user, onChiqish }) {
       <div style={st.header}>
         <div style={st.logo}>🚕 Tez Taxi · {user.ism}</div>
         <div style={{ display: 'flex', gap: 8 }}>
+          <button style={st.tarixTugma} onClick={() => navigate('/tarix')} title="Сафар тарихи">🕒</button>
           <button style={st.chiqish} onClick={onChiqish}>Чиқиш</button>
           <button style={{ ...st.statusTugma, background: onlayn ? 'var(--yashil)' : 'var(--kulrang)' }} onClick={statusOzgartir}>
             {onlayn ? '● Онлайн' : '○ Офлайн'}
@@ -202,6 +205,7 @@ const st = {
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 16, background: 'var(--oq)', gap: 8 },
   logo: { fontWeight: 800, fontSize: 14, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   chiqish: { background: 'var(--och-kulrang)', padding: '8px 12px', borderRadius: 16, fontWeight: 600, fontSize: 12 },
+  tarixTugma: { background: 'var(--och-kulrang)', width: 36, height: 36, borderRadius: '50%', fontSize: 16 },
   statusTugma: { color: 'var(--oq)', padding: '8px 16px', borderRadius: 20, fontWeight: 700, fontSize: 13 },
   daromad: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 16, padding: 20, background: 'var(--qora)', borderRadius: 18, color: 'var(--oq)' },
   faolSafar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 16px 16px', padding: 16, background: 'var(--yashil)', borderRadius: 16, color: 'var(--oq)', gap: 8 },
