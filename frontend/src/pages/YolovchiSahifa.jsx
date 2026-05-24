@@ -1,6 +1,7 @@
 // Йўловчи саҳифаси — socket билан реал вақтда уланган
 import { useState } from 'react';
 import Harita from '../components/Harita';
+import Chat from '../components/Chat';
 import { useSocket } from '../services/useSocket';
 
 const TOSHKENT = [41.2995, 69.2401];
@@ -13,8 +14,15 @@ export default function YolovchiSahifa() {
   const [bosqich, setBosqich] = useState('manzil');
   const [takliflar, setTakliflar] = useState([]);
   const [rideId, setRideId] = useState(null);
+  const [haydovchiInfo, setHaydovchiInfo] = useState(null); // {ism, narx} — танланган ҳайдовчи
+  const [chatOchiq, setChatOchiq] = useState(false);
 
-  // Socket — буюртма яратиш тасдиғи ва ҳайдовчи таклифларини қабул қилиш
+  // Меҳмон фойдаланувчи бўлсаям чатга кириш учун ID — localStorage'дан
+  const meId = (() => {
+    try { return JSON.parse(localStorage.getItem('user') || 'null')?.id || null; }
+    catch { return null; }
+  })();
+
   const { yubor } = useSocket({
     buyurtma_yaratildi: ({ id }) => {
       setRideId(id); // мижоз ID'сини базадан келган реал ID билан алмаштирамиз
@@ -22,7 +30,25 @@ export default function YolovchiSahifa() {
     yangi_taklif: (taklif) => {
       setTakliflar((oldin) => [...oldin, taklif]);
     },
+    // Ҳайдовчи сафарни тугатганда, йўловчи саҳифаси қайта бошланади
+    holat_yangilandi: (data) => {
+      if (data.holat === 'yakunlandi' && Number(data.rideId) === Number(rideId)) {
+        alert('Сафар тугади. Раҳмат!');
+        boshlanishigaQayt();
+      }
+    },
   });
+
+  const boshlanishigaQayt = () => {
+    setBosqich('manzil');
+    setBoshlanish(null);
+    setTugash(null);
+    setTanlovRejimi('boshlanish');
+    setTakliflar([]);
+    setRideId(null);
+    setHaydovchiInfo(null);
+    setChatOchiq(false);
+  };
 
   const haritaBosildi = (nuqta) => {
     if (tanlovRejimi === 'boshlanish') {
@@ -79,12 +105,8 @@ export default function YolovchiSahifa() {
       haydovchi_ism: t.haydovchi_ism,
       narx: t.haydovchi_narx,
     });
-    alert(`${t.haydovchi_ism} танланди! Сафар бошланади.`);
-    setBosqich('manzil');
-    setBoshlanish(null);
-    setTugash(null);
-    setTanlovRejimi('boshlanish');
-    setTakliflar([]);
+    setHaydovchiInfo({ ism: t.haydovchi_ism, narx: t.haydovchi_narx, mashina: t.mashina, reyting: t.reyting });
+    setBosqich('safar');
   };
 
   const bekorQilish = () => {
@@ -132,6 +154,21 @@ export default function YolovchiSahifa() {
           </>
         )}
 
+        {bosqich === 'safar' && haydovchiInfo && (
+          <>
+            <h2 style={st.sarlavha}>Сафар жараёнда</h2>
+            <div style={st.haydovchi}>
+              <div style={st.avatar}>{haydovchiInfo.ism[0]}</div>
+              <div style={{ flex: 1 }}>
+                <div style={st.hIsm}>{haydovchiInfo.ism} ⭐ {haydovchiInfo.reyting}</div>
+                <div style={st.hMashina}>{haydovchiInfo.mashina} · {Number(haydovchiInfo.narx).toLocaleString()} сўм</div>
+              </div>
+            </div>
+            <button style={st.tugma} onClick={() => setChatOchiq(true)}>💬 Ҳайдовчи билан суҳбат</button>
+            <button style={st.orqaga}>Ҳайдовчи ҳозир кутмоқда...</button>
+          </>
+        )}
+
         {bosqich === 'kutish' && (
           <>
             {takliflar.length === 0 ? (
@@ -164,6 +201,10 @@ export default function YolovchiSahifa() {
           </>
         )}
       </div>
+
+      {chatOchiq && rideId && (
+        <Chat rideId={rideId} meId={meId} hamrohIsm="Ҳайдовчи билан суҳбат" onClose={() => setChatOchiq(false)} />
+      )}
     </div>
   );
 }

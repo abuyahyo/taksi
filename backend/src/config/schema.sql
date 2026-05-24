@@ -98,3 +98,14 @@ CREATE TABLE IF NOT EXISTS transactions (
 
 CREATE INDEX IF NOT EXISTS idx_tx_ride ON transactions(ride_id);
 CREATE INDEX IF NOT EXISTS idx_tx_tashqi ON transactions(tashqi_id);
+
+-- Чат — йўловчи ↔ ҳайдовчи хабар алмашуви (сафар ичида)
+CREATE TABLE IF NOT EXISTS messages (
+  id SERIAL PRIMARY KEY,
+  ride_id INTEGER REFERENCES rides(id) ON DELETE CASCADE,
+  yuboruvchi_id INTEGER REFERENCES users(id),
+  matn TEXT NOT NULL,
+  vaqt TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_messages_ride ON messages(ride_id);

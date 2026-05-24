@@ -140,6 +140,35 @@ module.exports = (io) => {
       io.to(`ride_${data.rideId}`).emit('haydovchi_joylashuvi', data);
     });
 
+    // ЧАТ — йўловчи ↔ ҳайдовчи хабар алмашуви
+    socket.on('xabar_yuborish', async (data) => {
+      // data = { rideId, matn }
+      try {
+        const userId = socket.data.userId;
+        if (!userId || !data.matn) return; // меҳмон бўлса ёки бўш хабар — ўтказамиз
+        const r = await query(
+          `INSERT INTO messages (ride_id, yuboruvchi_id, matn) VALUES ($1, $2, $3)
+           RETURNING id, vaqt`,
+          [data.rideId, userId, data.matn]
+        );
+        // Юборувчи исмини users'дан оламиз (қисқа сорғу)
+        const u = await query(`SELECT ism FROM users WHERE id = $1`, [userId]);
+        const xabar = {
+          id: r.rows[0].id,
+          ride_id: data.rideId,
+          yuboruvchi_id: userId,
+          yuboruvchi_ism: u.rows[0]?.ism || '?',
+          matn: data.matn,
+          vaqt: r.rows[0].vaqt,
+        };
+        // Сафар ҳамма иштирокчиларига юборамиз
+        io.to(`ride_${data.rideId}`).emit('xabar_keldi', xabar);
+        console.log(`💬 #${data.rideId} ${userId}: ${data.matn.slice(0, 30)}`);
+      } catch (err) {
+        console.error('xabar_yuborish xato:', err.message);
+      }
+    });
+
     socket.on('baholash', async (data) => {
       console.log(`⭐ Баҳо #${data.rideId}: ${data.ball}/5`);
       try {

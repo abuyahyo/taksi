@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import { useSocket } from '../services/useSocket';
 import Kirish from '../components/Kirish';
+import Chat from '../components/Chat';
 
 export default function HaydovchiSahifa() {
   const [user, setUser] = useState(() => {
@@ -28,6 +29,7 @@ function Ichki({ user, onChiqish }) {
   const [oznarx, setOznarx] = useState(0);
   const [stats, setStats] = useState({ daromad: 0, safar: 0 });
   const [faolSafar, setFaolSafar] = useState(null); // {rideId, narx} — қабул қилинган сафар
+  const [chatOchiq, setChatOchiq] = useState(false);
 
   const statsYukla = async () => {
     try {
@@ -112,15 +114,21 @@ function Ichki({ user, onChiqish }) {
         </div>
       </div>
 
-      {/* Қабул қилинган сафар — "Сафар тугади" тугмаси */}
+      {/* Қабул қилинган сафар — чат ва "Сафар тугади" тугмалари */}
       {faolSafar && (
         <div style={st.faolSafar}>
-          <div>
+          <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 800, fontSize: 16 }}>Сафар жараёнда</div>
             <div style={{ fontSize: 13, opacity: 0.8 }}>#{faolSafar.rideId} · {Number(faolSafar.narx).toLocaleString()} сўм</div>
           </div>
-          <button style={st.tugatTugma} onClick={safarTugatish}>Сафар тугади ✓</button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button style={st.chatTugma} onClick={() => setChatOchiq(true)}>💬</button>
+            <button style={st.tugatTugma} onClick={() => { safarTugatish(); setChatOchiq(false); }}>Тугатиш ✓</button>
+          </div>
         </div>
+      )}
+      {chatOchiq && faolSafar && (
+        <Chat rideId={faolSafar.rideId} meId={user.id} hamrohIsm="Йўловчи билан суҳбат" onClose={() => setChatOchiq(false)} />
       )}
 
       <div style={st.royxat}>
@@ -196,8 +204,9 @@ const st = {
   chiqish: { background: 'var(--och-kulrang)', padding: '8px 12px', borderRadius: 16, fontWeight: 600, fontSize: 12 },
   statusTugma: { color: 'var(--oq)', padding: '8px 16px', borderRadius: 20, fontWeight: 700, fontSize: 13 },
   daromad: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 16, padding: 20, background: 'var(--qora)', borderRadius: 18, color: 'var(--oq)' },
-  faolSafar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 16px 16px', padding: 16, background: 'var(--yashil)', borderRadius: 16, color: 'var(--oq)' },
-  tugatTugma: { background: 'var(--oq)', color: 'var(--yashil)', padding: '10px 14px', borderRadius: 12, fontWeight: 800, fontSize: 13 },
+  faolSafar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 16px 16px', padding: 16, background: 'var(--yashil)', borderRadius: 16, color: 'var(--oq)', gap: 8 },
+  tugatTugma: { background: 'var(--oq)', color: 'var(--yashil)', padding: '10px 12px', borderRadius: 12, fontWeight: 800, fontSize: 12 },
+  chatTugma: { background: 'rgba(255,255,255,.2)', color: 'var(--oq)', width: 40, height: 40, borderRadius: '50%', fontSize: 18 },
   daromadRaqam: { fontSize: 28, fontWeight: 800, color: 'var(--sariq)' },
   kichikRaqam: { fontSize: 28, fontWeight: 800 },
   daromadMatn: { fontSize: 12, color: '#9CA3AF', marginTop: 2 },
