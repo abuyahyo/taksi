@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Harita from '../components/Harita';
 import Chat from '../components/Chat';
 import Baholash from '../components/Baholash';
+import Tolov from '../components/Tolov';
 import { useSocket } from '../services/useSocket';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
 import { useT, TilTanlovchi } from '../i18n';
@@ -25,6 +26,7 @@ export default function YolovchiSahifa() {
   const [haydovchiInfo, setHaydovchiInfo] = useState(null); // {ism, narx} — танланган ҳайдовчи
   const [haydovchiNuqta, setHaydovchiNuqta] = useState(null); // [lat, lng] — реал вақт жойлашуви
   const [chatOchiq, setChatOchiq] = useState(false);
+  const [tolovOchiq, setTolovOchiq] = useState(false);
   const [baholashUchun, setBaholashUchun] = useState(null); // {rideId, ism}
 
   // Меҳмон фойдаланувчи бўлсаям чатга кириш учун ID — localStorage'дан
@@ -189,7 +191,10 @@ export default function YolovchiSahifa() {
                 <div style={st.hMashina}>{haydovchiInfo.mashina} · {Number(haydovchiInfo.narx).toLocaleString()}</div>
               </div>
             </div>
-            <button style={st.tugma} onClick={() => setChatOchiq(true)}>{t('pass.chatWithDriver')}</button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button style={{ ...st.tugma, flex: 1 }} onClick={() => setChatOchiq(true)}>{t('pass.chatWithDriver')}</button>
+              <button style={st.tolovTugma} onClick={() => setTolovOchiq(true)}>{t('pay.open')}</button>
+            </div>
             <div style={st.kuzatishMatn}>
               {haydovchiNuqta ? t('pass.gpsLive') : t('pass.gpsWait')}
             </div>
@@ -233,6 +238,14 @@ export default function YolovchiSahifa() {
         <Chat rideId={rideId} meId={meId} hamrohIsm={`💬 ${haydovchiInfo?.ism || t('home.driver')}`} onClose={() => setChatOchiq(false)} />
       )}
 
+      {tolovOchiq && rideId && haydovchiInfo && (
+        <Tolov
+          rideId={rideId}
+          summa={haydovchiInfo.narx}
+          onYopish={() => setTolovOchiq(false)}
+        />
+      )}
+
       {baholashUchun && (
         <Baholash
           rideId={baholashUchun.rideId}
@@ -252,6 +265,7 @@ const st = {
   yordam: { position: 'absolute', top: 16, right: 16, zIndex: 1000, background: 'var(--oq)', padding: '8px 14px', borderRadius: 12, fontWeight: 600, fontSize: 13, boxShadow: 'var(--soya)', color: 'var(--kulrang)' },
   tarixTugma: { position: 'absolute', top: 16, right: 116, zIndex: 1000, background: 'var(--oq)', width: 38, height: 38, borderRadius: '50%', fontSize: 16, boxShadow: 'var(--soya)' },
   tilWrap: { position: 'absolute', top: 64, right: 16, zIndex: 1000 },
+  tolovTugma: { background: 'var(--qora)', color: 'var(--oq)', padding: 16, borderRadius: 14, fontSize: 14, fontWeight: 800, whiteSpace: 'nowrap' },
   panel: { position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 1000, background: 'var(--oq)', borderRadius: '24px 24px 0 0', padding: 24, boxShadow: '0 -4px 20px rgba(0,0,0,0.1)' },
   sarlavha: { fontSize: 22, fontWeight: 800, marginBottom: 16 },
   izoh: { color: 'var(--kulrang)', fontSize: 14, marginBottom: 16 },

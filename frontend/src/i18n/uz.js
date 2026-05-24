@@ -144,6 +144,18 @@ export default {
   'notif.newOffer':      '💰 Янги таклиф',
   'notif.rideEnded':     '✅ Сафар тугади',
 
+  // Тўлов
+  'pay.open':            '💳 Тўлаш',
+  'pay.title':           'Тўлов усулини танланг',
+  'pay.amount':          'Сумма',
+  'pay.payme':           'Payme орқали',
+  'pay.click':           'Click орқали',
+  'pay.test':            '🧪 Синов: тўлангандек белгилаш',
+  'pay.testHint':        'Мерчант калитлари йўқ — демо учун',
+  'pay.opening':         'Тўлов саҳифасига ўтилмоқда...',
+  'pay.success':         '✅ Тўлов қабул қилинди',
+  'pay.alreadyPaid':     'Бу сафар учун тўланган',
+
   // Тил
   'lang.label':          'Тил',
   'lang.uz':             'Ўзбекча',

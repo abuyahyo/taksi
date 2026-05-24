@@ -87,4 +87,19 @@ const complete = async (req, res) => {
   });
 };
 
-module.exports = { prepare, complete };
+// Click checkout URL яратиш
+//   format: https://my.click.uz/services/pay?service_id=X&merchant_id=Y&amount=Z&transaction_param=N&return_url=R
+function clickCheckoutUrl({ rideId, summaSum, returnUrl }) {
+  const serviceId = process.env.CLICK_SERVICE_ID || 'test_service_id';
+  const merchantId = process.env.CLICK_MERCHANT_ID || 'test_merchant_id';
+  const params = new URLSearchParams({
+    service_id: serviceId,
+    merchant_id: merchantId,
+    amount: String(summaSum),
+    transaction_param: String(rideId),
+  });
+  if (returnUrl) params.set('return_url', returnUrl);
+  return `https://my.click.uz/services/pay?${params.toString()}`;
+}
+
+module.exports = { prepare, complete, clickCheckoutUrl };

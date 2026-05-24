@@ -126,9 +126,27 @@ async function check(params, id) {
   });
 }
 
+// Payme HTTP Basic Auth текшируви — Authorization: Basic base64("Paycom:KEY")
+function authTekshir(req) {
+  const kerakliKey = process.env.PAYME_KEY;
+  if (!kerakliKey || kerakliKey === 'test_payme_key') return true; // тест режим: ўтказамиз
+  const header = req.headers.authorization || '';
+  if (!header.startsWith('Basic ')) return false;
+  try {
+    const dekod = Buffer.from(header.slice(6), 'base64').toString('utf8');
+    const [user, pass] = dekod.split(':');
+    return user === 'Paycom' && pass === kerakliKey;
+  } catch {
+    return false;
+  }
+}
+
 // Асосий webhook — Payme сўровларини методга йўналтиради
 const paymeWebhook = async (req, res) => {
-  const { method, params, id } = req.body;
+  const { method, params, id } = req.body || {};
+  if (!authTekshir(req)) {
+    return res.json(xatoJavob(id, -32504, 'Авторизация талаб қилинади'));
+  }
   try {
     let javob;
     switch (method) {
@@ -146,4 +164,16 @@ const paymeWebhook = async (req, res) => {
   }
 };
 
-module.exports = { paymeWebhook };
+// Payme checkout URL яратиш — фойдаланувчи юборилиб тўловни киритади
+//   format: https://checkout.paycom.uz/{base64(m=MERCHANT;ac.ride_id=N;a=AMOUNT_TIYIN;c=RETURN;l=LANG)}
+function paymeCheckoutUrl({ rideId, summaSum, returnUrl, til = 'uz' }) {
+  const merchant = process.env.PAYME_ID || 'test_payme_id';
+  const summa = summaSum * 100; // тийинда
+  const qismlar = [`m=${merchant}`, `ac.ride_id=${rideId}`, `a=${summa}`, `l=${til}`];
+  if (returnUrl) qismlar.push(`c=${returnUrl}`);
+  const param = qismlar.join(';');
+  const base64 = Buffer.from(param, 'utf8').toString('base64');
+  return `https://checkout.paycom.uz/${base64}`;
+}
+
+module.exports = { paymeWebhook, paymeCheckoutUrl };

@@ -144,6 +144,18 @@ export default {
   'notif.newOffer':      '💰 Новое предложение',
   'notif.rideEnded':     '✅ Поездка завершена',
 
+  // Оплата
+  'pay.open':            '💳 Оплатить',
+  'pay.title':           'Выберите способ оплаты',
+  'pay.amount':          'Сумма',
+  'pay.payme':           'Через Payme',
+  'pay.click':           'Через Click',
+  'pay.test':            '🧪 Тест: пометить как оплачено',
+  'pay.testHint':        'Без ключей мерчанта — для демо',
+  'pay.opening':         'Переход на страницу оплаты...',
+  'pay.success':         '✅ Оплата принята',
+  'pay.alreadyPaid':     'За эту поездку уже оплачено',
+
   // Язык
   'lang.label':          'Язык',
   'lang.uz':             'Ўзбекча',

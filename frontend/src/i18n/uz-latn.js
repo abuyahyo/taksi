@@ -144,6 +144,18 @@ export default {
   'notif.newOffer':      '💰 Yangi taklif',
   'notif.rideEnded':     '✅ Safar tugadi',
 
+  // Toʻlov
+  'pay.open':            '💳 Toʻlash',
+  'pay.title':           'Toʻlov usulini tanlang',
+  'pay.amount':          'Summa',
+  'pay.payme':           'Payme orqali',
+  'pay.click':           'Click orqali',
+  'pay.test':            '🧪 Sinov: toʻlangandek belgilash',
+  'pay.testHint':        'Merchant kalitlari yoʻq — demo uchun',
+  'pay.opening':         'Toʻlov sahifasiga oʻtilmoqda...',
+  'pay.success':         '✅ Toʻlov qabul qilindi',
+  'pay.alreadyPaid':     'Bu safar uchun toʻlangan',
+
   // Til
   'lang.label':          'Til',
   'lang.uz':             'Ўзбекча',
