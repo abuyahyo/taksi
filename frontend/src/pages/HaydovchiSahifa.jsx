@@ -7,6 +7,7 @@ import Kirish from '../components/Kirish';
 import Chat from '../components/Chat';
 import Baholash from '../components/Baholash';
 import MashinaProfili, { mashinaMatn } from '../components/MashinaProfili';
+import HaritaPreview, { parseLatLng } from '../components/HaritaPreview';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
 import { useT, TilTanlovchi } from '../i18n';
 
@@ -225,6 +226,9 @@ function Ichki({ user, onChiqish }) {
                 </div>
                 <div style={st.vaqt}>{b.vaqt}</div>
               </div>
+              <div style={st.haritaWrap}>
+                <HaritaPreview boshlanish={parseLatLng(b.boshlanish)} tugash={parseLatLng(b.tugash)} />
+              </div>
               <div style={st.yollar}>
                 <div style={st.yol}>
                   <span style={{ ...st.nuqta, background: 'var(--yashil)' }} />
@@ -293,6 +297,7 @@ const st = {
   narx: { fontSize: 24, fontWeight: 800 },
   masofa: { fontSize: 13, color: 'var(--kulrang)', marginTop: 2 },
   vaqt: { fontSize: 12, color: 'var(--kulrang)' },
+  haritaWrap: { marginBottom: 12 },
   yollar: { marginBottom: 16 },
   yol: { display: 'flex', alignItems: 'center', gap: 10 },
   nuqta: { width: 10, height: 10, borderRadius: '50%', flexShrink: 0 },
