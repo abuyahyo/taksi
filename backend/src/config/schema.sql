@@ -106,6 +106,18 @@ CREATE TABLE IF NOT EXISTS transactions (
 CREATE INDEX IF NOT EXISTS idx_tx_ride ON transactions(ride_id);
 CREATE INDEX IF NOT EXISTS idx_tx_tashqi ON transactions(tashqi_id);
 
+-- Сафарни улашиш — қисқа калит билан оила/дўст реал вақтда кузатиши учун
+CREATE TABLE IF NOT EXISTS ride_shares (
+  id SERIAL PRIMARY KEY,
+  ride_id INTEGER REFERENCES rides(id) ON DELETE CASCADE,
+  kalit VARCHAR(16) UNIQUE NOT NULL,
+  yaratuvchi_id INTEGER REFERENCES users(id),
+  yaratilgan TIMESTAMP DEFAULT NOW(),
+  tugaydigan TIMESTAMP DEFAULT NOW() + INTERVAL '4 hours'
+);
+CREATE INDEX IF NOT EXISTS idx_shares_kalit ON ride_shares(kalit);
+CREATE INDEX IF NOT EXISTS idx_shares_ride  ON ride_shares(ride_id);
+
 -- Чат — йўловчи ↔ ҳайдовчи хабар алмашуви (сафар ичида)
 CREATE TABLE IF NOT EXISTS messages (
   id SERIAL PRIMARY KEY,

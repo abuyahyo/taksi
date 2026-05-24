@@ -173,6 +173,19 @@ export default {
   'prof.useHome':        '🏠 Uy',
   'prof.useWork':        '🏢 Ish',
 
+  // Safarni ulashish
+  'share.open':          '🆘 Safarni oilaga yuborish',
+  'share.title':         'Safarni ulashish',
+  'share.description':   'Bu linkni oila yoki doʻstingizga yuboring — ular safaringizni real vaqtda kuzatadi',
+  'share.copy':          'Nusxalash',
+  'share.expires':       '⏱ Link 4 soat davomida amal qiladi',
+  'share.viewerTitle':   '👀 Siz safarni kuzatmoqdasiz',
+  'share.tracking':      '{ism}'+'ning safari',
+  'share.statusInRide':  'Safar jarayonda',
+  'share.statusPending': 'Haydovchi kutilmoqda',
+  'share.tgMatn':        'Mening safarim — real vaqtda kuzatish',
+  'share.waMatn':        'Mening safarim — real vaqtda kuzatish:',
+
   // Til
   'lang.label':          'Til',
   'lang.uz':             'Ўзбекча',

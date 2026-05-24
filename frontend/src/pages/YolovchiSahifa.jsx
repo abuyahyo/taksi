@@ -7,6 +7,7 @@ import Baholash from '../components/Baholash';
 import Tolov from '../components/Tolov';
 import Kirish from '../components/Kirish';
 import YolovchiProfili from '../components/YolovchiProfili';
+import Ulashish from '../components/Ulashish';
 import { api } from '../services/api';
 import { useSocket } from '../services/useSocket';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
@@ -30,6 +31,7 @@ export default function YolovchiSahifa() {
   const [haydovchiNuqta, setHaydovchiNuqta] = useState(null); // [lat, lng] — реал вақт жойлашуви
   const [chatOchiq, setChatOchiq] = useState(false);
   const [tolovOchiq, setTolovOchiq] = useState(false);
+  const [ulashishOchiq, setUlashishOchiq] = useState(false);
   const [baholashUchun, setBaholashUchun] = useState(null); // {rideId, ism}
   const [profilOchiq, setProfilOchiq] = useState(false);
   const [kirishOchiq, setKirishOchiq] = useState(false);
@@ -235,6 +237,7 @@ export default function YolovchiSahifa() {
               <button style={{ ...st.tugma, flex: 1 }} onClick={() => setChatOchiq(true)}>{t('pass.chatWithDriver')}</button>
               <button style={st.tolovTugma} onClick={() => setTolovOchiq(true)}>{t('pay.open')}</button>
             </div>
+            <button style={st.ulashishTugma} onClick={() => setUlashishOchiq(true)}>{t('share.open')}</button>
             <div style={st.kuzatishMatn}>
               {haydovchiNuqta ? t('pass.gpsLive') : t('pass.gpsWait')}
             </div>
@@ -286,6 +289,13 @@ export default function YolovchiSahifa() {
         />
       )}
 
+      {ulashishOchiq && rideId && (
+        <Ulashish
+          rideId={rideId}
+          onYopish={() => setUlashishOchiq(false)}
+        />
+      )}
+
       {baholashUchun && (
         <Baholash
           rideId={baholashUchun.rideId}
@@ -322,6 +332,7 @@ const st = {
   profilTugma: { position: 'absolute', top: 16, right: 162, zIndex: 1000, background: 'var(--oq)', width: 38, height: 38, borderRadius: '50%', fontSize: 16, boxShadow: 'var(--soya)' },
   tilWrap: { position: 'absolute', top: 64, right: 16, zIndex: 1000 },
   tolovTugma: { background: 'var(--qora)', color: 'var(--oq)', padding: 16, borderRadius: 14, fontSize: 14, fontWeight: 800, whiteSpace: 'nowrap' },
+  ulashishTugma: { width: '100%', background: 'var(--och-kulrang)', padding: 12, borderRadius: 12, fontSize: 14, fontWeight: 700, marginTop: 8 },
   tezManzillar: { display: 'flex', gap: 8, marginTop: 8, marginBottom: 8 },
   tezTugma: { flex: 1, background: 'var(--och-kulrang)', padding: 10, borderRadius: 10, fontSize: 13, fontWeight: 700 },
   panel: { position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 1000, background: 'var(--oq)', borderRadius: '24px 24px 0 0', padding: 24, boxShadow: '0 -4px 20px rgba(0,0,0,0.1)' },

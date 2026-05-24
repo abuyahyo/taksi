@@ -124,6 +124,22 @@ module.exports = (io) => {
       socket.join(`ride_${data.rideId}`);
     });
 
+    // Улашилган линкдан кирганлар — кузатувчи сифатида сафар хонасига қўшилади
+    socket.on('share_qoshil', async ({ kalit }) => {
+      try {
+        const r = await query(
+          `SELECT ride_id FROM ride_shares WHERE kalit = $1 AND tugaydigan > NOW()`,
+          [kalit]
+        );
+        if (r.rows[0]) {
+          socket.join(`ride_${r.rows[0].ride_id}`);
+          socket.data.kuzatuvchi = true;
+        }
+      } catch (err) {
+        console.error('share_qoshil xato:', err.message);
+      }
+    });
+
     // САФАР ҲОЛАТИ ўзгариши (ҳайдовчи юборади) — yakunlandi бўлса БАЗАНИ янгилаймиз
     socket.on('safar_holati', async (data) => {
       console.log(`🚦 Сафар #${data.rideId}: ${data.holat}`);

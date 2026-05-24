@@ -173,6 +173,19 @@ export default {
   'prof.useHome':        '🏠 Уй',
   'prof.useWork':        '🏢 Иш',
 
+  // Сафарни улашиш
+  'share.open':          '🆘 Сафарни оилага юбориш',
+  'share.title':         'Сафарни улашиш',
+  'share.description':   'Бу линкни оила ёки дўстингизга юборинг — улар сафарингизни реал вақтда кузатади',
+  'share.copy':          'Нусхалаш',
+  'share.expires':       '⏱ Линк 4 соат давомида амал қилади',
+  'share.viewerTitle':   '👀 Сиз сафарни кузатмоқдасиз',
+  'share.tracking':      '{ism}'+'нинг сафари',
+  'share.statusInRide':  'Сафар жараёнда',
+  'share.statusPending': 'Ҳайдовчи кутилмоқда',
+  'share.tgMatn':        'Менинг сафарим — реал вақтда кузатиш',
+  'share.waMatn':        'Менинг сафарим — реал вақтда кузатиш:',
+
   // Тил
   'lang.label':          'Тил',
   'lang.uz':             'Ўзбекча',
