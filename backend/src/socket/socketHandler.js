@@ -1,106 +1,160 @@
 // Socket.io реал вақт мантиғи — буюртма ва нарх алмашуви (inDrive услуби)
+const jwt = require('jsonwebtoken');
+const { query } = require('../config/db');
 
-// Онлайн ҳайдовчилар: socketId -> { userId, ism }
-const onlaynHaydovchilar = new Map();
 // Фаол буюртмалар: rideId -> buyurtma ma'lumoti
 const faolBuyurtmalar = new Map();
 
 module.exports = (io) => {
+  // JWT (ихтиёрий) — токен бўлса декодлаб socket.data'га қўямиз. Йўқ бўлса меҳмон.
+  io.use((socket, next) => {
+    const token = socket.handshake.auth?.token;
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        socket.data.userId = decoded.id;
+        socket.data.rol = decoded.rol;
+      } catch {
+        // ноto'g'ri токен — меҳмон сифатида давом этамиз
+      }
+    }
+    next();
+  });
+
   io.on('connection', (socket) => {
-    console.log('🔌 Уланди:', socket.id);
+    console.log('🔌 Уланди:', socket.id, socket.data.userId ? `(user ${socket.data.userId})` : '(meҳмon)');
 
     // ҲАЙДОВЧИ онлайн бўлади
     socket.on('haydovchi_online', (data) => {
-      onlaynHaydovchilar.set(socket.id, { userId: data.userId, ism: data.ism });
-      socket.join('haydovchilar'); // барча ҳайдовчилар хонаси
+      socket.data.haydovchi_ism = data.ism;
+      socket.join('haydovchilar');
       console.log(`🚗 Ҳайдовчи онлайн: ${data.ism}`);
-      // Унга мавжуд фаол буюртмаларни юборамиз
       socket.emit('mavjud_buyurtmalar', Array.from(faolBuyurtmalar.values()));
     });
 
-    // ҲАЙДОВЧИ офлайн бўлади
     socket.on('haydovchi_offline', () => {
-      onlaynHaydovchilar.delete(socket.id);
       socket.leave('haydovchilar');
     });
 
-    // ЙЎЛОВЧИ янги буюртма беради
-    socket.on('yangi_buyurtma', (buyurtma) => {
-      faolBuyurtmalar.set(buyurtma.id, buyurtma);
-      socket.join(`ride_${buyurtma.id}`); // йўловчи ўз буюртма хонасига
-      console.log(`📦 Янги буюртма #${buyurtma.id}: ${buyurtma.narx} сўм`);
-      // Барча онлайн ҳайдовчиларга юборамиз
-      io.to('haydovchilar').emit('buyurtma_keldi', buyurtma);
+    // ЙЎЛОВЧИ янги буюртма беради — БАЗАГА ЁЗАМИЗ ва DB id'ни оламиз
+    socket.on('yangi_buyurtma', async (buyurtma) => {
+      try {
+        const mijoz_id = socket.data.userId || null; // меҳмон бўлиши мумкин
+        const result = await query(
+          `INSERT INTO rides (mijoz_id, boshlanish_manzil, tugash_manzil, masofa_km, taklif_narx, holat)
+           VALUES ($1, $2, $3, $4, $5, 'kutilmoqda')
+           RETURNING id`,
+          [mijoz_id, buyurtma.boshlanish, buyurtma.tugash, buyurtma.masofa, buyurtma.narx]
+        );
+        const dbId = result.rows[0].id;
+        const enriched = { ...buyurtma, id: dbId, taklif_id: buyurtma.id };
+
+        faolBuyurtmalar.set(dbId, enriched);
+        socket.join(`ride_${dbId}`);
+
+        // Йўловчига — DB id'ни айтамиз (керак бўлса буюртмани кейин ишлатиш учун)
+        socket.emit('buyurtma_yaratildi', { id: dbId, taklif_id: buyurtma.id });
+        // Барча онлайн ҳайдовчиларга — янги буюртма
+        io.to('haydovchilar').emit('buyurtma_keldi', enriched);
+        console.log(`📦 Янги буюртма #${dbId}: ${buyurtma.narx} сўм (mijoz=${mijoz_id})`);
+      } catch (err) {
+        console.error('yangi_buyurtma xato:', err.message);
+        socket.emit('xato', { sabab: 'Буюртма яратилмади' });
+      }
     });
 
-    // ҲАЙДОВЧИ нарх таклиф қилади (рози ёки ўз нархи)
+    // ҲАЙДОВЧИ нарх таклиф қилади
     socket.on('narx_taklif', (taklif) => {
-      // taklif = { rideId, haydovchi_ism, haydovchi_narx, reyting, mashina, min }
-      console.log(`💰 Таклиф: #${taklif.rideId} → ${taklif.haydovchi_narx} сўм`);
-      // Фақат ўша буюртма йўловчисига юборамиз
-      io.to(`ride_${taklif.rideId}`).emit('yangi_taklif', taklif);
+      // Аутентифициядан ҳайдовчи userId'ни қўшамиз — мижоз танлаганда керак бўлади
+      const enriched = { ...taklif, haydovchi_id: socket.data.userId || null };
+      // Танлансак сафар хонасига қўшилишимиз учун — ҳозироқ қўшилиб қўямиз
+      socket.join(`ride_${taklif.rideId}`);
+      io.to(`ride_${taklif.rideId}`).emit('yangi_taklif', enriched);
+      console.log(`💰 Таклиф #${taklif.rideId}: ${taklif.haydovchi_narx} сўм (haydovchi=${enriched.haydovchi_id})`);
     });
 
-    // ЙЎЛОВЧИ ҳайдовчини танлайди
-    socket.on('haydovchi_tanlandi', (data) => {
-      // data = { rideId, haydovchi_ism, narx }
-      console.log(`✅ Танланди: #${data.rideId} → ${data.haydovchi_ism}`);
-      faolBuyurtmalar.delete(data.rideId);
-      // Барча ҳайдовчиларга — бу буюртма ёпилди деб хабар берамиз
-      io.to('haydovchilar').emit('buyurtma_yopildi', { rideId: data.rideId });
-      // Танланган ҳайдовчига — сен танландинг деб хабар
-      io.to(`ride_${data.rideId}`).emit('tasdiqlandi', data);
+    // ЙЎЛОВЧИ ҳайдовчини танлайди — БАЗАДА ЯНГИЛАЙМИЗ
+    socket.on('haydovchi_tanlandi', async (data) => {
+      try {
+        await query(
+          `UPDATE rides
+             SET haydovchi_id   = $2,
+                 kelishilgan_narx = $3,
+                 holat          = 'qabul_qilindi',
+                 qabul_vaqti    = NOW()
+           WHERE id = $1`,
+          [data.rideId, data.haydovchi_id || null, data.narx]
+        );
+        faolBuyurtmalar.delete(data.rideId);
+        io.to('haydovchilar').emit('buyurtma_yopildi', { rideId: data.rideId });
+        io.to(`ride_${data.rideId}`).emit('tasdiqlandi', data);
+        console.log(`✅ Танланди #${data.rideId} → ${data.haydovchi_ism}`);
+      } catch (err) {
+        console.error('haydovchi_tanlandi xato:', err.message);
+      }
     });
 
-    // ЙЎЛОВЧИ буюртмани бекор қилади
-    socket.on('buyurtma_bekor', (data) => {
-      faolBuyurtmalar.delete(data.rideId);
-      io.to('haydovchilar').emit('buyurtma_yopildi', { rideId: data.rideId });
+    socket.on('buyurtma_bekor', async (data) => {
+      try {
+        await query(`UPDATE rides SET holat = 'bekor_qilindi' WHERE id = $1`, [data.rideId]);
+        faolBuyurtmalar.delete(data.rideId);
+        io.to('haydovchilar').emit('buyurtma_yopildi', { rideId: data.rideId });
+      } catch (err) {
+        console.error('buyurtma_bekor xato:', err.message);
+      }
     });
 
-    // ҲАЙДОВЧИ танлангандан кейин сафар хонасига қўшилади
     socket.on('safarga_qoshil', (data) => {
       socket.join(`ride_${data.rideId}`);
     });
 
-    // САФАР ҲОЛАТИ ўзгариши (ҳайдовчи юборади)
-    // holat: kelmoqda | yetib_keldi | yolda | yakunlandi
-    socket.on('safar_holati', (data) => {
-      // data = { rideId, holat, lat, lng }
+    // САФАР ҲОЛАТИ ўзгариши (ҳайдовчи юборади) — yakunlandi бўлса БАЗАНИ янгилаймиз
+    socket.on('safar_holati', async (data) => {
       console.log(`🚦 Сафар #${data.rideId}: ${data.holat}`);
 
       // "Етиб келдим" — GPS текшируви (рақобатчи муаммосидан ўрганилган)
-      // Ҳайдовчи ҳақиқатан йўловчига яқинми? (200 метр ичида)
-      if (data.holat === 'yetib_keldi' && data.masofa_m != null) {
-        if (data.masofa_m > 200) {
-          // Жуда узоқ — рад этамиз
-          socket.emit('holat_rad', {
-            rideId: data.rideId,
-            sabab: `Сиз йўловчидан ${Math.round(data.masofa_m)} м узоқдасиз. 200 м ичида бўлинг.`,
-          });
-          return;
+      if (data.holat === 'yetib_keldi' && data.masofa_m != null && data.masofa_m > 200) {
+        socket.emit('holat_rad', {
+          rideId: data.rideId,
+          sabab: `Сиз йўловчидан ${Math.round(data.masofa_m)} м узоқдасиз. 200 м ичида бўлинг.`,
+        });
+        return;
+      }
+
+      // Сафар тугади — базага yakun_vaqti'ни ёзамиз
+      if (data.holat === 'yakunlandi') {
+        try {
+          await query(
+            `UPDATE rides SET holat = 'yakunlandi', yakun_vaqti = NOW() WHERE id = $1`,
+            [data.rideId]
+          );
+        } catch (err) {
+          console.error('yakunlandi xato:', err.message);
         }
       }
 
-      // Ҳолатни сафардаги ҳаммага юборамиз (йўловчи ва ҳайдовчи)
       io.to(`ride_${data.rideId}`).emit('holat_yangilandi', data);
     });
 
-    // ҲАЙДОВЧИ жонли жойлашувини юборади (харитада кузатиш учун)
     socket.on('joylashuv', (data) => {
-      // data = { rideId, lat, lng }
       io.to(`ride_${data.rideId}`).emit('haydovchi_joylashuvi', data);
     });
 
-    // БАҲОЛАШ (сафар тугагач)
-    socket.on('baholash', (data) => {
-      // data = { rideId, ball, izoh }
+    socket.on('baholash', async (data) => {
       console.log(`⭐ Баҳо #${data.rideId}: ${data.ball}/5`);
-      // Бу ерда базага сақланади (кейинги қадам)
+      try {
+        if (socket.data.userId) {
+          await query(
+            `INSERT INTO ratings (ride_id, baholovchi_id, ball, izoh) VALUES ($1, $2, $3, $4)`,
+            [data.rideId, socket.data.userId, data.ball, data.izoh || null]
+          );
+        }
+      } catch (err) {
+        console.error('baholash xato:', err.message);
+      }
     });
 
     socket.on('disconnect', () => {
-      onlaynHaydovchilar.delete(socket.id);
       console.log('❌ Узилди:', socket.id);
     });
   });

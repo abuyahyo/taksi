@@ -27,27 +27,37 @@ function Ichki({ user, onChiqish }) {
   const [tanlangan, setTanlangan] = useState(null);
   const [oznarx, setOznarx] = useState(0);
   const [stats, setStats] = useState({ daromad: 0, safar: 0 });
+  const [faolSafar, setFaolSafar] = useState(null); // {rideId, narx} — қабул қилинган сафар
 
-  // Реал статистикани юклаш
   const statsYukla = async () => {
     try {
       const { data } = await api.get('/driver/stats');
       setStats(data);
-    } catch {
-      // тинч ўтиш — статистика бўлмаса 0 қолади
-    }
+    } catch {}
   };
   useEffect(() => { statsYukla(); }, []);
 
-  // Socket — буюртмаларни реал вақтда қабул қилиш
   const { yubor } = useSocket({
     buyurtma_keldi: (b) => setBuyurtmalar((oldin) => [...oldin, b]),
     mavjud_buyurtmalar: (royxat) => setBuyurtmalar(royxat),
     buyurtma_yopildi: ({ rideId }) => {
       setBuyurtmalar((oldin) => oldin.filter((x) => x.id !== rideId));
-      statsYukla(); // буюртма ёпилгач, статистикани янгилаймиз
+    },
+    // Йўловчи мени танлади — сафар бошланди
+    tasdiqlandi: (data) => {
+      if (data.haydovchi_id === user.id) {
+        setFaolSafar({ rideId: data.rideId, narx: data.narx });
+      }
     },
   });
+
+  // Сафар тугатиш — backend rides.holat = 'yakunlandi', сўнг статистикани янгилаймиз
+  const safarTugatish = () => {
+    if (!faolSafar) return;
+    yubor('safar_holati', { rideId: faolSafar.rideId, holat: 'yakunlandi' });
+    setFaolSafar(null);
+    setTimeout(statsYukla, 600); // BD янгилангач, статистикани қайта оламиз
+  };
 
   // Онлайн/офлайн ўзгартириш
   const statusOzgartir = () => {
@@ -101,6 +111,17 @@ function Ichki({ user, onChiqish }) {
           <div style={st.daromadMatn}>сафар</div>
         </div>
       </div>
+
+      {/* Қабул қилинган сафар — "Сафар тугади" тугмаси */}
+      {faolSafar && (
+        <div style={st.faolSafar}>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: 16 }}>Сафар жараёнда</div>
+            <div style={{ fontSize: 13, opacity: 0.8 }}>#{faolSafar.rideId} · {Number(faolSafar.narx).toLocaleString()} сўм</div>
+          </div>
+          <button style={st.tugatTugma} onClick={safarTugatish}>Сафар тугади ✓</button>
+        </div>
+      )}
 
       <div style={st.royxat}>
         {!onlayn ? (
@@ -175,6 +196,8 @@ const st = {
   chiqish: { background: 'var(--och-kulrang)', padding: '8px 12px', borderRadius: 16, fontWeight: 600, fontSize: 12 },
   statusTugma: { color: 'var(--oq)', padding: '8px 16px', borderRadius: 20, fontWeight: 700, fontSize: 13 },
   daromad: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 16, padding: 20, background: 'var(--qora)', borderRadius: 18, color: 'var(--oq)' },
+  faolSafar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 16px 16px', padding: 16, background: 'var(--yashil)', borderRadius: 16, color: 'var(--oq)' },
+  tugatTugma: { background: 'var(--oq)', color: 'var(--yashil)', padding: '10px 14px', borderRadius: 12, fontWeight: 800, fontSize: 13 },
   daromadRaqam: { fontSize: 28, fontWeight: 800, color: 'var(--sariq)' },
   kichikRaqam: { fontSize: 28, fontWeight: 800 },
   daromadMatn: { fontSize: 12, color: '#9CA3AF', marginTop: 2 },

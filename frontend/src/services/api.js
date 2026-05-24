@@ -21,4 +21,8 @@ api.interceptors.request.use((config) => {
 });
 
 // Socket.io — реал вақт алоқаси учун (BASE_URL бўш бўлса — same origin)
-export const socket = io(BASE_URL || undefined, { autoConnect: false });
+// Ҳар улангандa токенни localStorage'дан қайта оламиз — логин/чиқишда автоматик янгиланади
+export const socket = io(BASE_URL || undefined, {
+  autoConnect: false,
+  auth: (cb) => cb({ token: localStorage.getItem('token') || null }),
+});

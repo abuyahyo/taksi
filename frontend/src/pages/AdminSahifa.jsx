@@ -94,7 +94,7 @@ function AdminIchki({ onChiqish }) {
               <Stat raqam={stat.jami_haydovchi.toLocaleString()} matn="Ҳайдовчилар" ikon="🚗" />
               <Stat raqam={stat.jami_safar.toLocaleString()} matn="Жами сафар" ikon="📦" />
               <Stat raqam={stat.yakunlangan_safar.toLocaleString()} matn="Якунланган" ikon="✅" />
-              <Stat raqam={`${(stat.jami_daromad / 1_000_000).toFixed(1)}M`} matn="Даромад (сўм)" ikon="💰" keng />
+              <Stat raqam={stat.jami_daromad >= 1_000_000 ? `${(stat.jami_daromad / 1_000_000).toFixed(1)}M` : stat.jami_daromad.toLocaleString()} matn="Даромад (сўм)" ikon="💰" keng />
             </div>
           )
         )}

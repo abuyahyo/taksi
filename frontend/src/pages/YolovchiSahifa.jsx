@@ -14,8 +14,11 @@ export default function YolovchiSahifa() {
   const [takliflar, setTakliflar] = useState([]);
   const [rideId, setRideId] = useState(null);
 
-  // Socket — ҳайдовчи таклифларини реал вақтда қабул қилиш
+  // Socket — буюртма яратиш тасдиғи ва ҳайдовчи таклифларини қабул қилиш
   const { yubor } = useSocket({
+    buyurtma_yaratildi: ({ id }) => {
+      setRideId(id); // мижоз ID'сини базадан келган реал ID билан алмаштирамиз
+    },
     yangi_taklif: (taklif) => {
       setTakliflar((oldin) => [...oldin, taklif]);
     },
@@ -52,12 +55,12 @@ export default function YolovchiSahifa() {
 
   // Буюртма бериш — socket орқали ҳайдовчиларга юборилади
   const buyurtmaBerish = () => {
-    const yangiId = Date.now();
-    setRideId(yangiId);
+    const taklifId = Date.now(); // вақтинча — сервер DB id'ни қайтариб buyurtma_yaratildi'да юборади
+    setRideId(null);
     setTakliflar([]);
     setBosqich('kutish');
     yubor('yangi_buyurtma', {
-      id: yangiId,
+      id: taklifId,
       mijoz: 'Сиз',
       reyting: 5.0,
       boshlanish: `${boshlanish[0].toFixed(4)}, ${boshlanish[1].toFixed(4)}`,
@@ -68,11 +71,15 @@ export default function YolovchiSahifa() {
     });
   };
 
-  // Ҳайдовчини танлаш
+  // Ҳайдовчини танлаш — haydovchi_id ҳам юборамиз, токи backend rides жадвалини янгилаб қўйсин
   const haydovchiTanla = (t) => {
-    yubor('haydovchi_tanlandi', { rideId, haydovchi_ism: t.haydovchi_ism, narx: t.haydovchi_narx });
+    yubor('haydovchi_tanlandi', {
+      rideId,
+      haydovchi_id: t.haydovchi_id,
+      haydovchi_ism: t.haydovchi_ism,
+      narx: t.haydovchi_narx,
+    });
     alert(`${t.haydovchi_ism} танланди! Сафар бошланади.`);
-    // Қайта бошлаш
     setBosqich('manzil');
     setBoshlanish(null);
     setTugash(null);
