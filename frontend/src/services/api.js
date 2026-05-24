@@ -2,9 +2,9 @@
 import axios from 'axios';
 import { io } from 'socket.io-client';
 
-// Production'да (тоннел орқали) BASE_URL бўш — relative URL'дан фойдаланамиз
-// (backend ва frontend бир хил origin'да хизмат қилади)
-const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5000';
+// Production build'да — same origin (BASE_URL бўш), backend frontend'ни ҳам беради.
+// Dev режимида — localhost:5000 (Vite dev server бошқа портда).
+const BASE_URL = import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? '' : 'http://localhost:5000');
 
 // Axios — HTTP сўровлар учун
 export const api = axios.create({
