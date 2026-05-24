@@ -6,6 +6,7 @@ import Chat from '../components/Chat';
 import Baholash from '../components/Baholash';
 import { useSocket } from '../services/useSocket';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
+import { useT, TilTanlovchi } from '../i18n';
 
 if (typeof window !== 'undefined') ruxsatSora();
 
@@ -13,6 +14,7 @@ const TOSHKENT = [41.2995, 69.2401];
 
 export default function YolovchiSahifa() {
   const navigate = useNavigate();
+  const { t } = useT();
   const [boshlanish, setBoshlanish] = useState(null);
   const [tugash, setTugash] = useState(null);
   const [tanlovRejimi, setTanlovRejimi] = useState('boshlanish');
@@ -42,8 +44,8 @@ export default function YolovchiSahifa() {
     // Ҳайдовчи сафарни тугатганда — баҳолаш модалини кўрсатамиз
     holat_yangilandi: (data) => {
       if (data.holat === 'yakunlandi' && Number(data.rideId) === Number(rideId)) {
-        bildir('✅ Сафар тугади', 'Илтимос, ҳайдовчини баҳоланг');
-        setBaholashUchun({ rideId, ism: haydovchiInfo?.ism || 'Ҳайдовчи' });
+        bildir(t('notif.rideEnded'), t('rate.askPassenger'));
+        setBaholashUchun({ rideId, ism: haydovchiInfo?.ism || t('home.driver') });
       }
     },
     // Ҳайдовчи жонли жойлашуви — харитада кузатиш учун
@@ -141,54 +143,55 @@ export default function YolovchiSahifa() {
         <Harita markaz={TOSHKENT} boshlanish={boshlanish} tugash={tugash} haydovchi={haydovchiNuqta} onBosish={haritaBosildi} />
       </div>
       <div style={st.logo}>🚕 Tez Taxi</div>
-      <button style={st.tarixTugma} onClick={() => navigate('/tarix')} title="Сафар тарихи">🕒</button>
-      <div style={st.yordam}>Ёрдам 24/7</div>
+      <div style={st.tilWrap}><TilTanlovchi /></div>
+      <button style={st.tarixTugma} onClick={() => navigate('/tarix')} title={t('hist.title')}>🕒</button>
+      <div style={st.yordam}>{t('common.help')}</div>
 
       <div style={st.panel}>
         {bosqich === 'manzil' && (
           <>
-            <h2 style={st.sarlavha}>Қаёрга борасиз?</h2>
+            <h2 style={st.sarlavha}>{t('pass.whereTo')}</h2>
             <div style={st.maydon} onClick={() => setTanlovRejimi('boshlanish')}>
               <span style={{ ...st.nuqta, background: 'var(--yashil)' }} />
-              <div style={st.maydonMatn}>{boshlanish ? 'Бошланиш танланди ✓' : 'Харитадан бошланишни белгиланг'}</div>
+              <div style={st.maydonMatn}>{boshlanish ? t('pass.startPicked') : t('pass.markStart')}</div>
             </div>
             <div style={st.maydon} onClick={() => setTanlovRejimi('tugash')}>
               <span style={{ ...st.nuqta, background: 'var(--qizil)' }} />
-              <div style={st.maydonMatn}>{tugash ? 'Манзил танланди ✓' : 'Харитадан манзилни белгиланг'}</div>
+              <div style={st.maydonMatn}>{tugash ? t('pass.endPicked') : t('pass.markEnd')}</div>
             </div>
             <button style={{ ...st.tugma, opacity: boshlanish && tugash ? 1 : 0.5 }} onClick={davomEtish} disabled={!boshlanish || !tugash}>
-              Давом этиш
+              {t('common.continue')}
             </button>
           </>
         )}
 
         {bosqich === 'narx' && (
           <>
-            <h2 style={st.sarlavha}>Нархни таклиф қилинг</h2>
-            <p style={st.izoh}>Масофа: {masofa()} км · Тавсия: {tavsiyaNarx.toLocaleString()} сўм</p>
+            <h2 style={st.sarlavha}>{t('pass.offerPrice')}</h2>
+            <p style={st.izoh}>{t('pass.distance')}: {masofa()} км · {t('pass.recommended')}: {tavsiyaNarx.toLocaleString()}</p>
             <div style={st.narxBox}>
               <button style={st.narxTugma} onClick={() => setNarx(Math.max(5000, narx - 1000))}>−</button>
-              <div style={st.narxMatn}>{narx.toLocaleString()} <span style={st.som}>сўм</span></div>
+              <div style={st.narxMatn}>{narx.toLocaleString()}</div>
               <button style={st.narxTugma} onClick={() => setNarx(narx + 1000)}>+</button>
             </div>
-            <button style={st.tugma} onClick={buyurtmaBerish}>Буюртма бериш</button>
-            <button style={st.orqaga} onClick={() => setBosqich('manzil')}>← Орқага</button>
+            <button style={st.tugma} onClick={buyurtmaBerish}>{t('pass.placeOrder')}</button>
+            <button style={st.orqaga} onClick={() => setBosqich('manzil')}>← {t('common.back')}</button>
           </>
         )}
 
         {bosqich === 'safar' && haydovchiInfo && (
           <>
-            <h2 style={st.sarlavha}>Сафар жараёнда</h2>
+            <h2 style={st.sarlavha}>{t('pass.inRide')}</h2>
             <div style={st.haydovchi}>
               <div style={st.avatar}>{haydovchiInfo.ism[0]}</div>
               <div style={{ flex: 1 }}>
                 <div style={st.hIsm}>{haydovchiInfo.ism} ⭐ {haydovchiInfo.reyting}</div>
-                <div style={st.hMashina}>{haydovchiInfo.mashina} · {Number(haydovchiInfo.narx).toLocaleString()} сўм</div>
+                <div style={st.hMashina}>{haydovchiInfo.mashina} · {Number(haydovchiInfo.narx).toLocaleString()}</div>
               </div>
             </div>
-            <button style={st.tugma} onClick={() => setChatOchiq(true)}>💬 Ҳайдовчи билан суҳбат</button>
+            <button style={st.tugma} onClick={() => setChatOchiq(true)}>{t('pass.chatWithDriver')}</button>
             <div style={st.kuzatishMatn}>
-              {haydovchiNuqta ? '📍 Ҳайдовчи харитада кўриниб турибди' : '🔄 Жойлашув кутилмоқда...'}
+              {haydovchiNuqta ? t('pass.gpsLive') : t('pass.gpsWait')}
             </div>
           </>
         )}
@@ -198,28 +201,28 @@ export default function YolovchiSahifa() {
             {takliflar.length === 0 ? (
               <div style={st.kutish}>
                 <div style={st.spinner} />
-                <h2 style={st.sarlavha}>Ҳайдовчилар қидирилмоқда...</h2>
-                <p style={st.izoh}>{narx.toLocaleString()} сўм · {masofa()} км</p>
-                <button style={st.bekor} onClick={bekorQilish}>Бекор қилиш</button>
+                <h2 style={st.sarlavha}>{t('pass.searching')}</h2>
+                <p style={st.izoh}>{narx.toLocaleString()} · {masofa()} км</p>
+                <button style={st.bekor} onClick={bekorQilish}>{t('common.cancel')}</button>
               </div>
             ) : (
               <>
-                <h2 style={st.sarlavha}>Таклифлар ({takliflar.length})</h2>
+                <h2 style={st.sarlavha}>{t('pass.offers')} ({takliflar.length})</h2>
                 <div style={{ maxHeight: 260, overflowY: 'auto' }}>
-                  {takliflar.map((t, i) => (
+                  {takliflar.map((tk, i) => (
                     <div key={i} style={st.haydovchi}>
-                      <div style={st.avatar}>{t.haydovchi_ism[0]}</div>
+                      <div style={st.avatar}>{tk.haydovchi_ism[0]}</div>
                       <div style={{ flex: 1 }}>
-                        <div style={st.hIsm}>{t.haydovchi_ism} ⭐ {t.reyting}</div>
-                        <div style={st.hMashina}>{t.mashina} · {t.min} мин</div>
+                        <div style={st.hIsm}>{tk.haydovchi_ism} ⭐ {tk.reyting}</div>
+                        <div style={st.hMashina}>{tk.mashina} · {tk.min} {t('drv.minute')}</div>
                       </div>
-                      <button style={st.qabul} onClick={() => haydovchiTanla(t)}>
-                        {t.haydovchi_narx.toLocaleString()}
+                      <button style={st.qabul} onClick={() => haydovchiTanla(tk)}>
+                        {tk.haydovchi_narx.toLocaleString()}
                       </button>
                     </div>
                   ))}
                 </div>
-                <button style={st.bekor} onClick={bekorQilish}>Бекор қилиш</button>
+                <button style={st.bekor} onClick={bekorQilish}>{t('common.cancel')}</button>
               </>
             )}
           </>
@@ -227,13 +230,13 @@ export default function YolovchiSahifa() {
       </div>
 
       {chatOchiq && rideId && (
-        <Chat rideId={rideId} meId={meId} hamrohIsm={`💬 ${haydovchiInfo?.ism || 'Ҳайдовчи'}`} onClose={() => setChatOchiq(false)} />
+        <Chat rideId={rideId} meId={meId} hamrohIsm={`💬 ${haydovchiInfo?.ism || t('home.driver')}`} onClose={() => setChatOchiq(false)} />
       )}
 
       {baholashUchun && (
         <Baholash
           rideId={baholashUchun.rideId}
-          kimni="haydovchi"
+          kimni="driver"
           ism={baholashUchun.ism}
           onYopish={() => { setBaholashUchun(null); boshlanishigaQayt(); }}
         />
@@ -248,6 +251,7 @@ const st = {
   logo: { position: 'absolute', top: 16, left: 16, zIndex: 1000, background: 'var(--sariq)', padding: '8px 16px', borderRadius: 12, fontWeight: 800, fontSize: 18, boxShadow: 'var(--soya)' },
   yordam: { position: 'absolute', top: 16, right: 16, zIndex: 1000, background: 'var(--oq)', padding: '8px 14px', borderRadius: 12, fontWeight: 600, fontSize: 13, boxShadow: 'var(--soya)', color: 'var(--kulrang)' },
   tarixTugma: { position: 'absolute', top: 16, right: 116, zIndex: 1000, background: 'var(--oq)', width: 38, height: 38, borderRadius: '50%', fontSize: 16, boxShadow: 'var(--soya)' },
+  tilWrap: { position: 'absolute', top: 64, right: 16, zIndex: 1000 },
   panel: { position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 1000, background: 'var(--oq)', borderRadius: '24px 24px 0 0', padding: 24, boxShadow: '0 -4px 20px rgba(0,0,0,0.1)' },
   sarlavha: { fontSize: 22, fontWeight: 800, marginBottom: 16 },
   izoh: { color: 'var(--kulrang)', fontSize: 14, marginBottom: 16 },

@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import Kirish from '../components/Kirish';
+import { useT } from '../i18n';
 
 export default function AdminSahifa() {
   const [user, setUser] = useState(() => {
@@ -15,12 +16,13 @@ export default function AdminSahifa() {
     }
   });
 
-  if (!user) return <Kirish kerakliRol="admin" sarlavha="Админ панелига кириш" onKirildi={setUser} />;
+  if (!user) return <Kirish kerakliRol="admin" sarlavhaKey="admin.titleLogin" onKirildi={setUser} />;
 
   return <AdminIchki onChiqish={() => { localStorage.removeItem('token'); localStorage.removeItem('user'); setUser(null); }} />;
 }
 
 function AdminIchki({ onChiqish }) {
+  const { t } = useT();
   const [tab, setTab] = useState('statistika');
   const [stat, setStat] = useState(null);
   const [users, setUsers] = useState(null);
@@ -44,7 +46,7 @@ function AdminIchki({ onChiqish }) {
       if (err.response?.status === 401 || err.response?.status === 403) {
         onChiqish();
       } else {
-        setXato(err.response?.data?.xato || 'Маълумотларни юклаб бўлмади');
+        setXato(err.response?.data?.xato || t('common.error'));
       }
     }
   };
@@ -74,12 +76,12 @@ function AdminIchki({ onChiqish }) {
   return (
     <div style={st.sahifa}>
       <div style={st.header}>
-        <div style={st.logo}>🚕 Tez Taxi · Админ</div>
-        <button style={st.chiqish} onClick={onChiqish}>Чиқиш</button>
+        <div style={st.logo}>{t('admin.title')}</div>
+        <button style={st.chiqish} onClick={onChiqish}>{t('common.exit')}</button>
       </div>
 
       <div style={st.tablar}>
-        {[['statistika', '📊 Статистика'], ['users', '👥 Фойдаланувчилар'], ['rides', '🚗 Буюртмалар']].map(([k, n]) => (
+        {[['statistika', t('admin.tab.stats')], ['users', t('admin.tab.users')], ['rides', t('admin.tab.rides')]].map(([k, n]) => (
           <button key={k} style={{ ...st.tab, ...(tab === k ? st.tabFaol : {}) }} onClick={() => setTab(k)}>{n}</button>
         ))}
       </div>
@@ -90,17 +92,17 @@ function AdminIchki({ onChiqish }) {
         {tab === 'statistika' && (
           stat == null ? <Yuklanmoqda /> : (
             <div style={st.statGrid}>
-              <Stat raqam={stat.jami_foydalanuvchi.toLocaleString()} matn="Фойдаланувчилар" ikon="👥" />
-              <Stat raqam={stat.jami_haydovchi.toLocaleString()} matn="Ҳайдовчилар" ikon="🚗" />
-              <Stat raqam={stat.jami_safar.toLocaleString()} matn="Жами сафар" ikon="📦" />
-              <Stat raqam={stat.yakunlangan_safar.toLocaleString()} matn="Якунланган" ikon="✅" />
-              <Stat raqam={stat.jami_daromad >= 1_000_000 ? `${(stat.jami_daromad / 1_000_000).toFixed(1)}M` : stat.jami_daromad.toLocaleString()} matn="Даромад (сўм)" ikon="💰" keng />
+              <Stat raqam={stat.jami_foydalanuvchi.toLocaleString()} matn={t('admin.users')} ikon="👥" />
+              <Stat raqam={stat.jami_haydovchi.toLocaleString()} matn={t('admin.drivers')} ikon="🚗" />
+              <Stat raqam={stat.jami_safar.toLocaleString()} matn={t('admin.totalRides')} ikon="📦" />
+              <Stat raqam={stat.yakunlangan_safar.toLocaleString()} matn={t('admin.completed')} ikon="✅" />
+              <Stat raqam={stat.jami_daromad >= 1_000_000 ? `${(stat.jami_daromad / 1_000_000).toFixed(1)}M` : stat.jami_daromad.toLocaleString()} matn={t('admin.income')} ikon="💰" keng />
             </div>
           )
         )}
 
         {tab === 'users' && (
-          users == null ? <Yuklanmoqda /> : users.length === 0 ? <Bosh matn="Ҳали фойдаланувчи йўқ" /> : (
+          users == null ? <Yuklanmoqda /> : users.length === 0 ? <Bosh matn={t('admin.noUsers')} /> : (
             <div style={st.royxat}>
               {users.map((u) => (
                 <div key={u.id} style={st.userKarta}>
@@ -108,14 +110,14 @@ function AdminIchki({ onChiqish }) {
                   <div style={{ flex: 1 }}>
                     <div style={st.userIsm}>{u.ism}</div>
                     <div style={st.userMeta}>
-                      {u.telefon} · {u.rol === 'haydovchi' ? '🚗 Ҳайдовчи' : u.rol === 'admin' ? '👑 Админ' : '🧍 Йўловчи'} · ⭐ {u.reyting}
+                      {u.telefon} · {u.rol === 'haydovchi' ? t('admin.roleDriver') : u.rol === 'admin' ? t('admin.roleAdmin') : t('admin.roleClient')} · ⭐ {u.reyting}
                     </div>
-                    {u.bloklangan && <div style={st.blokBelgi}>🚫 Блокланган: {u.blok_sababi}</div>}
+                    {u.bloklangan && <div style={st.blokBelgi}>{t('admin.blocked', { sabab: u.blok_sababi })}</div>}
                   </div>
                   {u.rol !== 'admin' && (u.bloklangan ? (
-                    <button style={st.yechishTugma} onClick={() => blokniYechish(u.id)}>Ечиш</button>
+                    <button style={st.yechishTugma} onClick={() => blokniYechish(u.id)}>{t('admin.unblock')}</button>
                   ) : (
-                    <button style={st.blokTugma} onClick={() => setBlokModal(u)}>Блоклаш</button>
+                    <button style={st.blokTugma} onClick={() => setBlokModal(u)}>{t('admin.block')}</button>
                   ))}
                 </div>
               ))}
@@ -124,19 +126,19 @@ function AdminIchki({ onChiqish }) {
         )}
 
         {tab === 'rides' && (
-          rides == null ? <Yuklanmoqda /> : rides.length === 0 ? <Bosh matn="Ҳали сафар йўқ" /> : (
+          rides == null ? <Yuklanmoqda /> : rides.length === 0 ? <Bosh matn={t('admin.noRides')} /> : (
             <div style={st.royxat}>
               {rides.map((r) => (
                 <div key={r.id} style={st.rideKarta}>
                   <div style={st.rideYuqori}>
                     <span style={st.rideId}>#{r.id}</span>
                     <span style={{ ...st.holatBelgi, ...(r.holat === 'yakunlandi' ? st.holatYashil : st.holatSariq) }}>
-                      {r.holat === 'yakunlandi' ? 'Якунланди' : r.holat === 'kutilmoqda' ? 'Кутилмоқда' : r.holat}
+                      {t(`hist.status.${r.holat}`) !== `hist.status.${r.holat}` ? t(`hist.status.${r.holat}`) : r.holat}
                     </span>
                   </div>
                   <div style={st.rideYol}>{r.boshlanish_manzil} → {r.tugash_manzil}</div>
                   <div style={st.rideMeta}>
-                    {r.mijoz_ism || '—'} → {r.haydovchi_ism || '—'} · {r.kelishilgan_narx ? `${Number(r.kelishilgan_narx).toLocaleString()} сўм` : '—'}
+                    {r.mijoz_ism || '—'} → {r.haydovchi_ism || '—'} · {r.kelishilgan_narx ? `${Number(r.kelishilgan_narx).toLocaleString()}` : '—'}
                   </div>
                 </div>
               ))}
@@ -148,13 +150,13 @@ function AdminIchki({ onChiqish }) {
       {blokModal && (
         <div style={st.modalFon} onClick={() => setBlokModal(null)}>
           <div style={st.modal} onClick={(e) => e.stopPropagation()}>
-            <h3 style={st.modalSarlavha}>Блоклаш: {blokModal.ism}</h3>
-            <p style={st.modalIzoh}>Шаффофлик учун сабаб мажбурий. Фойдаланувчи буни кўради.</p>
-            <input style={st.input} placeholder="Блоклаш сабаби" value={sabab} onChange={(e) => setSabab(e.target.value)} />
+            <h3 style={st.modalSarlavha}>{t('admin.blockTitle', { ism: blokModal.ism })}</h3>
+            <p style={st.modalIzoh}>{t('admin.blockHint')}</p>
+            <input style={st.input} placeholder={t('admin.blockReason')} value={sabab} onChange={(e) => setSabab(e.target.value)} />
             <button style={{ ...st.tasdiqTugma, opacity: sabab ? 1 : 0.5 }} disabled={!sabab} onClick={bloklash}>
-              Блоклашни тасдиқлаш
+              {t('admin.blockConfirm')}
             </button>
-            <button style={st.bekorTugma} onClick={() => setBlokModal(null)}>Бекор қилиш</button>
+            <button style={st.bekorTugma} onClick={() => setBlokModal(null)}>{t('common.cancel')}</button>
           </div>
         </div>
       )}

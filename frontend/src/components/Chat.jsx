@@ -1,23 +1,22 @@
 // Сафар ичидаги чат — йўловчи ↔ ҳайдовчи
 import { useEffect, useRef, useState } from 'react';
 import { api, socket } from '../services/api';
+import { useT } from '../i18n';
 
-export default function Chat({ rideId, meId, hamrohIsm = 'Сафар суҳбати', onClose }) {
+export default function Chat({ rideId, meId, hamrohIsm, onClose }) {
+  const { t } = useT();
   const [xabarlar, setXabarlar] = useState([]);
   const [matn, setMatn] = useState('');
   const royxatRef = useRef(null);
 
-  // Тарихни юклаш
   useEffect(() => {
     if (!rideId) return;
     api.get(`/messages/${rideId}`)
       .then(({ data }) => setXabarlar(data))
-      .catch(() => {/* тарих бўлмаса бўш қолади */});
-    // Биз шу сафар хонасидамиз — қайта тасдиқлаб қўямиз (reconnect ҳолатлари учун)
+      .catch(() => {});
     socket.emit('safarga_qoshil', { rideId });
   }, [rideId]);
 
-  // Янги хабар келиши
   useEffect(() => {
     const tinglovchi = (x) => {
       if (Number(x.ride_id) !== Number(rideId)) return;
@@ -27,7 +26,6 @@ export default function Chat({ rideId, meId, hamrohIsm = 'Сафар суҳба�
     return () => socket.off('xabar_keldi', tinglovchi);
   }, [rideId]);
 
-  // Янги хабар келганда пастга суриш
   useEffect(() => {
     royxatRef.current?.scrollTo({ top: royxatRef.current.scrollHeight, behavior: 'smooth' });
   }, [xabarlar]);
@@ -47,24 +45,26 @@ export default function Chat({ rideId, meId, hamrohIsm = 'Сафар суҳба�
   };
 
   const vaqt = (v) => {
-    try { return new Date(v).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }); }
+    try { return new Date(v).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }); }
     catch { return ''; }
   };
+
+  const sarlavha = hamrohIsm || t('chat.tripChat');
 
   return (
     <div style={st.fon} onClick={onClose}>
       <div style={st.panel} onClick={(e) => e.stopPropagation()}>
         <div style={st.header}>
           <div>
-            <div style={st.sarlavha}>💬 {hamrohIsm}</div>
-            <div style={st.izoh}>Сафар #{rideId}</div>
+            <div style={st.sarlavha}>💬 {sarlavha}</div>
+            <div style={st.izoh}>{t('chat.ride')} #{rideId}</div>
           </div>
           <button style={st.yopish} onClick={onClose}>✕</button>
         </div>
 
         <div ref={royxatRef} style={st.royxat}>
           {xabarlar.length === 0 ? (
-            <div style={st.bosh}>Ҳали хабар йўқ. Биринчи бўлинг.</div>
+            <div style={st.bosh}>{t('chat.empty')}</div>
           ) : (
             xabarlar.map((x) => {
               const ozim = Number(x.yuboruvchi_id) === Number(meId);
@@ -87,7 +87,7 @@ export default function Chat({ rideId, meId, hamrohIsm = 'Сафар суҳба�
             value={matn}
             onChange={(e) => setMatn(e.target.value)}
             onKeyDown={onKeyDown}
-            placeholder="Хабар ёзинг..."
+            placeholder={t('chat.placeholder')}
             autoFocus
           />
           <button style={{ ...st.yuborTugma, opacity: matn.trim() ? 1 : 0.5 }} disabled={!matn.trim()} onClick={yubor}>

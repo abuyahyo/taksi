@@ -1,8 +1,10 @@
 // Баҳолаш модали — сафар тугагач кўрсатилади
 import { useState } from 'react';
 import { socket } from '../services/api';
+import { useT } from '../i18n';
 
 export default function Baholash({ rideId, kimni, ism, onYopish }) {
+  const { t } = useT();
   const [ball, setBall] = useState(0);
   const [izoh, setIzoh] = useState('');
   const [yuborildi, setYuborildi] = useState(false);
@@ -14,19 +16,21 @@ export default function Baholash({ rideId, kimni, ism, onYopish }) {
     setTimeout(onYopish, 1100);
   };
 
+  const sarlavhaMatn = kimni === 'driver' ? t('rate.titleDriver') : t('rate.titlePassenger');
+
   return (
     <div style={st.fon}>
       <div style={st.modal}>
         {yuborildi ? (
           <div style={st.tugadi}>
             <div style={{ fontSize: 56 }}>🎉</div>
-            <div style={st.taktSarl}>Раҳмат!</div>
-            <div style={st.taktIzoh}>Баҳойингиз қабул қилинди</div>
+            <div style={st.taktSarl}>{t('rate.ackTitle')}</div>
+            <div style={st.taktIzoh}>{t('rate.ackBody')}</div>
           </div>
         ) : (
           <>
             <div style={st.avatar}>{(ism || '?')[0]}</div>
-            <div style={st.sarlavha}>{kimni === 'haydovchi' ? 'Ҳайдовчини баҳоланг' : 'Йўловчини баҳоланг'}</div>
+            <div style={st.sarlavha}>{sarlavhaMatn}</div>
             <div style={st.ism}>{ism || '—'}</div>
 
             <div style={st.yulduzlar}>
@@ -35,14 +39,14 @@ export default function Baholash({ rideId, kimni, ism, onYopish }) {
                   key={n}
                   style={{ ...st.yulduz, color: n <= ball ? '#FACC15' : '#E5E7EB' }}
                   onClick={() => setBall(n)}
-                  aria-label={`${n} юлдуз`}
+                  aria-label={`${n}`}
                 >★</button>
               ))}
             </div>
 
             <textarea
               style={st.izoh}
-              placeholder="Изоҳ (ихтиёрий)"
+              placeholder={t('rate.commentPh')}
               maxLength={300}
               value={izoh}
               onChange={(e) => setIzoh(e.target.value)}
@@ -53,9 +57,9 @@ export default function Baholash({ rideId, kimni, ism, onYopish }) {
               disabled={!ball}
               onClick={yubor}
             >
-              Баҳони юбориш
+              {t('rate.submit')}
             </button>
-            <button style={st.otkaz} onClick={onYopish}>Ўтказиб юбориш</button>
+            <button style={st.otkaz} onClick={onYopish}>{t('common.skip')}</button>
           </>
         )}
       </div>

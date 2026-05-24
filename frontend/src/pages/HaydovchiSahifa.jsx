@@ -8,6 +8,7 @@ import Chat from '../components/Chat';
 import Baholash from '../components/Baholash';
 import MashinaProfili, { mashinaMatn } from '../components/MashinaProfili';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
+import { useT, TilTanlovchi } from '../i18n';
 
 export default function HaydovchiSahifa() {
   const [user, setUser] = useState(() => {
@@ -21,13 +22,14 @@ export default function HaydovchiSahifa() {
     }
   });
 
-  if (!user) return <Kirish kerakliRol="haydovchi" sarlavha="Ҳайдовчи кириши" onKirildi={setUser} />;
+  if (!user) return <Kirish kerakliRol="haydovchi" sarlavhaKey="login.titleDriver" onKirildi={setUser} />;
 
   return <Ichki user={user} onChiqish={() => { localStorage.removeItem('token'); localStorage.removeItem('user'); setUser(null); }} />;
 }
 
 function Ichki({ user, onChiqish }) {
   const navigate = useNavigate();
+  const { t } = useT();
   const [onlayn, setOnlayn] = useState(false);
   const [buyurtmalar, setBuyurtmalar] = useState([]);
   const [tanlangan, setTanlangan] = useState(null);
@@ -136,31 +138,32 @@ function Ichki({ user, onChiqish }) {
   return (
     <div style={st.sahifa}>
       <div style={st.header}>
-        <div style={st.logo}>🚕 Tez Taxi · {user.ism}</div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button style={st.tarixTugma} onClick={() => setProfilOchiq(true)} title="Машинам">🚗</button>
-          <button style={st.tarixTugma} onClick={() => navigate('/tarix')} title="Сафар тарихи">🕒</button>
-          <button style={st.chiqish} onClick={onChiqish}>Чиқиш</button>
+        <div style={st.logo}>🚕 {user.ism}</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <TilTanlovchi />
+          <button style={st.tarixTugma} onClick={() => setProfilOchiq(true)} title={t('car.title')}>🚗</button>
+          <button style={st.tarixTugma} onClick={() => navigate('/tarix')} title={t('hist.title')}>🕒</button>
+          <button style={st.chiqish} onClick={onChiqish}>{t('common.exit')}</button>
           <button style={{ ...st.statusTugma, background: onlayn ? 'var(--yashil)' : 'var(--kulrang)' }} onClick={statusOzgartir}>
-            {onlayn ? '● Онлайн' : '○ Офлайн'}
+            {onlayn ? t('drv.online') : t('drv.offline')}
           </button>
         </div>
       </div>
 
       {!mashinaToldirilganmi && (
         <div style={st.ogohlantirish} onClick={() => setProfilOchiq(true)}>
-          ⚠️ Машина маълумотлари тўлдирилмаган. Йўловчилар буни кўриши керак — <b>тўлдириш</b>
+          {t('drv.carInfoEmpty', { link: '' })}<b>{t('drv.carInfoFill')}</b>
         </div>
       )}
 
       <div style={st.daromad}>
         <div>
           <div style={st.daromadRaqam}>{stats.daromad.toLocaleString()}</div>
-          <div style={st.daromadMatn}>бугунги даромад (сўм)</div>
+          <div style={st.daromadMatn}>{t('drv.todayIncome')}</div>
         </div>
         <div style={{ textAlign: 'right' }}>
           <div style={st.kichikRaqam}>{stats.safar}</div>
-          <div style={st.daromadMatn}>сафар</div>
+          <div style={st.daromadMatn}>{t('drv.rides')}</div>
         </div>
       </div>
 
@@ -170,23 +173,23 @@ function Ichki({ user, onChiqish }) {
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 800, fontSize: 16 }}>Сафар жараёнда</div>
             <div style={{ fontSize: 13, opacity: 0.8 }}>
-              #{faolSafar.rideId} · {Number(faolSafar.narx).toLocaleString()} сўм · {joylashuvOchiqmi ? '📍 GPS' : '⌛ GPS...'}
+              #{faolSafar.rideId} · {Number(faolSafar.narx).toLocaleString()} · {joylashuvOchiqmi ? t('drv.gpsOn') : t('drv.gpsWait')}
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <button style={st.chatTugma} onClick={() => setChatOchiq(true)}>💬</button>
-            <button style={st.tugatTugma} onClick={safarTugatish}>Тугатиш ✓</button>
+            <button style={st.tugatTugma} onClick={safarTugatish}>{t('drv.endRide')}</button>
           </div>
         </div>
       )}
       {chatOchiq && faolSafar && (
-        <Chat rideId={faolSafar.rideId} meId={user.id} hamrohIsm={`💬 ${faolSafar.mijoz_ism || 'Йўловчи'}`} onClose={() => setChatOchiq(false)} />
+        <Chat rideId={faolSafar.rideId} meId={user.id} hamrohIsm={`💬 ${faolSafar.mijoz_ism || t('chat.guestName')}`} onClose={() => setChatOchiq(false)} />
       )}
 
       {baholashUchun && (
         <Baholash
           rideId={baholashUchun.rideId}
-          kimni="mijoz"
+          kimni="passenger"
           ism={baholashUchun.ism}
           onYopish={() => setBaholashUchun(null)}
         />
@@ -203,21 +206,21 @@ function Ichki({ user, onChiqish }) {
         {!onlayn ? (
           <div style={st.bosh}>
             <div style={st.boshIkon}>🌙</div>
-            <h3 style={st.boshSarlavha}>Сиз офлайнсиз</h3>
-            <p style={st.boshMatn}>Буюртма олиш учун "Офлайн" тугмасини босинг</p>
+            <h3 style={st.boshSarlavha}>{t('drv.youOffline')}</h3>
+            <p style={st.boshMatn}>{t('drv.youOfflineHint')}</p>
           </div>
         ) : buyurtmalar.length === 0 ? (
           <div style={st.bosh}>
             <div style={st.boshIkon}>🔍</div>
-            <h3 style={st.boshSarlavha}>Буюртма кутилмоқда...</h3>
-            <p style={st.boshMatn}>Янги буюртмалар шу ерда пайдо бўлади</p>
+            <h3 style={st.boshSarlavha}>{t('drv.waiting')}</h3>
+            <p style={st.boshMatn}>{t('drv.waitingHint')}</p>
           </div>
         ) : (
           buyurtmalar.map((b) => (
             <div key={b.id} style={st.karta}>
               <div style={st.kartaYuqori}>
                 <div>
-                  <div style={st.narx}>{Number(b.narx).toLocaleString()} сўм</div>
+                  <div style={st.narx}>{Number(b.narx).toLocaleString()}</div>
                   <div style={st.masofa}>{b.masofa} км · {b.mijoz} ⭐ {b.reyting}</div>
                 </div>
                 <div style={st.vaqt}>{b.vaqt}</div>
@@ -235,10 +238,10 @@ function Ichki({ user, onChiqish }) {
               </div>
               <div style={st.tugmalar}>
                 <button style={st.oznarxTugma} onClick={() => { setTanlangan(b); setOznarx(b.narx + 3000); }}>
-                  Ўз нархим
+                  {t('drv.myPrice')}
                 </button>
                 <button style={st.roziTugma} onClick={() => roziBolish(b)}>
-                  Рози · {Number(b.narx).toLocaleString()}
+                  {t('drv.agree')} · {Number(b.narx).toLocaleString()}
                 </button>
               </div>
             </div>
@@ -249,15 +252,15 @@ function Ichki({ user, onChiqish }) {
       {tanlangan && (
         <div style={st.modalFon} onClick={() => setTanlangan(null)}>
           <div style={st.modal} onClick={(e) => e.stopPropagation()}>
-            <h3 style={st.modalSarlavha}>Ўз нархингизни таклиф қилинг</h3>
+            <h3 style={st.modalSarlavha}>{t('drv.myPriceTitle')}</h3>
             <p style={st.modalIzoh}>{tanlangan.boshlanish} → {tanlangan.tugash} ({tanlangan.masofa} км)</p>
             <div style={st.narxBox}>
               <button style={st.narxTugma} onClick={() => setOznarx(Math.max(5000, oznarx - 1000))}>−</button>
               <div style={st.modalNarx}>{oznarx.toLocaleString()}</div>
               <button style={st.narxTugma} onClick={() => setOznarx(oznarx + 1000)}>+</button>
             </div>
-            <button style={st.yuborishTugma} onClick={oznarxYuborish}>Таклифни юбориш</button>
-            <button style={st.bekorTugma} onClick={() => setTanlangan(null)}>Бекор қилиш</button>
+            <button style={st.yuborishTugma} onClick={oznarxYuborish}>{t('drv.sendOffer')}</button>
+            <button style={st.bekorTugma} onClick={() => setTanlangan(null)}>{t('common.cancel')}</button>
           </div>
         </div>
       )}

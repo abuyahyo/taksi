@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import Kirish from '../components/Kirish';
+import { useT } from '../i18n';
 
 export default function SafarTarixi() {
   const navigate = useNavigate();
@@ -11,12 +12,13 @@ export default function SafarTarixi() {
     catch { return null; }
   });
 
-  if (!user) return <Kirish sarlavha="Сафар тарихини кўриш" onKirildi={setUser} />;
+  if (!user) return <Kirish sarlavhaKey="login.titleHistory" onKirildi={setUser} />;
 
   return <Ichki user={user} onOrqaga={() => navigate(-1)} onChiqish={() => { localStorage.removeItem('token'); localStorage.removeItem('user'); setUser(null); }} />;
 }
 
 function Ichki({ user, onOrqaga, onChiqish }) {
+  const { t } = useT();
   const [rides, setRides] = useState(null);
   const [xato, setXato] = useState('');
 
@@ -25,50 +27,50 @@ function Ichki({ user, onOrqaga, onChiqish }) {
       .then(({ data }) => setRides(data))
       .catch((err) => {
         if (err.response?.status === 401) onChiqish();
-        else setXato(err.response?.data?.xato || 'Юклашда хато');
+        else setXato(err.response?.data?.xato || t('common.error'));
       });
   }, []);
 
   const sana = (v) => {
     if (!v) return '';
     const d = new Date(v);
-    return d.toLocaleString('ru-RU', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleString(undefined, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
   };
 
   const holatBelgi = (h) => {
-    const m = {
-      yakunlandi: { matn: 'Якунланди', ...st.holatYashil },
-      qabul_qilindi: { matn: 'Қабул қилинди', ...st.holatKok },
-      kutilmoqda: { matn: 'Кутилмоқда', ...st.holatSariq },
-      bekor_qilindi: { matn: 'Бекор қилинди', ...st.holatKulrang },
+    const ranglar = {
+      yakunlandi: st.holatYashil,
+      qabul_qilindi: st.holatKok,
+      kutilmoqda: st.holatSariq,
+      bekor_qilindi: st.holatKulrang,
     };
-    return m[h] || { matn: h, ...st.holatKulrang };
+    return { matn: t(`hist.status.${h}`) !== `hist.status.${h}` ? t(`hist.status.${h}`) : h, ...(ranglar[h] || st.holatKulrang) };
   };
 
   return (
     <div style={st.sahifa}>
       <div style={st.header}>
         <button style={st.orqaga} onClick={onOrqaga}>←</button>
-        <div style={st.sarlavha}>🕒 Сафар тарихи</div>
-        <button style={st.chiqish} onClick={onChiqish}>Чиқиш</button>
+        <div style={st.sarlavha}>{t('hist.title')}</div>
+        <button style={st.chiqish} onClick={onChiqish}>{t('common.exit')}</button>
       </div>
 
       <div style={st.kontent}>
         {xato && <div style={st.xato}>{xato}</div>}
 
         {rides == null ? (
-          <div style={st.bosh}>Юкланмоқда...</div>
+          <div style={st.bosh}>{t('common.loading')}</div>
         ) : rides.length === 0 ? (
           <div style={st.bosh}>
             <div style={st.boshIkon}>🚖</div>
-            <div style={{ fontSize: 16, fontWeight: 700, marginTop: 12 }}>Ҳали сафар йўқ</div>
-            <div style={{ fontSize: 13, color: 'var(--kulrang)', marginTop: 6 }}>Биринчи сафарингиз шу ерда кўринади</div>
+            <div style={{ fontSize: 16, fontWeight: 700, marginTop: 12 }}>{t('hist.empty')}</div>
+            <div style={{ fontSize: 13, color: 'var(--kulrang)', marginTop: 6 }}>{t('hist.emptyHint')}</div>
           </div>
         ) : (
           <div style={st.royxat}>
             {rides.map((r) => {
               const menMijoz = Number(r.mijoz_id) === Number(user.id);
-              const hamroh = menMijoz ? (r.haydovchi_ism || '—') : (r.mijoz_ism || 'Меҳмон');
+              const hamroh = menMijoz ? (r.haydovchi_ism || '—') : (r.mijoz_ism || t('hist.guest'));
               const hamrohBelgi = menMijoz ? '🚗' : '🧍';
               const h = holatBelgi(r.holat);
               return (
@@ -90,8 +92,8 @@ function Ichki({ user, onOrqaga, onChiqish }) {
                     <div style={st.hamroh}>{hamrohBelgi} {hamroh}</div>
                     <div style={st.narx}>
                       {r.kelishilgan_narx
-                        ? `${Number(r.kelishilgan_narx).toLocaleString()} сўм`
-                        : r.taklif_narx ? `~${Number(r.taklif_narx).toLocaleString()} сўм` : '—'}
+                        ? Number(r.kelishilgan_narx).toLocaleString()
+                        : r.taklif_narx ? `~${Number(r.taklif_narx).toLocaleString()}` : '—'}
                     </div>
                   </div>
                 </div>

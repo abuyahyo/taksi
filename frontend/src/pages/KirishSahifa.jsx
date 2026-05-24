@@ -1,29 +1,32 @@
-// Бошланғич саҳифа — рол танлаш (намуна учун соддалаштирилган)
+// Бошланғич саҳифа — рол танлаш
 import { useNavigate } from 'react-router-dom';
+import { useT, TilTanlovchi } from '../i18n';
 
 export default function KirishSahifa() {
   const navigate = useNavigate();
+  const { t } = useT();
 
   return (
     <div style={st.sahifa}>
+      <div style={st.tilSwitcher}><TilTanlovchi /></div>
       <div style={st.logo}>🚕</div>
-      <h1 style={st.sarlavha}>Tez Taxi</h1>
-      <p style={st.izoh}>Нархни ўзингиз белгиланг</p>
+      <h1 style={st.sarlavha}>{t('common.app')}</h1>
+      <p style={st.izoh}>{t('home.tagline')}</p>
 
       <div style={st.tugmalar}>
         <button style={st.yolovchi} onClick={() => navigate('/yolovchi')}>
           <span style={st.ikon}>🧍</span>
           <div>
-            <div style={st.tugmaSarlavha}>Йўловчиман</div>
-            <div style={st.tugmaIzoh}>Сафар буюртма қиламан</div>
+            <div style={st.tugmaSarlavha}>{t('home.passenger')}</div>
+            <div style={st.tugmaIzoh}>{t('home.passengerSub')}</div>
           </div>
         </button>
 
         <button style={st.haydovchi} onClick={() => navigate('/haydovchi')}>
           <span style={st.ikon}>🚗</span>
           <div>
-            <div style={st.tugmaSarlavha}>Ҳайдовчиман</div>
-            <div style={st.tugmaIzoh}>Буюртма оламан</div>
+            <div style={st.tugmaSarlavha}>{t('home.driver')}</div>
+            <div style={st.tugmaIzoh}>{t('home.driverSub')}</div>
           </div>
         </button>
       </div>
@@ -32,7 +35,8 @@ export default function KirishSahifa() {
 }
 
 const st = {
-  sahifa: { width: '100vw', maxWidth: 480, margin: '0 auto', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24, background: 'var(--oq)' },
+  sahifa: { position: 'relative', width: '100vw', maxWidth: 480, margin: '0 auto', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24, background: 'var(--oq)' },
+  tilSwitcher: { position: 'absolute', top: 16, right: 16 },
   logo: { fontSize: 64, marginBottom: 8 },
   sarlavha: { fontSize: 36, fontWeight: 800 },
   izoh: { fontSize: 16, color: 'var(--kulrang)', marginBottom: 48 },
