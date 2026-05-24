@@ -40,6 +40,16 @@ module.exports = (io) => {
     socket.on('yangi_buyurtma', async (buyurtma) => {
       try {
         const mijoz_id = socket.data.userId || null; // меҳмон бўлиши мумкин
+        // Мижоз исм ва рейтингини оламиз — ҳайдовчи кўриш учун
+        let mijoz_ism = buyurtma.mijoz || 'Меҳмон';
+        let mijoz_reyting = 5.0;
+        if (mijoz_id) {
+          const u = await query(`SELECT ism, reyting FROM users WHERE id = $1`, [mijoz_id]);
+          if (u.rows[0]) {
+            mijoz_ism = u.rows[0].ism;
+            mijoz_reyting = Number(u.rows[0].reyting);
+          }
+        }
         const result = await query(
           `INSERT INTO rides (mijoz_id, boshlanish_manzil, tugash_manzil, masofa_km, taklif_narx, holat)
            VALUES ($1, $2, $3, $4, $5, 'kutilmoqda')
@@ -47,7 +57,7 @@ module.exports = (io) => {
           [mijoz_id, buyurtma.boshlanish, buyurtma.tugash, buyurtma.masofa, buyurtma.narx]
         );
         const dbId = result.rows[0].id;
-        const enriched = { ...buyurtma, id: dbId, taklif_id: buyurtma.id };
+        const enriched = { ...buyurtma, id: dbId, taklif_id: buyurtma.id, mijoz_id, mijoz_ism, mijoz: mijoz_ism, reyting: mijoz_reyting };
 
         faolBuyurtmalar.set(dbId, enriched);
         socket.join(`ride_${dbId}`);
@@ -85,9 +95,15 @@ module.exports = (io) => {
            WHERE id = $1`,
           [data.rideId, data.haydovchi_id || null, data.narx]
         );
+        // Ҳайдовчига мижоз исмини қўшиб юборамиз (баҳолаш ва чат учун)
+        const r = await query(
+          `SELECT r.mijoz_id, u.ism AS mijoz_ism FROM rides r LEFT JOIN users u ON r.mijoz_id = u.id WHERE r.id = $1`,
+          [data.rideId]
+        );
+        const enriched = { ...data, mijoz_id: r.rows[0]?.mijoz_id || null, mijoz_ism: r.rows[0]?.mijoz_ism || null };
         faolBuyurtmalar.delete(data.rideId);
         io.to('haydovchilar').emit('buyurtma_yopildi', { rideId: data.rideId });
-        io.to(`ride_${data.rideId}`).emit('tasdiqlandi', data);
+        io.to(`ride_${data.rideId}`).emit('tasdiqlandi', enriched);
         console.log(`✅ Танланди #${data.rideId} → ${data.haydovchi_ism}`);
       } catch (err) {
         console.error('haydovchi_tanlandi xato:', err.message);
@@ -169,15 +185,41 @@ module.exports = (io) => {
       }
     });
 
+    // Баҳолаш — мижоз ҳайдовчини, ҳайдовчи мижозни баҳолайди
     socket.on('baholash', async (data) => {
-      console.log(`⭐ Баҳо #${data.rideId}: ${data.ball}/5`);
+      // data = { rideId, ball, izoh }
+      const baholovchi = socket.data.userId;
+      if (!baholovchi) return; // меҳмонлар баҳолай олмайди
+      const ball = Number(data.ball);
+      if (!Number.isInteger(ball) || ball < 1 || ball > 5) return;
       try {
-        if (socket.data.userId) {
-          await query(
-            `INSERT INTO ratings (ride_id, baholovchi_id, ball, izoh) VALUES ($1, $2, $3, $4)`,
-            [data.rideId, socket.data.userId, data.ball, data.izoh || null]
-          );
-        }
+        // Бу сафарнинг иштирокчиларини оламиз
+        const ride = await query(
+          `SELECT mijoz_id, haydovchi_id FROM rides WHERE id = $1`,
+          [data.rideId]
+        );
+        if (ride.rows.length === 0) return;
+        const { mijoz_id, haydovchi_id } = ride.rows[0];
+        if (baholovchi !== mijoz_id && baholovchi !== haydovchi_id) return; // иштирокчи эмас
+        const baholanuvchi = baholovchi === mijoz_id ? haydovchi_id : mijoz_id;
+        if (!baholanuvchi) return;
+
+        // Икки марта баҳолашни олдини оламиз — мавжуд бўлса янгилаймиз
+        await query(
+          `INSERT INTO ratings (ride_id, baholovchi_id, baholanuvchi_id, ball, izoh)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [data.rideId, baholovchi, baholanuvchi, ball, data.izoh || null]
+        );
+
+        // Баҳоланганнинг users.reyting'и — олинган барча баҳоларнинг ўртачаси
+        await query(
+          `UPDATE users SET reyting = (
+             SELECT COALESCE(ROUND(AVG(ball)::numeric, 1), 5.0)
+             FROM ratings WHERE baholanuvchi_id = $1
+           ) WHERE id = $1`,
+          [baholanuvchi]
+        );
+        console.log(`⭐ Баҳо #${data.rideId}: ${ball}/5 (${baholovchi} → ${baholanuvchi})`);
       } catch (err) {
         console.error('baholash xato:', err.message);
       }

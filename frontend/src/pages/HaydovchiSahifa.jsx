@@ -5,6 +5,7 @@ import { api } from '../services/api';
 import { useSocket } from '../services/useSocket';
 import Kirish from '../components/Kirish';
 import Chat from '../components/Chat';
+import Baholash from '../components/Baholash';
 
 export default function HaydovchiSahifa() {
   const [user, setUser] = useState(() => {
@@ -30,8 +31,9 @@ function Ichki({ user, onChiqish }) {
   const [tanlangan, setTanlangan] = useState(null);
   const [oznarx, setOznarx] = useState(0);
   const [stats, setStats] = useState({ daromad: 0, safar: 0 });
-  const [faolSafar, setFaolSafar] = useState(null); // {rideId, narx} — қабул қилинган сафар
+  const [faolSafar, setFaolSafar] = useState(null); // {rideId, narx, mijoz_ism} — қабул қилинган сафар
   const [chatOchiq, setChatOchiq] = useState(false);
+  const [baholashUchun, setBaholashUchun] = useState(null); // {rideId, ism} — модаль очилади
 
   const statsYukla = async () => {
     try {
@@ -50,17 +52,19 @@ function Ichki({ user, onChiqish }) {
     // Йўловчи мени танлади — сафар бошланди
     tasdiqlandi: (data) => {
       if (data.haydovchi_id === user.id) {
-        setFaolSafar({ rideId: data.rideId, narx: data.narx });
+        setFaolSafar({ rideId: data.rideId, narx: data.narx, mijoz_ism: data.mijoz_ism });
       }
     },
   });
 
-  // Сафар тугатиш — backend rides.holat = 'yakunlandi', сўнг статистикани янгилаймиз
+  // Сафар тугатиш — backend rides.holat = 'yakunlandi', сўнг баҳолаш модаль
   const safarTugatish = () => {
     if (!faolSafar) return;
     yubor('safar_holati', { rideId: faolSafar.rideId, holat: 'yakunlandi' });
+    setBaholashUchun({ rideId: faolSafar.rideId, ism: faolSafar.mijoz_ism || 'Йўловчи' });
     setFaolSafar(null);
-    setTimeout(statsYukla, 600); // BD янгилангач, статистикани қайта оламиз
+    setChatOchiq(false);
+    setTimeout(statsYukla, 600);
   };
 
   // Онлайн/офлайн ўзгартириш
@@ -126,12 +130,21 @@ function Ichki({ user, onChiqish }) {
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <button style={st.chatTugma} onClick={() => setChatOchiq(true)}>💬</button>
-            <button style={st.tugatTugma} onClick={() => { safarTugatish(); setChatOchiq(false); }}>Тугатиш ✓</button>
+            <button style={st.tugatTugma} onClick={safarTugatish}>Тугатиш ✓</button>
           </div>
         </div>
       )}
       {chatOchiq && faolSafar && (
-        <Chat rideId={faolSafar.rideId} meId={user.id} hamrohIsm="Йўловчи билан суҳбат" onClose={() => setChatOchiq(false)} />
+        <Chat rideId={faolSafar.rideId} meId={user.id} hamrohIsm={`💬 ${faolSafar.mijoz_ism || 'Йўловчи'}`} onClose={() => setChatOchiq(false)} />
+      )}
+
+      {baholashUchun && (
+        <Baholash
+          rideId={baholashUchun.rideId}
+          kimni="mijoz"
+          ism={baholashUchun.ism}
+          onYopish={() => setBaholashUchun(null)}
+        />
       )}
 
       <div style={st.royxat}>

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Harita from '../components/Harita';
 import Chat from '../components/Chat';
+import Baholash from '../components/Baholash';
 import { useSocket } from '../services/useSocket';
 
 const TOSHKENT = [41.2995, 69.2401];
@@ -18,6 +19,7 @@ export default function YolovchiSahifa() {
   const [rideId, setRideId] = useState(null);
   const [haydovchiInfo, setHaydovchiInfo] = useState(null); // {ism, narx} — танланган ҳайдовчи
   const [chatOchiq, setChatOchiq] = useState(false);
+  const [baholashUchun, setBaholashUchun] = useState(null); // {rideId, ism}
 
   // Меҳмон фойдаланувчи бўлсаям чатга кириш учун ID — localStorage'дан
   const meId = (() => {
@@ -32,11 +34,10 @@ export default function YolovchiSahifa() {
     yangi_taklif: (taklif) => {
       setTakliflar((oldin) => [...oldin, taklif]);
     },
-    // Ҳайдовчи сафарни тугатганда, йўловчи саҳифаси қайта бошланади
+    // Ҳайдовчи сафарни тугатганда — баҳолаш модалини кўрсатамиз
     holat_yangilandi: (data) => {
       if (data.holat === 'yakunlandi' && Number(data.rideId) === Number(rideId)) {
-        alert('Сафар тугади. Раҳмат!');
-        boshlanishigaQayt();
+        setBaholashUchun({ rideId, ism: haydovchiInfo?.ism || 'Ҳайдовчи' });
       }
     },
   });
@@ -206,7 +207,16 @@ export default function YolovchiSahifa() {
       </div>
 
       {chatOchiq && rideId && (
-        <Chat rideId={rideId} meId={meId} hamrohIsm="Ҳайдовчи билан суҳбат" onClose={() => setChatOchiq(false)} />
+        <Chat rideId={rideId} meId={meId} hamrohIsm={`💬 ${haydovchiInfo?.ism || 'Ҳайдовчи'}`} onClose={() => setChatOchiq(false)} />
+      )}
+
+      {baholashUchun && (
+        <Baholash
+          rideId={baholashUchun.rideId}
+          kimni="haydovchi"
+          ism={baholashUchun.ism}
+          onYopish={() => { setBaholashUchun(null); boshlanishigaQayt(); }}
+        />
       )}
     </div>
   );
