@@ -151,7 +151,7 @@ function AdminIchki({ onChiqish }) {
         <div style={st.modalFon} onClick={() => setBlokModal(null)}>
           <div style={st.modal} onClick={(e) => e.stopPropagation()}>
             <h3 style={st.modalSarlavha}>{t('admin.blockTitle', { ism: blokModal.ism })}</h3>
-            <p style={st.modalIzoh}>{t('admin.blockHint')}</p>
+            <p style={st.modalShaffoflik}>{t('admin.blockHint')}</p>
             <input style={st.input} placeholder={t('admin.blockReason')} value={sabab} onChange={(e) => setSabab(e.target.value)} />
             <button style={{ ...st.tasdiqTugma, opacity: sabab ? 1 : 0.5 }} disabled={!sabab} onClick={bloklash}>
               {t('admin.blockConfirm')}
@@ -213,6 +213,7 @@ const st = {
   modal: { background: 'var(--oq)', width: '100%', maxWidth: 400, borderRadius: 20, padding: 24 },
   modalSarlavha: { fontSize: 20, fontWeight: 800, marginBottom: 8 },
   modalIzoh: { fontSize: 13, color: 'var(--kulrang)', marginBottom: 16 },
+  modalShaffoflik: { fontSize: 13, color: '#92400E', background: '#FEF3C7', borderLeft: '4px solid #F59E0B', padding: '10px 12px', borderRadius: 8, marginBottom: 16, lineHeight: 1.5 },
   input: { width: '100%', padding: 14, borderRadius: 12, border: '1px solid #E5E7EB', fontSize: 15, marginBottom: 16 },
   tasdiqTugma: { width: '100%', background: 'var(--qizil)', color: 'var(--oq)', padding: 14, borderRadius: 12, fontWeight: 700, fontSize: 15 },
   bekorTugma: { width: '100%', background: 'transparent', padding: 12, color: 'var(--kulrang)', fontSize: 14, marginTop: 4 },

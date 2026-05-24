@@ -30,6 +30,17 @@ export default function KirishSahifa() {
           </div>
         </button>
       </div>
+
+      {/* Бизнинг устунлик — бошқа иловаларда йўқ */}
+      <div style={st.afzallik}>
+        <div style={st.afzKarta}>
+          <div style={st.afzIkon}>🌟</div>
+          <div>
+            <div style={st.afzSarlavha}>{t('home.uniqueTitle')}</div>
+            <div style={st.afzMatn}>{t('home.uniqueHint')}</div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -46,4 +57,9 @@ const st = {
   ikon: { fontSize: 32 },
   tugmaSarlavha: { fontSize: 18, fontWeight: 800 },
   tugmaIzoh: { fontSize: 13, opacity: 0.7 },
+  afzallik: { width: '100%', marginTop: 24 },
+  afzKarta: { display: 'flex', gap: 12, background: '#FEF3C7', borderLeft: '4px solid #F59E0B', padding: 14, borderRadius: 12 },
+  afzIkon: { fontSize: 24, flexShrink: 0 },
+  afzSarlavha: { fontSize: 13, fontWeight: 800, color: '#92400E' },
+  afzMatn: { fontSize: 12, color: '#92400E', opacity: 0.85, marginTop: 4, lineHeight: 1.4 },
 };

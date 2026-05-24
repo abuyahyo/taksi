@@ -26,6 +26,8 @@ export default {
   'home.passengerSub':   'Заказать поездку',
   'home.driver':         'Я водитель',
   'home.driverSub':      'Принимать заказы',
+  'home.uniqueTitle':    'Прозрачная справедливость',
+  'home.uniqueHint':     'При блокировке причина обязательна — пользователь её видит. У Yandex/Uber/Bolt такой функции нет.',
 
   // Вход
   'login.title':         'Вход',
@@ -140,7 +142,7 @@ export default {
   'admin.roleClient':    '🧍 Пассажир',
   'admin.blocked':       '🚫 Заблокирован: {sabab}',
   'admin.blockTitle':    'Блокировать: {ism}',
-  'admin.blockHint':     'Для прозрачности укажите причину. Пользователь её увидит.',
+  'admin.blockHint':     '🌟 Прозрачная блокировка: причина обязательна. Пользователь её увидит и сможет исправиться. В этом наше отличие от конкурентов.',
   'admin.blockReason':   'Причина блокировки',
   'admin.blockConfirm':  'Подтвердить блокировку',
 

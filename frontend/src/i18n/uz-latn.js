@@ -26,6 +26,8 @@ export default {
   'home.passengerSub':   'Safar buyurtma qilaman',
   'home.driver':         'Haydovchiman',
   'home.driverSub':      'Buyurtma olaman',
+  'home.uniqueTitle':    'Shaffof adolat',
+  'home.uniqueHint':     'Bloklashda sabab majburiy — foydalanuvchi buni koʻradi. Yandex/Uber/Bolt\'da yoʻq funksiya.',
 
   // Login
   'login.title':         'Kirish',
@@ -140,7 +142,7 @@ export default {
   'admin.roleClient':    '🧍 Yoʻlovchi',
   'admin.blocked':       '🚫 Bloklangan: {sabab}',
   'admin.blockTitle':    'Bloklash: {ism}',
-  'admin.blockHint':     'Shaffoflik uchun sabab majburiy. Foydalanuvchi buni koʻradi.',
+  'admin.blockHint':     '🌟 Shaffof bloklash odatimiz: sabab majburiy. Foydalanuvchi buni koʻradi va tuzatish imkoniga ega boʻladi. Bu bizning raqobatchilardan farqimiz.',
   'admin.blockReason':   'Bloklash sababi',
   'admin.blockConfirm':  'Bloklashni tasdiqlash',
 
