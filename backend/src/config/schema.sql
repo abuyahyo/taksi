@@ -88,9 +88,18 @@ CREATE TABLE IF NOT EXISTS ratings (
 );
 
 -- Тезликни ошириш учун индекслар
-CREATE INDEX IF NOT EXISTS idx_rides_holat ON rides(holat);
+CREATE INDEX IF NOT EXISTS idx_rides_holat       ON rides(holat);
+CREATE INDEX IF NOT EXISTS idx_rides_mijoz       ON rides(mijoz_id);
+CREATE INDEX IF NOT EXISTS idx_rides_haydovchi   ON rides(haydovchi_id);
+CREATE INDEX IF NOT EXISTS idx_rides_yaratilgan  ON rides(yaratilgan);
+CREATE INDEX IF NOT EXISTS idx_rides_haydovchi_yakun
+   ON rides(haydovchi_id, holat, yakun_vaqti)
+   WHERE holat = 'yakunlandi';
 CREATE INDEX IF NOT EXISTS idx_offers_ride ON offers(ride_id);
 CREATE INDEX IF NOT EXISTS idx_drivers_holati ON drivers(holati);
+CREATE INDEX IF NOT EXISTS idx_drivers_user ON drivers(user_id);
+CREATE INDEX IF NOT EXISTS idx_ratings_baholanuvchi ON ratings(baholanuvchi_id);
+CREATE INDEX IF NOT EXISTS idx_users_telefon ON users(telefon);
 
 -- Тўлов транзакциялари (Payme + Click)
 CREATE TABLE IF NOT EXISTS transactions (
