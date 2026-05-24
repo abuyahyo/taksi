@@ -1,21 +1,52 @@
 // Ҳайдовчи саҳифаси — socket билан реал вақтда уланган
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { api } from '../services/api';
 import { useSocket } from '../services/useSocket';
-
-// Ҳайдовчи маълумоти (намуна — кейин логиндан олинади)
-const MEN = { userId: 101, ism: 'Бахтиёр', mashina: 'Cobalt · 01 A 777 BA', reyting: 4.9 };
+import Kirish from '../components/Kirish';
 
 export default function HaydovchiSahifa() {
+  const [user, setUser] = useState(() => {
+    const saqlangan = localStorage.getItem('user');
+    if (!saqlangan) return null;
+    try {
+      const u = JSON.parse(saqlangan);
+      return u.rol === 'haydovchi' ? u : null;
+    } catch {
+      return null;
+    }
+  });
+
+  if (!user) return <Kirish kerakliRol="haydovchi" sarlavha="Ҳайдовчи кириши" onKirildi={setUser} />;
+
+  return <Ichki user={user} onChiqish={() => { localStorage.removeItem('token'); localStorage.removeItem('user'); setUser(null); }} />;
+}
+
+function Ichki({ user, onChiqish }) {
   const [onlayn, setOnlayn] = useState(false);
   const [buyurtmalar, setBuyurtmalar] = useState([]);
   const [tanlangan, setTanlangan] = useState(null);
   const [oznarx, setOznarx] = useState(0);
+  const [stats, setStats] = useState({ daromad: 0, safar: 0 });
+
+  // Реал статистикани юклаш
+  const statsYukla = async () => {
+    try {
+      const { data } = await api.get('/driver/stats');
+      setStats(data);
+    } catch {
+      // тинч ўтиш — статистика бўлмаса 0 қолади
+    }
+  };
+  useEffect(() => { statsYukla(); }, []);
 
   // Socket — буюртмаларни реал вақтда қабул қилиш
   const { yubor } = useSocket({
     buyurtma_keldi: (b) => setBuyurtmalar((oldin) => [...oldin, b]),
     mavjud_buyurtmalar: (royxat) => setBuyurtmalar(royxat),
-    buyurtma_yopildi: ({ rideId }) => setBuyurtmalar((oldin) => oldin.filter((x) => x.id !== rideId)),
+    buyurtma_yopildi: ({ rideId }) => {
+      setBuyurtmalar((oldin) => oldin.filter((x) => x.id !== rideId));
+      statsYukla(); // буюртма ёпилгач, статистикани янгилаймиз
+    },
   });
 
   // Онлайн/офлайн ўзгартириш
@@ -23,27 +54,27 @@ export default function HaydovchiSahifa() {
     const yangi = !onlayn;
     setOnlayn(yangi);
     if (yangi) {
-      yubor('haydovchi_online', { userId: MEN.userId, ism: MEN.ism });
+      yubor('haydovchi_online', { userId: user.id, ism: user.ism });
     } else {
       yubor('haydovchi_offline');
       setBuyurtmalar([]);
     }
   };
 
-  // Йўловчи нархига рози бўлиш
+  const mashina = 'Машина'; // кейин ҳайдовчи профилидан олиниши мумкин
+
   const roziBolish = (b) => {
     yubor('narx_taklif', {
-      rideId: b.id, haydovchi_ism: MEN.ism, haydovchi_narx: b.narx,
-      reyting: MEN.reyting, mashina: MEN.mashina, min: Math.ceil(Math.random() * 6) + 2,
+      rideId: b.id, haydovchi_ism: user.ism, haydovchi_narx: b.narx,
+      reyting: Number(user.reyting) || 5, mashina, min: Math.ceil(Math.random() * 6) + 2,
     });
     setBuyurtmalar(buyurtmalar.filter((x) => x.id !== b.id));
   };
 
-  // Ўз нархини юбориш
   const oznarxYuborish = () => {
     yubor('narx_taklif', {
-      rideId: tanlangan.id, haydovchi_ism: MEN.ism, haydovchi_narx: oznarx,
-      reyting: MEN.reyting, mashina: MEN.mashina, min: Math.ceil(Math.random() * 6) + 2,
+      rideId: tanlangan.id, haydovchi_ism: user.ism, haydovchi_narx: oznarx,
+      reyting: Number(user.reyting) || 5, mashina, min: Math.ceil(Math.random() * 6) + 2,
     });
     setTanlangan(null);
   };
@@ -51,19 +82,22 @@ export default function HaydovchiSahifa() {
   return (
     <div style={st.sahifa}>
       <div style={st.header}>
-        <div style={st.logo}>🚕 Tez Taxi · Ҳайдовчи</div>
-        <button style={{ ...st.statusTugma, background: onlayn ? 'var(--yashil)' : 'var(--kulrang)' }} onClick={statusOzgartir}>
-          {onlayn ? '● Онлайн' : '○ Офлайн'}
-        </button>
+        <div style={st.logo}>🚕 Tez Taxi · {user.ism}</div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button style={st.chiqish} onClick={onChiqish}>Чиқиш</button>
+          <button style={{ ...st.statusTugma, background: onlayn ? 'var(--yashil)' : 'var(--kulrang)' }} onClick={statusOzgartir}>
+            {onlayn ? '● Онлайн' : '○ Офлайн'}
+          </button>
+        </div>
       </div>
 
       <div style={st.daromad}>
         <div>
-          <div style={st.daromadRaqam}>185 000</div>
+          <div style={st.daromadRaqam}>{stats.daromad.toLocaleString()}</div>
           <div style={st.daromadMatn}>бугунги даромад (сўм)</div>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div style={st.kichikRaqam}>7</div>
+          <div style={st.kichikRaqam}>{stats.safar}</div>
           <div style={st.daromadMatn}>сафар</div>
         </div>
       </div>
@@ -86,7 +120,7 @@ export default function HaydovchiSahifa() {
             <div key={b.id} style={st.karta}>
               <div style={st.kartaYuqori}>
                 <div>
-                  <div style={st.narx}>{b.narx.toLocaleString()} сўм</div>
+                  <div style={st.narx}>{Number(b.narx).toLocaleString()} сўм</div>
                   <div style={st.masofa}>{b.masofa} км · {b.mijoz} ⭐ {b.reyting}</div>
                 </div>
                 <div style={st.vaqt}>{b.vaqt}</div>
@@ -107,7 +141,7 @@ export default function HaydovchiSahifa() {
                   Ўз нархим
                 </button>
                 <button style={st.roziTugma} onClick={() => roziBolish(b)}>
-                  Рози · {b.narx.toLocaleString()}
+                  Рози · {Number(b.narx).toLocaleString()}
                 </button>
               </div>
             </div>
@@ -136,8 +170,9 @@ export default function HaydovchiSahifa() {
 
 const st = {
   sahifa: { width: '100vw', maxWidth: 480, margin: '0 auto', minHeight: '100vh', background: 'var(--och-kulrang)' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 16, background: 'var(--oq)' },
-  logo: { fontWeight: 800, fontSize: 16 },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 16, background: 'var(--oq)', gap: 8 },
+  logo: { fontWeight: 800, fontSize: 14, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  chiqish: { background: 'var(--och-kulrang)', padding: '8px 12px', borderRadius: 16, fontWeight: 600, fontSize: 12 },
   statusTugma: { color: 'var(--oq)', padding: '8px 16px', borderRadius: 20, fontWeight: 700, fontSize: 13 },
   daromad: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 16, padding: 20, background: 'var(--qora)', borderRadius: 18, color: 'var(--oq)' },
   daromadRaqam: { fontSize: 28, fontWeight: 800, color: 'var(--sariq)' },

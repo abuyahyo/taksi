@@ -1,44 +1,83 @@
 // Админ панели — статистика, фойдаланувчилар, буюртмалар, блоклаш
-import { useState } from 'react';
-
-// Намуна маълумотлар (ҳақиқий ишда API'дан келади)
-const NAMUNA_STAT = {
-  jami_foydalanuvchi: 1248, jami_haydovchi: 312,
-  jami_safar: 5680, yakunlangan_safar: 5102, jami_daromad: 142500000,
-};
-const NAMUNA_USERS = [
-  { id: 1, ism: 'Азиз Каримов', telefon: '998901112233', rol: 'mijoz', reyting: 4.9, bloklangan: false },
-  { id: 2, ism: 'Бахтиёр Алиев', telefon: '998902223344', rol: 'haydovchi', reyting: 4.8, bloklangan: false },
-  { id: 3, ism: 'Жасур Усмонов', telefon: '998903334455', rol: 'haydovchi', reyting: 3.2, bloklangan: true, blok_sababi: 'Кўп бекор қилиш' },
-];
-const NAMUNA_RIDES = [
-  { id: 101, mijoz_ism: 'Азиз', haydovchi_ism: 'Бахтиёр', boshlanish_manzil: 'Чилонзор', tugash_manzil: 'Юнусобод', kelishilgan_narx: 25000, holat: 'yakunlandi' },
-  { id: 102, mijoz_ism: 'Нодира', haydovchi_ism: '—', boshlanish_manzil: 'Олой', tugash_manzil: 'ЦУМ', kelishilgan_narx: null, holat: 'kutilmoqda' },
-];
+import { useEffect, useState } from 'react';
+import { api } from '../services/api';
+import Kirish from '../components/Kirish';
 
 export default function AdminSahifa() {
+  const [user, setUser] = useState(() => {
+    const saqlangan = localStorage.getItem('user');
+    if (!saqlangan) return null;
+    try {
+      const u = JSON.parse(saqlangan);
+      return u.rol === 'admin' ? u : null;
+    } catch {
+      return null;
+    }
+  });
+
+  if (!user) return <Kirish kerakliRol="admin" sarlavha="Админ панелига кириш" onKirildi={setUser} />;
+
+  return <AdminIchki onChiqish={() => { localStorage.removeItem('token'); localStorage.removeItem('user'); setUser(null); }} />;
+}
+
+function AdminIchki({ onChiqish }) {
   const [tab, setTab] = useState('statistika');
-  const [users, setUsers] = useState(NAMUNA_USERS);
+  const [stat, setStat] = useState(null);
+  const [users, setUsers] = useState(null);
+  const [rides, setRides] = useState(null);
+  const [xato, setXato] = useState('');
   const [blokModal, setBlokModal] = useState(null);
   const [sabab, setSabab] = useState('');
 
-  const bloklash = () => {
-    setUsers(users.map((u) => u.id === blokModal.id ? { ...u, bloklangan: true, blok_sababi: sabab } : u));
-    setBlokModal(null);
-    setSabab('');
+  const yukla = async () => {
+    try {
+      setXato('');
+      const [s, u, r] = await Promise.all([
+        api.get('/admin/statistika'),
+        api.get('/admin/foydalanuvchilar'),
+        api.get('/admin/buyurtmalar'),
+      ]);
+      setStat(s.data);
+      setUsers(u.data);
+      setRides(r.data);
+    } catch (err) {
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        onChiqish();
+      } else {
+        setXato(err.response?.data?.xato || 'Маълумотларни юклаб бўлмади');
+      }
+    }
   };
 
-  const blokniYechish = (id) => {
-    setUsers(users.map((u) => u.id === id ? { ...u, bloklangan: false, blok_sababi: null } : u));
+  useEffect(() => { yukla(); }, []);
+
+  const bloklash = async () => {
+    try {
+      await api.post(`/admin/bloklash/${blokModal.id}`, { sabab });
+      setBlokModal(null);
+      setSabab('');
+      yukla();
+    } catch (err) {
+      alert(err.response?.data?.xato || 'Блоклашда хато');
+    }
+  };
+
+  const blokniYechish = async (id) => {
+    try {
+      await api.post(`/admin/blok-yechish/${id}`);
+      yukla();
+    } catch (err) {
+      alert(err.response?.data?.xato || 'Хато');
+    }
   };
 
   return (
     <div style={st.sahifa}>
       <div style={st.header}>
         <div style={st.logo}>🚕 Tez Taxi · Админ</div>
+        <button style={st.chiqish} onClick={onChiqish}>Чиқиш</button>
       </div>
 
-      {/* Таблар */}
       <div style={st.tablar}>
         {[['statistika', '📊 Статистика'], ['users', '👥 Фойдаланувчилар'], ['rides', '🚗 Буюртмалар']].map(([k, n]) => (
           <button key={k} style={{ ...st.tab, ...(tab === k ? st.tabFaol : {}) }} onClick={() => setTab(k)}>{n}</button>
@@ -46,59 +85,66 @@ export default function AdminSahifa() {
       </div>
 
       <div style={st.kontent}>
+        {xato && <div style={st.xato}>{xato}</div>}
+
         {tab === 'statistika' && (
-          <div style={st.statGrid}>
-            <Stat raqam={NAMUNA_STAT.jami_foydalanuvchi.toLocaleString()} matn="Фойдаланувчилар" ikon="👥" />
-            <Stat raqam={NAMUNA_STAT.jami_haydovchi.toLocaleString()} matn="Ҳайдовчилар" ikon="🚗" />
-            <Stat raqam={NAMUNA_STAT.jami_safar.toLocaleString()} matn="Жами сафар" ikon="📦" />
-            <Stat raqam={NAMUNA_STAT.yakunlangan_safar.toLocaleString()} matn="Якунланган" ikon="✅" />
-            <Stat raqam={`${(NAMUNA_STAT.jami_daromad / 1000000).toFixed(1)}M`} matn="Даромад (сўм)" ikon="💰" keng />
-          </div>
+          stat == null ? <Yuklanmoqda /> : (
+            <div style={st.statGrid}>
+              <Stat raqam={stat.jami_foydalanuvchi.toLocaleString()} matn="Фойдаланувчилар" ikon="👥" />
+              <Stat raqam={stat.jami_haydovchi.toLocaleString()} matn="Ҳайдовчилар" ikon="🚗" />
+              <Stat raqam={stat.jami_safar.toLocaleString()} matn="Жами сафар" ikon="📦" />
+              <Stat raqam={stat.yakunlangan_safar.toLocaleString()} matn="Якунланган" ikon="✅" />
+              <Stat raqam={`${(stat.jami_daromad / 1_000_000).toFixed(1)}M`} matn="Даромад (сўм)" ikon="💰" keng />
+            </div>
+          )
         )}
 
         {tab === 'users' && (
-          <div style={st.royxat}>
-            {users.map((u) => (
-              <div key={u.id} style={st.userKarta}>
-                <div style={st.avatar}>{u.ism[0]}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={st.userIsm}>{u.ism}</div>
-                  <div style={st.userMeta}>
-                    {u.telefon} · {u.rol === 'haydovchi' ? '🚗 Ҳайдовчи' : '🧍 Йўловчи'} · ⭐ {u.reyting}
+          users == null ? <Yuklanmoqda /> : users.length === 0 ? <Bosh matn="Ҳали фойдаланувчи йўқ" /> : (
+            <div style={st.royxat}>
+              {users.map((u) => (
+                <div key={u.id} style={st.userKarta}>
+                  <div style={st.avatar}>{u.ism[0]}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={st.userIsm}>{u.ism}</div>
+                    <div style={st.userMeta}>
+                      {u.telefon} · {u.rol === 'haydovchi' ? '🚗 Ҳайдовчи' : u.rol === 'admin' ? '👑 Админ' : '🧍 Йўловчи'} · ⭐ {u.reyting}
+                    </div>
+                    {u.bloklangan && <div style={st.blokBelgi}>🚫 Блокланган: {u.blok_sababi}</div>}
                   </div>
-                  {u.bloklangan && <div style={st.blokBelgi}>🚫 Блокланган: {u.blok_sababi}</div>}
+                  {u.rol !== 'admin' && (u.bloklangan ? (
+                    <button style={st.yechishTugma} onClick={() => blokniYechish(u.id)}>Ечиш</button>
+                  ) : (
+                    <button style={st.blokTugma} onClick={() => setBlokModal(u)}>Блоклаш</button>
+                  ))}
                 </div>
-                {u.bloklangan ? (
-                  <button style={st.yechishTugma} onClick={() => blokniYechish(u.id)}>Ечиш</button>
-                ) : (
-                  <button style={st.blokTugma} onClick={() => setBlokModal(u)}>Блоклаш</button>
-                )}
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )
         )}
 
         {tab === 'rides' && (
-          <div style={st.royxat}>
-            {NAMUNA_RIDES.map((r) => (
-              <div key={r.id} style={st.rideKarta}>
-                <div style={st.rideYuqori}>
-                  <span style={st.rideId}>#{r.id}</span>
-                  <span style={{ ...st.holatBelgi, ...(r.holat === 'yakunlandi' ? st.holatYashil : st.holatSariq) }}>
-                    {r.holat === 'yakunlandi' ? 'Якунланди' : 'Кутилмоқда'}
-                  </span>
+          rides == null ? <Yuklanmoqda /> : rides.length === 0 ? <Bosh matn="Ҳали сафар йўқ" /> : (
+            <div style={st.royxat}>
+              {rides.map((r) => (
+                <div key={r.id} style={st.rideKarta}>
+                  <div style={st.rideYuqori}>
+                    <span style={st.rideId}>#{r.id}</span>
+                    <span style={{ ...st.holatBelgi, ...(r.holat === 'yakunlandi' ? st.holatYashil : st.holatSariq) }}>
+                      {r.holat === 'yakunlandi' ? 'Якунланди' : r.holat === 'kutilmoqda' ? 'Кутилмоқда' : r.holat}
+                    </span>
+                  </div>
+                  <div style={st.rideYol}>{r.boshlanish_manzil} → {r.tugash_manzil}</div>
+                  <div style={st.rideMeta}>
+                    {r.mijoz_ism || '—'} → {r.haydovchi_ism || '—'} · {r.kelishilgan_narx ? `${Number(r.kelishilgan_narx).toLocaleString()} сўм` : '—'}
+                  </div>
                 </div>
-                <div style={st.rideYol}>{r.boshlanish_manzil} → {r.tugash_manzil}</div>
-                <div style={st.rideMeta}>
-                  {r.mijoz_ism} → {r.haydovchi_ism} · {r.kelishilgan_narx ? `${r.kelishilgan_narx.toLocaleString()} сўм` : '—'}
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )
         )}
       </div>
 
-      {/* Блоклаш ойнаси — сабаб мажбурий (шаффофлик) */}
       {blokModal && (
         <div style={st.modalFon} onClick={() => setBlokModal(null)}>
           <div style={st.modal} onClick={(e) => e.stopPropagation()}>
@@ -126,14 +172,24 @@ function Stat({ raqam, matn, ikon, keng }) {
   );
 }
 
+function Yuklanmoqda() {
+  return <div style={{ textAlign: 'center', padding: 40, color: 'var(--kulrang)' }}>Юкланмоқда...</div>;
+}
+
+function Bosh({ matn }) {
+  return <div style={{ textAlign: 'center', padding: 40, color: 'var(--kulrang)', fontSize: 14 }}>{matn}</div>;
+}
+
 const st = {
   sahifa: { width: '100vw', maxWidth: 720, margin: '0 auto', minHeight: '100vh', background: 'var(--och-kulrang)' },
-  header: { padding: 20, background: 'var(--qora)', color: 'var(--oq)' },
+  header: { padding: 20, background: 'var(--qora)', color: 'var(--oq)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   logo: { fontWeight: 800, fontSize: 18 },
+  chiqish: { background: 'transparent', color: 'var(--oq)', border: '1px solid rgba(255,255,255,.3)', padding: '6px 12px', borderRadius: 8, fontSize: 13 },
   tablar: { display: 'flex', gap: 8, padding: 16, background: 'var(--oq)' },
   tab: { flex: 1, padding: 12, borderRadius: 12, background: 'var(--och-kulrang)', fontWeight: 600, fontSize: 13 },
   tabFaol: { background: 'var(--sariq)', fontWeight: 800 },
   kontent: { padding: 16 },
+  xato: { background: '#FEE2E2', color: '#991B1B', padding: 12, borderRadius: 10, marginBottom: 12, fontSize: 14 },
   statGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 },
   royxat: { display: 'flex', flexDirection: 'column', gap: 10 },
   userKarta: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--oq)', padding: 14, borderRadius: 14, boxShadow: 'var(--soya)' },

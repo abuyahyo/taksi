@@ -9,6 +9,7 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const driverRoutes = require('./routes/driverRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 
 const app = express();
@@ -34,6 +35,7 @@ app.set('io', io);
 // API йўллари
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/driver', driverRoutes);
 app.use('/api/payment', paymentRoutes);
 
 // Health check (frontend build йўқлигида)
