@@ -175,6 +175,15 @@ export default {
   'prof.useHome':        '🏠 Uy',
   'prof.useWork':        '🏢 Ish',
 
+  // Shaffof narx tarkibi
+  'price.breakdown':     'Narx tarkibi',
+  'price.base':          'Bazaviy',
+  'price.perKm':         '{km} km × {rate} soʻm',
+  'price.agreed':        'Kelishilgan narx',
+  'price.total':         'Jami',
+  'price.tavsiyaIzoh':   'Bu tavsiya. Siz oʻz narxingizni belgilashingiz mumkin.',
+  'price.transparent':   '🌟 Shaffof narx — raqamlar yashirin emas',
+
   // Kutish haqi
   'wait.driving':        'Yoʻlovchiga boryapman',
   'wait.arrived':        'Yoʻlovchini kutayapman',

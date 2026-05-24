@@ -175,6 +175,15 @@ export default {
   'prof.useHome':        '🏠 Дом',
   'prof.useWork':        '🏢 Работа',
 
+  // Прозрачный состав цены
+  'price.breakdown':     'Состав цены',
+  'price.base':          'Базовый тариф',
+  'price.perKm':         '{km} км × {rate} сум',
+  'price.agreed':        'Согласованная цена',
+  'price.total':         'Итого',
+  'price.tavsiyaIzoh':   'Это рекомендация. Вы можете назначить свою цену.',
+  'price.transparent':   '🌟 Прозрачная цена — никаких скрытых цифр',
+
   // Плата за ожидание
   'wait.driving':        'Еду к пассажиру',
   'wait.arrived':        'Жду пассажира',

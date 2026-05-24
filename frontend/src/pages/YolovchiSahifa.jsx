@@ -9,6 +9,7 @@ import Kirish from '../components/Kirish';
 import YolovchiProfili from '../components/YolovchiProfili';
 import Ulashish from '../components/Ulashish';
 import ManzilQidirish from '../components/ManzilQidirish';
+import NarxTarkibi, { tavsiyaHisobi, ASOSIY, PER_KM } from '../components/NarxTarkibi';
 import { api } from '../services/api';
 import { useSocket } from '../services/useSocket';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
@@ -126,7 +127,7 @@ export default function YolovchiSahifa() {
     return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))).toFixed(1);
   };
 
-  const tavsiyaNarx = Math.max(10000, Math.round(masofa() * 3000));
+  const tavsiyaNarx = tavsiyaHisobi(masofa());
 
   const davomEtish = () => {
     if (boshlanish && tugash) {
@@ -241,6 +242,17 @@ export default function YolovchiSahifa() {
               <div style={st.narxMatn}>{narx.toLocaleString()}</div>
               <button style={st.narxTugma} onClick={() => setNarx(narx + 1000)}>+</button>
             </div>
+
+            {/* Шаффоф нарх таркиби */}
+            <NarxTarkibi
+              qatorlar={[
+                { label: t('price.base'), qiymat: ASOSIY },
+                { label: t('price.perKm', { km: masofa(), rate: PER_KM.toLocaleString() }), qiymat: Math.round(masofa() * PER_KM) },
+              ]}
+              jami={tavsiyaNarx}
+              izoh={t('price.tavsiyaIzoh')}
+            />
+
             <button style={st.tugma} onClick={buyurtmaBerish}>{t('pass.placeOrder')}</button>
             <button style={st.orqaga} onClick={() => setBosqich('manzil')}>← {t('common.back')}</button>
           </>
@@ -268,7 +280,20 @@ export default function YolovchiSahifa() {
               </div>
             )}
 
-            {/* Кутиш ҳақи қўшилган бўлса — кўрсатамиз */}
+            {/* Шаффоф нарх таркиби — сафар жараёнида */}
+            <NarxTarkibi
+              qatorlar={[
+                { label: t('price.agreed'), qiymat: Number(haydovchiInfo.narx) - (Number(haydovchiInfo.kutish_haqi) || 0) },
+                ...(haydovchiInfo.kutish_haqi > 0 ? [{
+                  label: t('wait.feeAdded'),
+                  qiymat: Number(haydovchiInfo.kutish_haqi),
+                  qoshimcha: true,
+                }] : []),
+              ]}
+              jami={Number(haydovchiInfo.narx)}
+            />
+
+            {/* Кутиш ҳақи қўшилган бўлса огоҳлантириш */}
             {haydovchiInfo.kutish_haqi > 0 && (
               <div style={st.kutishQushilgan}>
                 {t('wait.feeAdded')}: <b>+{Number(haydovchiInfo.kutish_haqi).toLocaleString()}</b>

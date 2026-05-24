@@ -175,6 +175,15 @@ export default {
   'prof.useHome':        '🏠 Уй',
   'prof.useWork':        '🏢 Иш',
 
+  // Шаффоф нарх таркиби
+  'price.breakdown':     'Нарх таркиби',
+  'price.base':          'Базовый',
+  'price.perKm':         '{km} км × {rate} сўм',
+  'price.agreed':        'Келишилган нарх',
+  'price.total':         'Жами',
+  'price.tavsiyaIzoh':   'Бу тавсия. Сиз ўз нархингизни белгилашингиз мумкин.',
+  'price.transparent':   '🌟 Шаффоф нарх — рақамлар яширин эмас',
+
   // Кутиш ҳақи
   'wait.driving':        'Йўловчига боряпман',
   'wait.arrived':        'Йўловчини кутаяпман',
