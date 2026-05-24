@@ -175,6 +175,12 @@ export default {
   'prof.useHome':        '🏠 Уй',
   'prof.useWork':        '🏢 Иш',
 
+  // Манзил қидируви
+  'geo.searchPlaceholder': 'Манзил қидириш (масалан "Чилонзор")',
+  'geo.noResults':         'Топилмади',
+  'geo.modeStart':         '🟢 Бошланиш танлаймиз',
+  'geo.modeEnd':           '🔴 Манзил танлаймиз',
+
   // Сафарни улашиш
   'share.open':          '🆘 Сафарни оилага юбориш',
   'share.title':         'Сафарни улашиш',

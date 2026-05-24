@@ -175,6 +175,12 @@ export default {
   'prof.useHome':        '🏠 Uy',
   'prof.useWork':        '🏢 Ish',
 
+  // Manzil qidiruvi
+  'geo.searchPlaceholder': 'Manzil qidirish (masalan "Chilonzor")',
+  'geo.noResults':         'Topilmadi',
+  'geo.modeStart':         '🟢 Boshlanish tanlaymiz',
+  'geo.modeEnd':           '🔴 Manzil tanlaymiz',
+
   // Safarni ulashish
   'share.open':          '🆘 Safarni oilaga yuborish',
   'share.title':         'Safarni ulashish',

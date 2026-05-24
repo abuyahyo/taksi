@@ -175,6 +175,12 @@ export default {
   'prof.useHome':        '🏠 Дом',
   'prof.useWork':        '🏢 Работа',
 
+  // Поиск адреса
+  'geo.searchPlaceholder': 'Поиск адреса (например, "Чиланзар")',
+  'geo.noResults':         'Не найдено',
+  'geo.modeStart':         '🟢 Выбираем начало',
+  'geo.modeEnd':           '🔴 Выбираем место назначения',
+
   // Поделиться поездкой
   'share.open':          '🆘 Поделиться с близкими',
   'share.title':         'Поделиться поездкой',

@@ -8,6 +8,7 @@ import Tolov from '../components/Tolov';
 import Kirish from '../components/Kirish';
 import YolovchiProfili from '../components/YolovchiProfili';
 import Ulashish from '../components/Ulashish';
+import ManzilQidirish from '../components/ManzilQidirish';
 import { api } from '../services/api';
 import { useSocket } from '../services/useSocket';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
@@ -176,6 +177,16 @@ export default function YolovchiSahifa() {
         {bosqich === 'manzil' && (
           <>
             <h2 style={st.sarlavha}>{t('pass.whereTo')}</h2>
+
+            {/* Манзил қидириш — топилган нуқтани харитага қўяди */}
+            <ManzilQidirish
+              rejimMatn={tanlovRejimi === 'boshlanish' ? t('geo.modeStart') : t('geo.modeEnd')}
+              onTanlandi={(nuqta) => {
+                if (tanlovRejimi === 'boshlanish') { setBoshlanish(nuqta); setTanlovRejimi('tugash'); }
+                else setTugash(nuqta);
+              }}
+            />
+
             <div style={st.maydon} onClick={() => setTanlovRejimi('boshlanish')}>
               <span style={{ ...st.nuqta, background: 'var(--yashil)' }} />
               <div style={st.maydonMatn}>{boshlanish ? t('pass.startPicked') : t('pass.markStart')}</div>
