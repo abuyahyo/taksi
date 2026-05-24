@@ -1,0 +1,29 @@
+/* Глобал стиллар — тоза, замонавий такси иловаси */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --sariq: #FCDB00;
+  --qora: #1A1A1A;
+  --kulrang: #6B7280;
+  --och-kulrang: #F3F4F6;
+  --oq: #FFFFFF;
+  --yashil: #22C55E;
+  --qizil: #EF4444;
+  --soya: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Manrope', sans-serif;
+  background: var(--och-kulrang);
+  color: var(--qora);
+  -webkit-font-smoothing: antialiased;
+}
+
+button { font-family: inherit; cursor: pointer; border: none; transition: all 0.2s ease; }
+button:active { transform: scale(0.97); }
+input { font-family: inherit; outline: none; }
+.leaflet-container { width: 100%; height: 100%; }
+
+@keyframes aylanish { to { transform: rotate(360deg); } }
