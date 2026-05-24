@@ -1,27 +1,29 @@
 // Socket уланишини осонлаштирувчи hook
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { socket } from '../services/api';
 
-// Socket'ни улаш ва ҳодисаларга обуна бўлиш
+// Socket'ни улаш ва ҳодисаларга обуна бўлиш.
+// Handlers ref орқали ишлайди — компонент re-render бўлганда янги closure ишлатилади.
+// (Бу муҳим: бошида null бўлган state'лар кейин ўзгаргач, eski closure уларни кўрмасди.)
 export function useSocket(hodisalar = {}) {
+  const ref = useRef(hodisalar);
+  ref.current = hodisalar;
+
   useEffect(() => {
     if (!socket.connected) socket.connect();
 
-    // Ҳар бир ҳодисага обуна бўламиз
-    Object.entries(hodisalar).forEach(([nom, callback]) => {
-      socket.on(nom, callback);
+    const wrappers = {};
+    Object.keys(hodisalar).forEach((nom) => {
+      wrappers[nom] = (...args) => ref.current[nom]?.(...args);
+      socket.on(nom, wrappers[nom]);
     });
 
-    // Тозалаш — обунани бекор қиламиз
     return () => {
-      Object.keys(hodisalar).forEach((nom) => {
-        socket.off(nom);
-      });
+      Object.entries(wrappers).forEach(([nom, fn]) => socket.off(nom, fn));
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Ҳодиса юбориш функцияси
   const yubor = (nom, data) => socket.emit(nom, data);
   return { yubor };
 }

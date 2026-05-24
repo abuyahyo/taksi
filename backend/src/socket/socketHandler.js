@@ -156,30 +156,34 @@ module.exports = (io) => {
       io.to(`ride_${data.rideId}`).emit('haydovchi_joylashuvi', data);
     });
 
-    // ЧАТ — йўловчи ↔ ҳайдовчи хабар алмашуви
+    // ЧАТ — йўловчи ↔ ҳайдовчи хабар алмашуви (меҳмон ҳам юбора олади)
     socket.on('xabar_yuborish', async (data) => {
       // data = { rideId, matn }
       try {
-        const userId = socket.data.userId;
-        if (!userId || !data.matn) return; // меҳмон бўлса ёки бўш хабар — ўтказамиз
+        const userId = socket.data.userId || null;
+        const matn = typeof data.matn === 'string' ? data.matn.trim().slice(0, 1000) : '';
+        if (!matn) return;
         const r = await query(
           `INSERT INTO messages (ride_id, yuboruvchi_id, matn) VALUES ($1, $2, $3)
            RETURNING id, vaqt`,
-          [data.rideId, userId, data.matn]
+          [data.rideId, userId, matn]
         );
-        // Юборувчи исмини users'дан оламиз (қисқа сорғу)
-        const u = await query(`SELECT ism FROM users WHERE id = $1`, [userId]);
+        // Юборувчи исми — рўйхатдан ўтган бўлса users'дан, бўлмаса 'Йўловчи'
+        let yuboruvchi_ism = 'Йўловчи';
+        if (userId) {
+          const u = await query(`SELECT ism FROM users WHERE id = $1`, [userId]);
+          yuboruvchi_ism = u.rows[0]?.ism || 'Фойдаланувчи';
+        }
         const xabar = {
           id: r.rows[0].id,
           ride_id: data.rideId,
           yuboruvchi_id: userId,
-          yuboruvchi_ism: u.rows[0]?.ism || '?',
-          matn: data.matn,
+          yuboruvchi_ism,
+          matn,
           vaqt: r.rows[0].vaqt,
         };
-        // Сафар ҳамма иштирокчиларига юборамиз
         io.to(`ride_${data.rideId}`).emit('xabar_keldi', xabar);
-        console.log(`💬 #${data.rideId} ${userId}: ${data.matn.slice(0, 30)}`);
+        console.log(`💬 #${data.rideId} ${userId || 'guest'}: ${matn.slice(0, 30)}`);
       } catch (err) {
         console.error('xabar_yuborish xato:', err.message);
       }
