@@ -1,6 +1,8 @@
 // Асосий сервер — Express + Socket.io
 const express = require('express');
 const http = require('http');
+const path = require('path');
+const fs = require('fs');
 const cors = require('cors');
 const { Server } = require('socket.io');
 require('dotenv').config();
@@ -34,12 +36,26 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/payment', paymentRoutes);
 
-// Текшириш йўли
-app.get('/', (req, res) => {
-  res.json({ holat: 'Сервер ишламоқда ✅' });
-});
+// Health check (frontend build йўқлигида)
+const distPath = path.join(__dirname, '..', '..', 'frontend', 'dist');
+const hasFrontend = fs.existsSync(path.join(distPath, 'index.html'));
 
-// Socket.io уланиш мантиғи (кейинги босқичда тўлдирилади)
+if (!hasFrontend) {
+  app.get('/', (req, res) => {
+    res.json({ holat: 'Сервер ишламоқда ✅' });
+  });
+} else {
+  // Frontend build'ни хизмат қиламиз
+  app.use(express.static(distPath));
+  // SPA fallback — React Router учун
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/socket.io')) return next();
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+  console.log(`📂 Frontend хизмат қилмоқда: ${distPath}`);
+}
+
+// Socket.io уланиш мантиғи
 require('./socket/socketHandler')(io);
 
 const PORT = process.env.PORT || 5000;
