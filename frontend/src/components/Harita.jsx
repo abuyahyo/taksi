@@ -20,6 +20,19 @@ const yashilIcon = new L.Icon({
   className: 'marker-boshlanish',
 });
 
+// Ҳайдовчи учун машина иконкаси (emoji + сариқ доира)
+const haydovchiIcon = L.divIcon({
+  className: 'haydovchi-marker',
+  html: `<div style="
+    width:44px;height:44px;border-radius:50%;
+    background:#FACC15;display:flex;align-items:center;justify-content:center;
+    font-size:24px;box-shadow:0 2px 8px rgba(0,0,0,.3);
+    border:3px solid #fff;
+  ">🚗</div>`,
+  iconSize: [44, 44],
+  iconAnchor: [22, 22],
+});
+
 // Харитани белгиланган нуқтага кўчириш
 function HaritaMarkaz({ markaz }) {
   const map = useMap();
@@ -39,17 +52,18 @@ function BosishHodisasi({ onBosish }) {
   return null;
 }
 
-export default function Harita({ markaz, boshlanish, tugash, onBosish }) {
+export default function Harita({ markaz, boshlanish, tugash, haydovchi, onBosish }) {
   return (
     <MapContainer center={markaz} zoom={13} zoomControl={false}>
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution="© OpenStreetMap"
       />
-      <HaritaMarkaz markaz={markaz} />
+      <HaritaMarkaz markaz={haydovchi || markaz} />
       <BosishHodisasi onBosish={onBosish} />
       {boshlanish && <Marker position={boshlanish} icon={yashilIcon} />}
       {tugash && <Marker position={tugash} />}
+      {haydovchi && <Marker position={haydovchi} icon={haydovchiIcon} />}
     </MapContainer>
   );
 }

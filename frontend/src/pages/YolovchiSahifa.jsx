@@ -18,6 +18,7 @@ export default function YolovchiSahifa() {
   const [takliflar, setTakliflar] = useState([]);
   const [rideId, setRideId] = useState(null);
   const [haydovchiInfo, setHaydovchiInfo] = useState(null); // {ism, narx} — танланган ҳайдовчи
+  const [haydovchiNuqta, setHaydovchiNuqta] = useState(null); // [lat, lng] — реал вақт жойлашуви
   const [chatOchiq, setChatOchiq] = useState(false);
   const [baholashUchun, setBaholashUchun] = useState(null); // {rideId, ism}
 
@@ -40,6 +41,12 @@ export default function YolovchiSahifa() {
         setBaholashUchun({ rideId, ism: haydovchiInfo?.ism || 'Ҳайдовчи' });
       }
     },
+    // Ҳайдовчи жонли жойлашуви — харитада кузатиш учун
+    haydovchi_joylashuvi: (data) => {
+      if (Number(data.rideId) === Number(rideId) && data.lat != null && data.lng != null) {
+        setHaydovchiNuqta([data.lat, data.lng]);
+      }
+    },
   });
 
   const boshlanishigaQayt = () => {
@@ -50,6 +57,7 @@ export default function YolovchiSahifa() {
     setTakliflar([]);
     setRideId(null);
     setHaydovchiInfo(null);
+    setHaydovchiNuqta(null);
     setChatOchiq(false);
   };
 
@@ -120,7 +128,7 @@ export default function YolovchiSahifa() {
   return (
     <div style={st.sahifa}>
       <div style={st.harita}>
-        <Harita markaz={TOSHKENT} boshlanish={boshlanish} tugash={tugash} onBosish={haritaBosildi} />
+        <Harita markaz={TOSHKENT} boshlanish={boshlanish} tugash={tugash} haydovchi={haydovchiNuqta} onBosish={haritaBosildi} />
       </div>
       <div style={st.logo}>🚕 Tez Taxi</div>
       <button style={st.tarixTugma} onClick={() => navigate('/tarix')} title="Сафар тарихи">🕒</button>
@@ -169,7 +177,9 @@ export default function YolovchiSahifa() {
               </div>
             </div>
             <button style={st.tugma} onClick={() => setChatOchiq(true)}>💬 Ҳайдовчи билан суҳбат</button>
-            <button style={st.orqaga}>Ҳайдовчи ҳозир кутмоқда...</button>
+            <div style={st.kuzatishMatn}>
+              {haydovchiNuqta ? '📍 Ҳайдовчи харитада кўриниб турибди' : '🔄 Жойлашув кутилмоқда...'}
+            </div>
           </>
         )}
 
@@ -248,4 +258,5 @@ const st = {
   hIsm: { fontWeight: 700, fontSize: 15 },
   hMashina: { fontSize: 12, color: 'var(--kulrang)' },
   qabul: { background: 'var(--sariq)', padding: '10px 16px', borderRadius: 10, fontWeight: 800, fontSize: 15 },
+  kuzatishMatn: { textAlign: 'center', padding: 12, color: 'var(--kulrang)', fontSize: 13, marginTop: 4 },
 };

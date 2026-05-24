@@ -37,6 +37,7 @@ function Ichki({ user, onChiqish }) {
   const [baholashUchun, setBaholashUchun] = useState(null); // {rideId, ism} — модаль очилади
   const [mashina, setMashina] = useState(null); // {mashina_modeli, mashina_raqami, mashina_rangi}
   const [profilOchiq, setProfilOchiq] = useState(false);
+  const [joylashuvOchiqmi, setJoylashuvOchiqmi] = useState(false); // GPS таклиф қилинганми
 
   const statsYukla = async () => {
     try {
@@ -54,6 +55,22 @@ function Ichki({ user, onChiqish }) {
 
   const mashinaToldirilganmi = !!(mashina?.mashina_modeli && mashina?.mashina_raqami);
   const mashinaJamiMatn = mashinaMatn(mashina);
+
+  // Сафар фаол бўлганда — браузернинг geolocation API'си орқали жонли GPS юбориш
+  useEffect(() => {
+    if (!faolSafar) { setJoylashuvOchiqmi(false); return; }
+    if (!('geolocation' in navigator)) return;
+    const watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        setJoylashuvOchiqmi(true);
+        yubor('joylashuv', { rideId: faolSafar.rideId, lat: pos.coords.latitude, lng: pos.coords.longitude });
+      },
+      (err) => { console.warn('Geolocation:', err.message); setJoylashuvOchiqmi(false); },
+      { enableHighAccuracy: true, maximumAge: 4000, timeout: 15000 }
+    );
+    return () => navigator.geolocation.clearWatch(watchId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [faolSafar]);
 
   const { yubor } = useSocket({
     buyurtma_keldi: (b) => setBuyurtmalar((oldin) => [...oldin, b]),
@@ -143,7 +160,9 @@ function Ichki({ user, onChiqish }) {
         <div style={st.faolSafar}>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 800, fontSize: 16 }}>Сафар жараёнда</div>
-            <div style={{ fontSize: 13, opacity: 0.8 }}>#{faolSafar.rideId} · {Number(faolSafar.narx).toLocaleString()} сўм</div>
+            <div style={{ fontSize: 13, opacity: 0.8 }}>
+              #{faolSafar.rideId} · {Number(faolSafar.narx).toLocaleString()} сўм · {joylashuvOchiqmi ? '📍 GPS' : '⌛ GPS...'}
+            </div>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <button style={st.chatTugma} onClick={() => setChatOchiq(true)}>💬</button>
