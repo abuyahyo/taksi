@@ -226,6 +226,10 @@ export default {
   'share.tgMatn':        'Mening safarim — real vaqtda kuzatish',
   'share.waMatn':        'Mening safarim — real vaqtda kuzatish:',
 
+  // PWA — yangi versiya bildirishnomasi
+  'pwa.newVersion':      'Yangi versiya mavjud',
+  'pwa.update':          'Yangilash',
+
   // Til
   'lang.label':          'Til',
   'lang.uz':             'Ўзбекча',

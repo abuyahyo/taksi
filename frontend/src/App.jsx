@@ -2,6 +2,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { I18nProvider } from './i18n';
+import YangilanishBanner from './components/YangilanishBanner';
 
 // Route-based code splitting — ҳар саҳифа алоҳида chunk
 // Бош саҳифа Leaflet/Chat/Tolov ва бошқалар билан юкланмайди — тез очилади
@@ -34,6 +35,7 @@ export default function App() {
             <Route path="/k/:kalit" element={<UlashilganSahifa />} />
           </Routes>
         </Suspense>
+        <YangilanishBanner />
       </BrowserRouter>
     </I18nProvider>
   );
