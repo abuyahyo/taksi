@@ -29,13 +29,18 @@ export default {
 
   // Вход
   'login.title':         'Вход',
+  'login.register':      'Регистрация',
+  'login.registerSubmit':'Зарегистрироваться',
   'login.titleAdmin':    'Вход в админ-панель',
   'login.titleDriver':   'Вход водителя',
   'login.titleHistory':  'Просмотр истории поездок',
+  'login.name':          'Ваше имя',
   'login.phone':         'Телефон (+998...)',
   'login.password':      'Пароль',
   'login.submit':        'Войти',
   'login.wrongRole':     'Эта страница только для {rol}',
+  'login.noAccount':     'Нет аккаунта? Зарегистрируйтесь',
+  'login.haveAccount':   'Уже есть аккаунт? Войдите',
 
   // Пассажир
   'pass.whereTo':        'Куда едем?',
@@ -155,6 +160,18 @@ export default {
   'pay.opening':         'Переход на страницу оплаты...',
   'pay.success':         '✅ Оплата принята',
   'pay.alreadyPaid':     'За эту поездку уже оплачено',
+
+  // Профиль пассажира
+  'prof.title':          'Мой профиль',
+  'prof.spent':          'Всего потрачено (сум)',
+  'prof.savedAddresses': 'Сохранённые адреса',
+  'prof.home':           'Дом',
+  'prof.work':           'Работа',
+  'prof.noAddress':      'Не сохранён',
+  'prof.saveFromMap':    '📍 Сохранить эту точку',
+  'prof.pickPointFirst': 'Сначала выберите точку на карте',
+  'prof.useHome':        '🏠 Дом',
+  'prof.useWork':        '🏢 Работа',
 
   // Язык
   'lang.label':          'Язык',

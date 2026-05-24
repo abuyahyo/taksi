@@ -9,6 +9,13 @@ CREATE TABLE IF NOT EXISTS users (
   parol_hash VARCHAR(255) NOT NULL,
   rol VARCHAR(20) NOT NULL DEFAULT 'mijoz', -- mijoz, haydovchi, admin
   reyting NUMERIC(2,1) DEFAULT 5.0,
+  -- Йўловчининг сақланган манзиллари (тез-тез манзил танлаш учун)
+  home_manzil TEXT,
+  home_lat NUMERIC(10,7),
+  home_lng NUMERIC(10,7),
+  ish_manzil TEXT,
+  ish_lat NUMERIC(10,7),
+  ish_lng NUMERIC(10,7),
   -- Шаффоф блоклаш тизими (рақобатчи муаммосидан ўрганилган)
   bloklangan BOOLEAN DEFAULT FALSE,
   blok_sababi TEXT,

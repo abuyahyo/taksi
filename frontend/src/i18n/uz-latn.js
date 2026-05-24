@@ -29,13 +29,18 @@ export default {
 
   // Login
   'login.title':         'Kirish',
+  'login.register':      'Roʻyxatdan oʻtish',
+  'login.registerSubmit':'Roʻyxatdan oʻtish',
   'login.titleAdmin':    'Admin paneliga kirish',
   'login.titleDriver':   'Haydovchi kirishi',
   'login.titleHistory':  'Safar tarixini koʻrish',
+  'login.name':          'Ismingiz',
   'login.phone':         'Telefon (+998...)',
   'login.password':      'Parol',
   'login.submit':        'Kirish',
   'login.wrongRole':     'Bu sahifa faqat {rol} uchun',
+  'login.noAccount':     'Akkauntingiz yoʻqmi? Roʻyxatdan oʻting',
+  'login.haveAccount':   'Akkauntingiz bormi? Kiring',
 
   // Yoʻlovchi
   'pass.whereTo':        'Qayerga borasiz?',
@@ -155,6 +160,18 @@ export default {
   'pay.opening':         'Toʻlov sahifasiga oʻtilmoqda...',
   'pay.success':         '✅ Toʻlov qabul qilindi',
   'pay.alreadyPaid':     'Bu safar uchun toʻlangan',
+
+  // Yoʻlovchi profili
+  'prof.title':          'Mening profilim',
+  'prof.spent':          'Jami xarajat (soʻm)',
+  'prof.savedAddresses': 'Saqlangan manzillar',
+  'prof.home':           'Uy',
+  'prof.work':           'Ish',
+  'prof.noAddress':      'Saqlanmagan',
+  'prof.saveFromMap':    '📍 Shu nuqtani saqlash',
+  'prof.pickPointFirst': 'Avval xaritadan nuqta tanlang',
+  'prof.useHome':        '🏠 Uy',
+  'prof.useWork':        '🏢 Ish',
 
   // Til
   'lang.label':          'Til',

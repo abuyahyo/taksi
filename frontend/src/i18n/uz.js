@@ -29,13 +29,18 @@ export default {
 
   // Логин
   'login.title':         'Кириш',
+  'login.register':      'Рўйхатдан ўтиш',
+  'login.registerSubmit':'Рўйхатдан ўтиш',
   'login.titleAdmin':    'Админ панелига кириш',
   'login.titleDriver':   'Ҳайдовчи кириши',
   'login.titleHistory':  'Сафар тарихини кўриш',
+  'login.name':          'Исмингиз',
   'login.phone':         'Телефон (+998...)',
   'login.password':      'Парол',
   'login.submit':        'Кириш',
   'login.wrongRole':     'Бу саҳифа фақат {rol} учун',
+  'login.noAccount':     'Аккаунтингиз йўқми? Рўйхатдан ўтинг',
+  'login.haveAccount':   'Аккаунтингиз борми? Киринг',
 
   // Йўловчи
   'pass.whereTo':        'Қаёрга борасиз?',
@@ -155,6 +160,18 @@ export default {
   'pay.opening':         'Тўлов саҳифасига ўтилмоқда...',
   'pay.success':         '✅ Тўлов қабул қилинди',
   'pay.alreadyPaid':     'Бу сафар учун тўланган',
+
+  // Йўловчи профили
+  'prof.title':          'Менинг профилим',
+  'prof.spent':          'Жами харажат (сўм)',
+  'prof.savedAddresses': 'Сақланган манзиллар',
+  'prof.home':           'Уй',
+  'prof.work':           'Иш',
+  'prof.noAddress':      'Сақланмаган',
+  'prof.saveFromMap':    '📍 Шу нуқтани сақлаш',
+  'prof.pickPointFirst': 'Аввал харитадан нуқта танланг',
+  'prof.useHome':        '🏠 Уй',
+  'prof.useWork':        '🏢 Иш',
 
   // Тил
   'lang.label':          'Тил',

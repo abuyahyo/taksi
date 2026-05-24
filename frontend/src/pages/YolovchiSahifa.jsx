@@ -5,6 +5,9 @@ import Harita from '../components/Harita';
 import Chat from '../components/Chat';
 import Baholash from '../components/Baholash';
 import Tolov from '../components/Tolov';
+import Kirish from '../components/Kirish';
+import YolovchiProfili from '../components/YolovchiProfili';
+import { api } from '../services/api';
 import { useSocket } from '../services/useSocket';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
 import { useT, TilTanlovchi } from '../i18n';
@@ -28,12 +31,25 @@ export default function YolovchiSahifa() {
   const [chatOchiq, setChatOchiq] = useState(false);
   const [tolovOchiq, setTolovOchiq] = useState(false);
   const [baholashUchun, setBaholashUchun] = useState(null); // {rideId, ism}
-
-  // Меҳмон фойдаланувчи бўлсаям чатга кириш учун ID — localStorage'дан
-  const meId = (() => {
-    try { return JSON.parse(localStorage.getItem('user') || 'null')?.id || null; }
+  const [profilOchiq, setProfilOchiq] = useState(false);
+  const [kirishOchiq, setKirishOchiq] = useState(false);
+  const [user, setUser] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('user') || 'null'); }
     catch { return null; }
-  })();
+  });
+  const [profil, setProfil] = useState(null);
+
+  // Логин қилинган мижоз бўлса — Уй/Иш манзилларини олиб қўямиз (тез-тугма учун)
+  useState(() => {
+    // dummy — биз profil'ни fetch учун useEffect ишлатамиз. (Бу қаторни ўчирмаймиз сонлик учун.)
+  });
+
+  const meId = user?.id || null;
+
+  // Логин қилинган бўлса профилни юклаб қўямиз (тез-манзил тугмалари учун)
+  if (user && !profil) {
+    api.get('/passenger/me').then(({ data }) => setProfil(data)).catch(() => {});
+  }
 
   const { yubor } = useSocket({
     buyurtma_yaratildi: ({ id }) => {
@@ -146,6 +162,11 @@ export default function YolovchiSahifa() {
       </div>
       <div style={st.logo}>🚕 Tez Taxi</div>
       <div style={st.tilWrap}><TilTanlovchi /></div>
+      <button
+        style={st.profilTugma}
+        onClick={() => user ? setProfilOchiq(true) : setKirishOchiq(true)}
+        title={user ? t('prof.title') : t('login.title')}
+      >{user ? '👤' : '🔑'}</button>
       <button style={st.tarixTugma} onClick={() => navigate('/tarix')} title={t('hist.title')}>🕒</button>
       <div style={st.yordam}>{t('common.help')}</div>
 
@@ -161,6 +182,25 @@ export default function YolovchiSahifa() {
               <span style={{ ...st.nuqta, background: 'var(--qizil)' }} />
               <div style={st.maydonMatn}>{tugash ? t('pass.endPicked') : t('pass.markEnd')}</div>
             </div>
+            {/* Сақланган манзиллар — Уй/Иш тез-тугмалари */}
+            {profil && (profil.home_lat || profil.ish_lat) && (
+              <div style={st.tezManzillar}>
+                {profil.home_lat && (
+                  <button style={st.tezTugma} onClick={() => {
+                    const p = [Number(profil.home_lat), Number(profil.home_lng)];
+                    if (tanlovRejimi === 'boshlanish') { setBoshlanish(p); setTanlovRejimi('tugash'); }
+                    else setTugash(p);
+                  }}>{t('prof.useHome')}</button>
+                )}
+                {profil.ish_lat && (
+                  <button style={st.tezTugma} onClick={() => {
+                    const p = [Number(profil.ish_lat), Number(profil.ish_lng)];
+                    if (tanlovRejimi === 'boshlanish') { setBoshlanish(p); setTanlovRejimi('tugash'); }
+                    else setTugash(p);
+                  }}>{t('prof.useWork')}</button>
+                )}
+              </div>
+            )}
             <button style={{ ...st.tugma, opacity: boshlanish && tugash ? 1 : 0.5 }} onClick={davomEtish} disabled={!boshlanish || !tugash}>
               {t('common.continue')}
             </button>
@@ -254,6 +294,21 @@ export default function YolovchiSahifa() {
           onYopish={() => { setBaholashUchun(null); boshlanishigaQayt(); }}
         />
       )}
+
+      {profilOchiq && (
+        <YolovchiProfili
+          mapNuqta={boshlanish || tugash}
+          onYopish={() => setProfilOchiq(false)}
+          onYangilandi={(yangi) => setProfil(yangi)}
+        />
+      )}
+
+      {kirishOchiq && (
+        <Kirish
+          kerakliRol="mijoz"
+          onKirildi={(u) => { setUser(u); setKirishOchiq(false); }}
+        />
+      )}
     </div>
   );
 }
@@ -264,8 +319,11 @@ const st = {
   logo: { position: 'absolute', top: 16, left: 16, zIndex: 1000, background: 'var(--sariq)', padding: '8px 16px', borderRadius: 12, fontWeight: 800, fontSize: 18, boxShadow: 'var(--soya)' },
   yordam: { position: 'absolute', top: 16, right: 16, zIndex: 1000, background: 'var(--oq)', padding: '8px 14px', borderRadius: 12, fontWeight: 600, fontSize: 13, boxShadow: 'var(--soya)', color: 'var(--kulrang)' },
   tarixTugma: { position: 'absolute', top: 16, right: 116, zIndex: 1000, background: 'var(--oq)', width: 38, height: 38, borderRadius: '50%', fontSize: 16, boxShadow: 'var(--soya)' },
+  profilTugma: { position: 'absolute', top: 16, right: 162, zIndex: 1000, background: 'var(--oq)', width: 38, height: 38, borderRadius: '50%', fontSize: 16, boxShadow: 'var(--soya)' },
   tilWrap: { position: 'absolute', top: 64, right: 16, zIndex: 1000 },
   tolovTugma: { background: 'var(--qora)', color: 'var(--oq)', padding: 16, borderRadius: 14, fontSize: 14, fontWeight: 800, whiteSpace: 'nowrap' },
+  tezManzillar: { display: 'flex', gap: 8, marginTop: 8, marginBottom: 8 },
+  tezTugma: { flex: 1, background: 'var(--och-kulrang)', padding: 10, borderRadius: 10, fontSize: 13, fontWeight: 700 },
   panel: { position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 1000, background: 'var(--oq)', borderRadius: '24px 24px 0 0', padding: 24, boxShadow: '0 -4px 20px rgba(0,0,0,0.1)' },
   sarlavha: { fontSize: 22, fontWeight: 800, marginBottom: 16 },
   izoh: { color: 'var(--kulrang)', fontSize: 14, marginBottom: 16 },
