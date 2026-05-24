@@ -8,6 +8,7 @@ import Chat from '../components/Chat';
 import Baholash from '../components/Baholash';
 import MashinaProfili, { mashinaMatn } from '../components/MashinaProfili';
 import HaritaPreview, { parseLatLng } from '../components/HaritaPreview';
+import IssiqXarita from '../components/IssiqXarita';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
 import { useT, TilTanlovchi } from '../i18n';
 
@@ -42,6 +43,7 @@ function Ichki({ user, onChiqish }) {
   const [baholashUchun, setBaholashUchun] = useState(null); // {rideId, ism} — модаль очилади
   const [mashina, setMashina] = useState(null); // {mashina_modeli, mashina_raqami, mashina_rangi}
   const [profilOchiq, setProfilOchiq] = useState(false);
+  const [issiqOchiq, setIssiqOchiq] = useState(false);
   const [joylashuvOchiqmi, setJoylashuvOchiqmi] = useState(false); // GPS таклиф қилинганми
 
   const statsYukla = async () => {
@@ -185,6 +187,7 @@ function Ichki({ user, onChiqish }) {
         <div style={st.logo}>🚕 {user.ism}</div>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <TilTanlovchi />
+          <button style={st.tarixTugma} onClick={() => setIssiqOchiq(true)} title={t('heat.title')}>🔥</button>
           <button style={st.tarixTugma} onClick={() => setProfilOchiq(true)} title={t('car.title')}>🚗</button>
           <button style={st.tarixTugma} onClick={() => navigate('/tarix')} title={t('hist.title')}>🕒</button>
           <button style={st.chiqish} onClick={onChiqish}>{t('common.exit')}</button>
@@ -273,6 +276,10 @@ function Ichki({ user, onChiqish }) {
           onYopish={() => setProfilOchiq(false)}
           onSaqlandi={(yangi) => setMashina(yangi)}
         />
+      )}
+
+      {issiqOchiq && (
+        <IssiqXarita onYopish={() => setIssiqOchiq(false)} />
       )}
 
       <div style={st.royxat}>

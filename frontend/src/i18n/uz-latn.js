@@ -175,6 +175,14 @@ export default {
   'prof.useHome':        '🏠 Uy',
   'prof.useWork':        '🏢 Ish',
 
+  // Issiq xarita
+  'heat.title':          'Issiq xarita',
+  'heat.hint':           'Buyurtmalar qayerda zich — shu yerga yaqinroq turing',
+  'heat.pending':        '🔴 Faol',
+  'heat.completed':      '🟡 Tugagan',
+  'heat.refreshNote':    '⏱ Har 30 soniyada yangilanadi. Soʻnggi 3 soat',
+  'heat.total':          'Jami: {count}',
+
   // Shaffof narx tarkibi
   'price.breakdown':     'Narx tarkibi',
   'price.base':          'Bazaviy',

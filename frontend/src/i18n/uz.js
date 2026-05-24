@@ -175,6 +175,14 @@ export default {
   'prof.useHome':        '🏠 Уй',
   'prof.useWork':        '🏢 Иш',
 
+  // Иссиқ харита
+  'heat.title':          'Иссиқ харита',
+  'heat.hint':           'Буюртмалар қаерда зич — шу ерга яқинроқ туринг',
+  'heat.pending':        '🔴 Фаол',
+  'heat.completed':      '🟡 Тугаган',
+  'heat.refreshNote':    '⏱ Ҳар 30 сонияда янгиланади. Сўнгги 3 соат',
+  'heat.total':          'Жами: {count}',
+
   // Шаффоф нарх таркиби
   'price.breakdown':     'Нарх таркиби',
   'price.base':          'Базовый',

@@ -175,6 +175,14 @@ export default {
   'prof.useHome':        '🏠 Дом',
   'prof.useWork':        '🏢 Работа',
 
+  // Тепловая карта
+  'heat.title':          'Тепловая карта',
+  'heat.hint':           'Где больше заказов — там и стойте',
+  'heat.pending':        '🔴 Активные',
+  'heat.completed':      '🟡 Завершённые',
+  'heat.refreshNote':    '⏱ Обновляется каждые 30 секунд. Последние 3 часа',
+  'heat.total':          'Всего: {count}',
+
   // Прозрачный состав цены
   'price.breakdown':     'Состав цены',
   'price.base':          'Базовый тариф',
