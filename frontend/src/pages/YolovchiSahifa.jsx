@@ -10,7 +10,9 @@ import YolovchiProfili from '../components/YolovchiProfili';
 import Ulashish from '../components/Ulashish';
 import ManzilQidirish from '../components/ManzilQidirish';
 import SOS from '../components/SOS';
-import NarxTarkibi, { tavsiyaHisobi, ASOSIY, PER_KM } from '../components/NarxTarkibi';
+import NarxTarkibi from '../components/NarxTarkibi';
+import { tavsiyaHisobi, ASOSIY, PER_KM } from '../utils/narx';
+import { masofaKm } from '../utils/geo';
 import { api } from '../services/api';
 import { useSocket } from '../services/useSocket';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
@@ -119,16 +121,7 @@ export default function YolovchiSahifa() {
     }
   };
 
-  const masofa = () => {
-    if (!boshlanish || !tugash) return 0;
-    const [lat1, lng1] = boshlanish;
-    const [lat2, lng2] = tugash;
-    const R = 6371;
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLng = ((lng2 - lng1) * Math.PI) / 180;
-    const a = Math.sin(dLat / 2) ** 2 + Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
-    return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))).toFixed(1);
-  };
+  const masofa = () => masofaKm(boshlanish, tugash);
 
   const tavsiyaNarx = tavsiyaHisobi(masofa());
 

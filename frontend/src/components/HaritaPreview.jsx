@@ -25,15 +25,6 @@ function FitBounds({ nuqtalar }) {
 }
 
 // "41.2995, 69.2401" → [41.2995, 69.2401]; нотўғри бўлса null
-export function parseLatLng(s) {
-  if (!s || typeof s !== 'string') return null;
-  const m = s.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
-  if (!m) return null;
-  const lat = parseFloat(m[1]), lng = parseFloat(m[2]);
-  if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
-  return [lat, lng];
-}
-
 export default function HaritaPreview({ boshlanish, tugash, height = 110 }) {
   if (!boshlanish || !tugash) return null;
   return (

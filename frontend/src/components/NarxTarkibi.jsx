@@ -26,17 +26,6 @@ export default function NarxTarkibi({ qatorlar, jami, izoh }) {
   );
 }
 
-// Тавсия нарх параметрлари — ҳамма жойда ишлатилади
-export const ASOSIY = 5000;        // базовый
-export const PER_KM = 2000;        // 1 км учун
-export const MIN_NARX = 8000;      // энг кам тавсия
-
-export function tavsiyaHisobi(masofa_km) {
-  const km = Number(masofa_km) || 0;
-  const hisobi = ASOSIY + Math.round(km * PER_KM);
-  return Math.max(MIN_NARX, hisobi);
-}
-
 const st = {
   qutisi: { background: 'var(--och-kulrang)', borderRadius: 12, padding: 14, marginTop: 12, marginBottom: 4 },
   sarlavha: { fontSize: 13, fontWeight: 700, color: 'var(--kulrang)', marginBottom: 10 },
