@@ -63,14 +63,21 @@ module.exports = (io) => {
         }
         const pin = String(Math.floor(1000 + Math.random() * 9000)); // 4 хонали машина PIN-коди
         const tarif = ['ekonom', 'komfort', 'dostavka'].includes(buyurtma.tarif) ? buyurtma.tarif : 'ekonom';
+        // Буюртма опциялари — серверда тозалаб JSONB сифатида сақлаймиз
+        const o = buyurtma.opsiyalar || {};
+        const opsiyalar = {
+          izoh: typeof o.izoh === 'string' ? o.izoh.trim().slice(0, 200) || null : null,
+          boshqaUchun: !!o.boshqaUchun,
+          yuk: !!o.yuk,
+        };
         const result = await query(
-          `INSERT INTO rides (mijoz_id, boshlanish_manzil, tugash_manzil, masofa_km, taklif_narx, holat, pin, tarif)
-           VALUES ($1, $2, $3, $4, $5, 'kutilmoqda', $6, $7)
+          `INSERT INTO rides (mijoz_id, boshlanish_manzil, tugash_manzil, masofa_km, taklif_narx, holat, pin, tarif, opsiyalar)
+           VALUES ($1, $2, $3, $4, $5, 'kutilmoqda', $6, $7, $8)
            RETURNING id`,
-          [mijoz_id, buyurtma.boshlanish, buyurtma.tugash, buyurtma.masofa, buyurtma.narx, pin, tarif]
+          [mijoz_id, buyurtma.boshlanish, buyurtma.tugash, buyurtma.masofa, buyurtma.narx, pin, tarif, JSON.stringify(opsiyalar)]
         );
         const dbId = result.rows[0].id;
-        const enriched = { ...buyurtma, id: dbId, taklif_id: buyurtma.id, tarif, mijoz_id, mijoz_ism, mijoz: mijoz_ism, reyting: mijoz_reyting };
+        const enriched = { ...buyurtma, id: dbId, taklif_id: buyurtma.id, tarif, opsiyalar, mijoz_id, mijoz_ism, mijoz: mijoz_ism, reyting: mijoz_reyting };
 
         faolBuyurtmalar.set(dbId, enriched);
         socket.join(`ride_${dbId}`);
