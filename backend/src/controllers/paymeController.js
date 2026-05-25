@@ -141,7 +141,11 @@ async function check(params, id) {
 // Payme HTTP Basic Auth текшируви — Authorization: Basic base64("Paycom:KEY")
 function authTekshir(req) {
   const kerakliKey = process.env.PAYME_KEY;
-  if (!kerakliKey || kerakliKey === 'test_payme_key') return true; // тест режим: ўтказамиз
+  // Дефолт/бўш калит — фақат аниқ тест режимда ўтказамиз. Акс ҳолда рад этамиз
+  // (fail-closed): дефолт калит билан деплой қилинса тўлов сохталаштирилмасин.
+  if (!kerakliKey || kerakliKey === 'test_payme_key') {
+    return process.env.PAYMENT_TEST_MODE === '1';
+  }
   const header = req.headers.authorization || '';
   if (!header.startsWith('Basic ')) return false;
   try {

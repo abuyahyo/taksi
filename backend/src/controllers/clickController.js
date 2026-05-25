@@ -15,7 +15,12 @@ const XATO = {
 
 // Click имзосини текшириш (MD5)
 function imzoTekshir(body, bosqich) {
-  const secret = process.env.CLICK_SECRET || 'test_secret';
+  const secret = process.env.CLICK_SECRET;
+  // Дефолт/бўш сир — фақат аниқ тест режимда ўтказамиз. Акс ҳолда рад этамиз
+  // (fail-closed): 'test_secret' репозиторийда очиқ, у билан имзо сохталаштирилмасин.
+  if (!secret || secret === 'test_secret') {
+    return process.env.PAYMENT_TEST_MODE === '1';
+  }
   let satr;
   if (bosqich === 'prepare') {
     satr = `${body.click_trans_id}${body.service_id}${secret}${body.merchant_trans_id}${body.amount}${body.action}${body.sign_time}`;

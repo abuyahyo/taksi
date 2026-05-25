@@ -79,19 +79,22 @@ require('./socket/socketHandler')(io);
 // сохталаштирилиши мумкин.
 function maxfiyKalitTekshir() {
   const ogohlar = [];
+  const testRejim = process.env.PAYMENT_TEST_MODE === '1';
   if (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'juda_maxfiy_kalit_ozgartiring') {
-    ogohlar.push('JWT_SECRET — токенлар сохталаштирилиши мумкин');
+    ogohlar.push('JWT_SECRET — дефолт/бўш: токенлар сохталаштирилиши мумкин');
   }
-  if (!process.env.PAYME_KEY || process.env.PAYME_KEY === 'test_payme_key') {
-    ogohlar.push('PAYME_KEY — Payme webhook авторизацияси очиқ (тўлов сохталаштирилиши мумкин)');
-  }
-  if (!process.env.CLICK_SECRET || process.env.CLICK_SECRET === 'test_secret') {
-    ogohlar.push('CLICK_SECRET — Click имзоси заиф (тўлов сохталаштирилиши мумкин)');
+  if (testRejim) {
+    ogohlar.push('PAYMENT_TEST_MODE=1 — тест тўлови ОЧИҚ. Продакшнда ўчиринг!');
+  } else {
+    const paymeYoq = !process.env.PAYME_KEY || process.env.PAYME_KEY === 'test_payme_key';
+    const clickYoq = !process.env.CLICK_SECRET || process.env.CLICK_SECRET === 'test_secret';
+    if (paymeYoq) ogohlar.push('PAYME_KEY — дефолт/бўш: Payme webhook рад этилади (реал калит керак)');
+    if (clickYoq) ogohlar.push('CLICK_SECRET — дефолт/бўш: Click webhook рад этилади (реал сир керак)');
   }
   if (ogohlar.length) {
-    console.warn('\n⚠️  ХАВФСИЗЛИК ОГОҲЛАНТИРИШИ — қуйидаги махфий калитлар дефолт/бўш:');
+    console.warn('\n⚠️  ХАВФСИЗЛИК ОГОҲЛАНТИРИШИ:');
     ogohlar.forEach((o) => console.warn('   • ' + o));
-    console.warn('   Продакшнга чиқишдан олдин .env да уларни ўзгартиринг.\n');
+    console.warn('   Продакшнга чиқишдан олдин .env ни текширинг.\n');
   }
 }
 maxfiyKalitTekshir();
