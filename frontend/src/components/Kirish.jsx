@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { api } from '../services/api';
 import { useT, TilTanlovchi } from '../i18n';
 import { TemaTanlovchi } from '../theme';
+import Ikonka from './Ikonka';
 
 export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
   const { t } = useT();
@@ -46,47 +47,49 @@ export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
   };
 
   return (
-    <div style={st.fon} className="fon-blobs">
+    <div style={st.fon}>
       <div style={st.topbar}><TemaTanlovchi /><TilTanlovchi /></div>
 
-      <form style={st.karta} className="glass slide-up" onSubmit={yubor}>
-        <div style={st.logoBadge}>🚕</div>
+      <form style={st.karta} className="slide-up" onSubmit={yubor}>
+        <div style={st.logoBadge}><Ikonka nom="taxi" size={36} /></div>
         <h2 style={st.sarlavha}>{sarlavha}</h2>
 
-        {ozRegister && (
+        <div style={st.group}>
+          {ozRegister && (
+            <div style={st.maydon}>
+              <span style={st.ikon}><Ikonka nom="user" size={18} /></span>
+              <input
+                style={st.input}
+                type="text"
+                placeholder={t('login.name')}
+                value={ism}
+                onChange={(e) => setIsm(e.target.value)}
+                required
+              />
+            </div>
+          )}
           <div style={st.maydon}>
-            <span style={st.ikon}>👤</span>
+            <span style={st.ikon}><Ikonka nom="phone" size={18} /></span>
             <input
               style={st.input}
-              type="text"
-              placeholder={t('login.name')}
-              value={ism}
-              onChange={(e) => setIsm(e.target.value)}
+              type="tel"
+              placeholder={t('login.phone')}
+              value={telefon}
+              onChange={(e) => setTelefon(e.target.value)}
               required
             />
           </div>
-        )}
-        <div style={st.maydon}>
-          <span style={st.ikon}>📞</span>
-          <input
-            style={st.input}
-            type="tel"
-            placeholder={t('login.phone')}
-            value={telefon}
-            onChange={(e) => setTelefon(e.target.value)}
-            required
-          />
-        </div>
-        <div style={st.maydon}>
-          <span style={st.ikon}>🔒</span>
-          <input
-            style={st.input}
-            type="password"
-            placeholder={t('login.password')}
-            value={parol}
-            onChange={(e) => setParol(e.target.value)}
-            required
-          />
+          <div style={{ ...st.maydon, borderBottom: 'none' }}>
+            <span style={st.ikon}><Ikonka nom="lock" size={18} /></span>
+            <input
+              style={st.input}
+              type="password"
+              placeholder={t('login.password')}
+              value={parol}
+              onChange={(e) => setParol(e.target.value)}
+              required
+            />
+          </div>
         </div>
 
         {xato && <div style={st.xato}>{xato}</div>}
@@ -113,53 +116,56 @@ const st = {
   fon: {
     position: 'relative', width: '100%', minHeight: '100dvh',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: 'var(--bg)',
     padding: 'calc(var(--space-6) + env(safe-area-inset-top)) var(--space-5) calc(var(--space-6) + env(safe-area-inset-bottom))',
     overflow: 'hidden',
   },
   topbar: {
     position: 'absolute',
     top: 'calc(var(--space-4) + env(safe-area-inset-top))', right: 'var(--space-5)',
-    zIndex: 10, display: 'flex', alignItems: 'center', gap: 6,
+    zIndex: 10, display: 'flex', alignItems: 'center', gap: 8,
   },
 
   karta: {
     width: '100%', maxWidth: 400,
-    padding: 'var(--space-7)', borderRadius: 'var(--r-xl)',
     display: 'flex', flexDirection: 'column', gap: 'var(--space-3)',
   },
   logoBadge: {
-    width: 64, height: 64, borderRadius: 'var(--r-lg)',
-    background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))',
-    boxShadow: 'var(--shadow-sariq)',
+    width: 76, height: 76, borderRadius: 18,
+    background: 'linear-gradient(160deg, var(--sariq-light), var(--tint) 70%, var(--sariq-dark))',
+    boxShadow: 'var(--shadow-sariq), inset 0 1px 0 rgba(255,255,255,0.4)',
+    color: '#fff',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontSize: 34, margin: '0 auto',
+    margin: '0 auto var(--space-2)',
   },
-  sarlavha: { fontSize: 22, fontWeight: 800, textAlign: 'center', marginBottom: 'var(--space-2)' },
+  sarlavha: { fontSize: 26, fontWeight: 700, textAlign: 'center', marginBottom: 'var(--space-3)', letterSpacing: '0.36px' },
 
-  maydon: { position: 'relative', display: 'flex', alignItems: 'center' },
+  group: {
+    background: 'var(--surface)', borderRadius: 'var(--r-md)', overflow: 'hidden',
+  },
+  maydon: { position: 'relative', display: 'flex', alignItems: 'center', borderBottom: '0.5px solid var(--separator)' },
   ikon: {
-    position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)',
-    fontSize: 16, opacity: 0.6, pointerEvents: 'none',
+    position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)',
+    color: 'var(--secondary-label)', pointerEvents: 'none', display: 'inline-flex',
   },
   input: {
-    width: '100%', padding: '14px 14px 14px 42px',
-    borderRadius: 'var(--r-md)', border: '1px solid var(--neutral-200)',
-    background: 'var(--oq)', color: 'var(--qora)', fontSize: 15,
+    width: '100%', padding: '14px 16px 14px 46px',
+    border: 'none', background: 'transparent', color: 'var(--label)', fontSize: 17,
   },
 
   xato: {
-    color: 'var(--qizil-dark)', fontSize: 13, textAlign: 'center',
-    background: 'rgba(239,68,68,0.1)', padding: '10px 12px', borderRadius: 'var(--r-md)',
+    color: 'var(--qizil)', fontSize: 14, textAlign: 'center',
+    background: 'rgba(255,59,48,0.1)', padding: '11px 14px', borderRadius: 'var(--r-md)',
   },
 
   tugma: {
-    background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))',
-    color: '#fff', padding: 14, borderRadius: 'var(--r-lg)',
-    fontWeight: 800, fontSize: 16, boxShadow: 'var(--shadow-sariq)',
+    background: 'var(--tint)',
+    color: '#fff', padding: 15, borderRadius: 'var(--r-lg)',
+    fontWeight: 600, fontSize: 17,
     marginTop: 'var(--space-2)',
   },
   almashtir: {
-    background: 'transparent', padding: 8,
-    color: 'var(--asosiy)', fontSize: 13, fontWeight: 600, marginTop: 2,
+    background: 'transparent', padding: 10,
+    color: 'var(--tint)', fontSize: 15, fontWeight: 400, marginTop: 2,
   },
 };

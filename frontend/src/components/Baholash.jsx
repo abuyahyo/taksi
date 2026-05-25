@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { socket } from '../services/api';
 import { useT } from '../i18n';
 import { useToast } from './Toast';
+import Ikonka from './Ikonka';
 
 export default function Baholash({ rideId, kimni, ism, narx, onYopish }) {
   const { t } = useT();
@@ -39,7 +40,7 @@ export default function Baholash({ rideId, kimni, ism, narx, onYopish }) {
       <div style={st.modal} className="glass slide-up">
         {yuborildi ? (
           <div style={st.tugadi}>
-            <div style={{ fontSize: 56 }}>🎉</div>
+            <div style={st.tugadiIkon}><Ikonka nom="check" size={36} /></div>
             <div style={st.taktSarl}>{t('rate.ackTitle')}</div>
             <div style={st.taktIzoh}>{t('rate.ackBody')}</div>
           </div>
@@ -53,17 +54,17 @@ export default function Baholash({ rideId, kimni, ism, narx, onYopish }) {
               {[1, 2, 3, 4, 5].map((n) => (
                 <button
                   key={n}
-                  style={{ ...st.yulduz, color: n <= ball ? '#FACC15' : 'var(--neutral-200)' }}
+                  style={{ ...st.yulduz, color: n <= ball ? '#FFCC00' : 'var(--neutral-300)' }}
                   onClick={() => setBall(n)}
                   aria-label={`${n}`}
-                >★</button>
+                ><Ikonka nom="star" size={34} /></button>
               ))}
             </div>
 
             {/* Чаёвой танлови — фақат йўловчи ҳайдовчини баҳолашда */}
             {chayovoyKorinadimi && (
               <div style={st.chayovoyBolimi}>
-                <div style={st.chayovoyLabel}>💵 {t('tip.title')}</div>
+                <div style={st.chayovoyLabel}>{t('tip.title')}</div>
                 <div style={st.chayovoyTaklif}>
                   <button
                     style={{ ...st.chayovoyTugma, ...(chayovoy === 0 ? st.chayovoyFaol : {}) }}
@@ -107,23 +108,24 @@ export default function Baholash({ rideId, kimni, ism, narx, onYopish }) {
 }
 
 const st = {
-  fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 4000, padding: 16 },
-  modal: { width: '100%', maxWidth: 380, borderRadius: 20, padding: 28, textAlign: 'center' },
-  avatar: { width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 800, color: '#fff' },
-  sarlavha: { fontSize: 18, fontWeight: 700, color: 'var(--kulrang)' },
-  ism: { fontSize: 22, fontWeight: 800, marginTop: 4, marginBottom: 20 },
-  yulduzlar: { display: 'flex', justifyContent: 'center', gap: 6, marginBottom: 16 },
-  yulduz: { width: 44, height: 44, fontSize: 36, background: 'transparent', padding: 0, lineHeight: 1 },
-  chayovoyBolimi: { background: 'var(--neutral-100)', borderRadius: 12, padding: 12, marginBottom: 14 },
-  chayovoyLabel: { fontSize: 12, fontWeight: 700, color: 'var(--qora-faint)', marginBottom: 8, textAlign: 'left' },
+  fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 4000, padding: 24, backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)' },
+  modal: { width: '100%', maxWidth: 360, borderRadius: 'var(--r-xl)', padding: 24, textAlign: 'center' },
+  avatar: { width: 64, height: 64, borderRadius: '50%', background: 'var(--tint)', margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 600, color: '#fff' },
+  sarlavha: { fontSize: 15, fontWeight: 400, color: 'var(--secondary-label)' },
+  ism: { fontSize: 22, fontWeight: 600, marginTop: 4, marginBottom: 20 },
+  yulduzlar: { display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 18 },
+  yulduz: { width: 44, height: 44, background: 'transparent', padding: 0, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  chayovoyBolimi: { background: 'var(--fill)', borderRadius: 'var(--r-md)', padding: 14, marginBottom: 14 },
+  chayovoyLabel: { fontSize: 13, fontWeight: 400, color: 'var(--secondary-label)', textTransform: 'uppercase', letterSpacing: '-0.08px', marginBottom: 8, textAlign: 'left' },
   chayovoyTaklif: { display: 'flex', gap: 6 },
-  chayovoyTugma: { flex: 1, padding: '8px 0', borderRadius: 10, background: 'var(--oq)', fontWeight: 700, fontSize: 13, color: 'var(--qora-soft)' },
-  chayovoyFaol: { background: 'var(--sariq)', color: 'var(--oq)' },
-  chayovoySum: { marginTop: 8, fontSize: 13, fontWeight: 700, color: 'var(--sariq-dark)', textAlign: 'center' },
-  izoh: { width: '100%', padding: 12, borderRadius: 12, border: '1px solid var(--neutral-200)', fontSize: 14, fontFamily: 'inherit', minHeight: 70, resize: 'vertical', marginBottom: 14, background: 'var(--oq)', color: 'var(--qora)' },
-  tugma: { width: '100%', background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', padding: 14, borderRadius: 12, fontWeight: 800, fontSize: 15, color: '#fff', boxShadow: 'var(--shadow-sariq)' },
-  otkaz: { width: '100%', background: 'transparent', padding: 12, color: 'var(--kulrang)', fontSize: 14, marginTop: 4 },
-  tugadi: { padding: 30 },
-  taktSarl: { fontSize: 22, fontWeight: 800, marginTop: 12 },
-  taktIzoh: { fontSize: 14, color: 'var(--kulrang)', marginTop: 6 },
+  chayovoyTugma: { flex: 1, padding: '9px 0', borderRadius: 'var(--r-sm)', background: 'var(--surface)', fontWeight: 600, fontSize: 15, color: 'var(--label)' },
+  chayovoyFaol: { background: 'var(--tint)', color: '#fff' },
+  chayovoySum: { marginTop: 8, fontSize: 14, fontWeight: 600, color: 'var(--tint)', textAlign: 'center' },
+  izoh: { width: '100%', padding: 12, borderRadius: 'var(--r-md)', border: 'none', fontSize: 15, fontFamily: 'inherit', minHeight: 70, resize: 'vertical', marginBottom: 14, background: 'var(--fill)', color: 'var(--label)' },
+  tugma: { width: '100%', background: 'var(--tint)', padding: 15, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 17, color: '#fff' },
+  otkaz: { width: '100%', background: 'transparent', padding: 12, color: 'var(--tint)', fontSize: 17, fontWeight: 400, marginTop: 4 },
+  tugadi: { padding: 20 },
+  tugadiIkon: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 64, height: 64, borderRadius: '50%', background: 'rgba(52,199,89,0.16)', color: 'var(--yashil)', margin: '0 auto' },
+  taktSarl: { fontSize: 22, fontWeight: 600, marginTop: 14 },
+  taktIzoh: { fontSize: 15, color: 'var(--secondary-label)', marginTop: 6 },
 };
