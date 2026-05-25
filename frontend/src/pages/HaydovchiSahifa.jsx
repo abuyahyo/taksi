@@ -381,6 +381,13 @@ function Ichki({ user, onChiqish }) {
                   <span style={st.yolMatn}>{b.tugash}</span>
                 </div>
               </div>
+              {b.opsiyalar && (b.opsiyalar.izoh || b.opsiyalar.boshqaUchun || b.opsiyalar.yuk) && (
+                <div style={st.opsiyaQator}>
+                  {b.opsiyalar.boshqaUchun && <span style={st.opsiyaTeg}>{t('opt.forOther')}</span>}
+                  {b.opsiyalar.yuk && <span style={st.opsiyaTeg}>{t('opt.luggage')}</span>}
+                  {b.opsiyalar.izoh && <span style={st.opsiyaIzoh}>{b.opsiyalar.izoh}</span>}
+                </div>
+              )}
               <div style={st.tugmalar}>
                 <button style={st.oznarxTugma} onClick={() => { setTanlangan(b); setOznarx(b.narx + 3000); }}>
                   {t('drv.myPrice')}
@@ -479,6 +486,9 @@ const st = {
   nuqta: { width: 10, height: 10, borderRadius: '50%', flexShrink: 0 },
   chiziq: { width: 2, height: 16, background: 'var(--separator)', marginLeft: 4 },
   yolMatn: { fontSize: 15, fontWeight: 400 },
+  opsiyaQator: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6, marginBottom: 14 },
+  opsiyaTeg: { fontSize: 12, fontWeight: 600, color: 'var(--tint)', background: 'var(--tint-fill)', padding: '3px 10px', borderRadius: 'var(--r-full)' },
+  opsiyaIzoh: { fontSize: 13, color: 'var(--secondary-label)', flexBasis: '100%' },
   tugmalar: { display: 'flex', gap: 10 },
   oznarxTugma: { flex: 1, background: 'var(--fill)', color: 'var(--tint)', padding: 13, borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 15 },
   roziTugma: { flex: 1.4, background: 'var(--tint)', color: '#fff', padding: 13, borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 15 },

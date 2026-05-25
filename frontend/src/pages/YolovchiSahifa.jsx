@@ -42,6 +42,9 @@ export default function YolovchiSahifa() {
   const reverseTimerRef = useRef(null);
   const [narx, setNarx] = useState(15000);
   const [tarif, setTarif] = useState('ekonom');
+  const [izoh, setIzoh] = useState('');
+  const [boshqaUchun, setBoshqaUchun] = useState(false);
+  const [yuk, setYuk] = useState(false);
   const [bosqich, setBosqich] = useState('manzil');
   const [takliflar, setTakliflar] = useState([]);
   const [rideId, setRideId] = useState(null);
@@ -121,6 +124,9 @@ export default function YolovchiSahifa() {
     setTanlovRejimi('boshlanish');
     setMarkazManzil('');
     setSafarPin(null);
+    setIzoh('');
+    setBoshqaUchun(false);
+    setYuk(false);
     setTakliflar([]);
     setRideId(null);
     setHaydovchiInfo(null);
@@ -191,6 +197,7 @@ export default function YolovchiSahifa() {
       masofa: masofa(),
       narx,
       tarif,
+      opsiyalar: { izoh: izoh.trim() || null, boshqaUchun, yuk },
       vaqt: 'ҳозиргина',
     });
   };
@@ -313,6 +320,30 @@ export default function YolovchiSahifa() {
               <button style={st.narxTugma} onClick={() => setNarx(Math.max(5000, narx - 1000))}><Ikonka nom="minus" size={20} /></button>
               <div style={st.narxMatn}>{narx.toLocaleString()}</div>
               <button style={st.narxTugma} onClick={() => setNarx(narx + 1000)}><Ikonka nom="plus" size={20} /></button>
+            </div>
+
+            {/* Буюртма опциялари — Yandex услуби */}
+            <div style={st.opsiyalar}>
+              <input
+                style={st.opIzoh}
+                value={izoh}
+                onChange={(e) => setIzoh(e.target.value.slice(0, 200))}
+                placeholder={t('opt.commentPh')}
+              />
+              <div style={st.opChiplar}>
+                <button
+                  style={{ ...st.opChip, ...(boshqaUchun ? st.opChipFaol : {}) }}
+                  onClick={() => setBoshqaUchun((v) => !v)}
+                >
+                  <Ikonka nom={boshqaUchun ? 'check' : 'user'} size={15} /> {t('opt.forOther')}
+                </button>
+                <button
+                  style={{ ...st.opChip, ...(yuk ? st.opChipFaol : {}) }}
+                  onClick={() => setYuk((v) => !v)}
+                >
+                  <Ikonka nom={yuk ? 'check' : 'receipt'} size={15} /> {t('opt.luggage')}
+                </button>
+              </div>
             </div>
 
             {/* Шаффоф нарх таркиби */}
@@ -510,6 +541,11 @@ const st = {
   markazManzilMatn: { fontSize: 15, fontWeight: 500, lineHeight: 1.3, color: 'var(--label)' },
   tugma: { width: '100%', background: 'var(--tint)', color: '#fff', padding: 15, borderRadius: 'var(--r-lg)', fontSize: 17, fontWeight: 600, marginTop: 8 },
   orqaga: { width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 2, background: 'transparent', padding: 12, color: 'var(--tint)', fontSize: 17, fontWeight: 400, marginTop: 2 },
+  opsiyalar: { marginBottom: 4 },
+  opIzoh: { width: '100%', background: 'var(--fill)', border: 'none', borderRadius: 'var(--r-md)', padding: '12px 14px', fontSize: 15, color: 'var(--label)', marginBottom: 8 },
+  opChiplar: { display: 'flex', gap: 8 },
+  opChip: { flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '9px 10px', borderRadius: 'var(--r-full)', background: 'var(--fill)', color: 'var(--label)', fontSize: 13, fontWeight: 500 },
+  opChipFaol: { background: 'var(--tint)', color: '#fff' },
   tariflar: { display: 'flex', gap: 8, marginBottom: 16 },
   tarifKarta: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, padding: '10px 6px', borderRadius: 'var(--r-md)', background: 'var(--fill)', border: '1.5px solid transparent', color: 'var(--label)' },
   tarifFaol: { background: 'var(--tint)', color: '#fff', borderColor: 'var(--tint)' },

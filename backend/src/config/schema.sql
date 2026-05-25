@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS rides (
   -- Ҳолат
   holat VARCHAR(20) DEFAULT 'kutilmoqda',
   tarif VARCHAR(20) DEFAULT 'ekonom',  -- тариф класси: ekonom | komfort | dostavka
+  opsiyalar JSONB DEFAULT '{}',        -- буюртма опциялари: { izoh, boshqaUchun, yuk }
   pin VARCHAR(4),                      -- машина PIN-коди (тўғри машинага тушганини текшириш)
   -- kutilmoqda, qabul_qilindi, yo'lda, yakunlandi, bekor_qilindi
   -- Кутиш ҳақи — ҳайдовчи ёлғизланган кутиш муддати ва ҳақи
