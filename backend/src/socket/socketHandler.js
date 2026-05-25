@@ -88,24 +88,41 @@ module.exports = (io) => {
 
     // ҲАЙДОВЧИ нарх таклиф қилади
     socket.on('narx_taklif', (taklif) => {
-      // Аутентифициядан ҳайдовчи userId'ни қўшамиз — мижоз танлаганда керак бўлади
-      const enriched = { ...taklif, haydovchi_id: socket.data.userId || null };
+      // Фақат онлайн (обунаси текширилган) ҳайдовчи таклиф бера олади.
+      // haydovchi_online'да 'haydovchilar' хонасига қўшилган — шуни талаб қиламиз.
+      if (!socket.data.userId || !socket.rooms.has('haydovchilar')) return;
+      // haydovchi_id'ни клиентдан эмас, токендан оламиз — сохталаштириб бўлмайди
+      const enriched = { ...taklif, haydovchi_id: socket.data.userId };
       // Танлансак сафар хонасига қўшилишимиз учун — ҳозироқ қўшилиб қўямиз
       socket.join(`ride_${taklif.rideId}`);
       io.to(`ride_${taklif.rideId}`).emit('yangi_taklif', enriched);
       console.log(`💰 Таклиф #${taklif.rideId}: ${taklif.haydovchi_narx} сўм (haydovchi=${enriched.haydovchi_id})`);
     });
 
+    // Сафар эгаси (мижоз)ни текшириш ёрдамчиси.
+    // Рўйхатдан ўтган мижоз — token id мос келиши керак.
+    // Меҳмон (mijoz_id=null) — буюртма яратган socket хонада (ride_${id}) бўлади.
+    function egasimi(mijozId, rideId) {
+      if (mijozId) return mijozId === socket.data.userId;
+      return socket.rooms.has(`ride_${rideId}`);
+    }
+
     // ЙЎЛОВЧИ ҳайдовчини танлайди — БАЗАДА ЯНГИЛАЙМИЗ
     socket.on('haydovchi_tanlandi', async (data) => {
       try {
+        // Фақат сафар эгаси ва фақат ҳали кутилаётган сафарни танлай олади
+        const tek = await query(`SELECT mijoz_id, holat FROM rides WHERE id = $1`, [data.rideId]);
+        if (!tek.rows[0]) return;
+        if (!egasimi(tek.rows[0].mijoz_id, data.rideId)) return;
+        if (tek.rows[0].holat !== 'kutilmoqda') return; // аллақачон қабул/бекор
+
         await query(
           `UPDATE rides
              SET haydovchi_id   = $2,
                  kelishilgan_narx = $3,
                  holat          = 'qabul_qilindi',
                  qabul_vaqti    = NOW()
-           WHERE id = $1`,
+           WHERE id = $1 AND holat = 'kutilmoqda'`,
           [data.rideId, data.haydovchi_id || null, data.narx]
         );
         // Ҳайдовчига мижоз исмини қўшиб юборамиз (баҳолаш ва чат учун)
@@ -125,6 +142,9 @@ module.exports = (io) => {
 
     socket.on('buyurtma_bekor', async (data) => {
       try {
+        // Фақат сафар эгаси бекор қила олади
+        const tek = await query(`SELECT mijoz_id FROM rides WHERE id = $1`, [data.rideId]);
+        if (!tek.rows[0] || !egasimi(tek.rows[0].mijoz_id, data.rideId)) return;
         await query(`UPDATE rides SET holat = 'bekor_qilindi' WHERE id = $1`, [data.rideId]);
         faolBuyurtmalar.delete(data.rideId);
         io.to('haydovchilar').emit('buyurtma_yopildi', { rideId: data.rideId });
@@ -133,8 +153,16 @@ module.exports = (io) => {
       }
     });
 
-    socket.on('safarga_qoshil', (data) => {
-      socket.join(`ride_${data.rideId}`);
+    // Сафар хонасига қайта қўшилиш — фақат шу сафар иштирокчиси.
+    // Меҳмон йўловчи буюртма яратишда хонага қўшилган бўлади; кузатувчилар
+    // эса share_qoshil (калит билан) орқали қўшилади.
+    socket.on('safarga_qoshil', async (data) => {
+      if (!socket.data.userId) return;
+      const r = await query(
+        `SELECT 1 FROM rides WHERE id = $1 AND (mijoz_id = $2 OR haydovchi_id = $2)`,
+        [data.rideId, socket.data.userId]
+      );
+      if (r.rows.length) socket.join(`ride_${data.rideId}`);
     });
 
     // Улашилган линкдан кирганлар — кузатувчи сифатида сафар хонасига қўшилади
@@ -155,6 +183,11 @@ module.exports = (io) => {
 
     // САФАР ҲОЛАТИ ўзгариши (ҳайдовчи юборади)
     socket.on('safar_holati', async (data) => {
+      // Фақат шу сафарга бириктирилган ҳайдовчи ҳолатни ўзгартира олади
+      if (!socket.data.userId) return;
+      const own = await query(`SELECT haydovchi_id FROM rides WHERE id = $1`, [data.rideId]);
+      if (!own.rows[0] || own.rows[0].haydovchi_id !== socket.data.userId) return;
+
       console.log(`🚦 Сафар #${data.rideId}: ${data.holat}`);
       const javob = { ...data };
 
@@ -340,12 +373,19 @@ module.exports = (io) => {
         const baholanuvchi = baholovchi === mijoz_id ? haydovchi_id : mijoz_id;
         if (!baholanuvchi) return;
 
-        // Икки марта баҳолашни олдини оламиз — мавжуд бўлса янгилаймиз
-        await query(
-          `INSERT INTO ratings (ride_id, baholovchi_id, baholanuvchi_id, ball, izoh)
-           VALUES ($1, $2, $3, $4, $5)`,
-          [data.rideId, baholovchi, baholanuvchi, ball, data.izoh || null]
+        // Икки марта баҳолашни олдини оламиз — мавжуд бўлса янгилаймиз, бўлмаса янги
+        const yang = await query(
+          `UPDATE ratings SET ball = $3, izoh = $4, vaqt = NOW()
+             WHERE ride_id = $1 AND baholovchi_id = $2`,
+          [data.rideId, baholovchi, ball, data.izoh || null]
         );
+        if (yang.rowCount === 0) {
+          await query(
+            `INSERT INTO ratings (ride_id, baholovchi_id, baholanuvchi_id, ball, izoh)
+             VALUES ($1, $2, $3, $4, $5)`,
+            [data.rideId, baholovchi, baholanuvchi, ball, data.izoh || null]
+          );
+        }
 
         // Баҳоланганнинг users.reyting'и — олинган барча баҳоларнинг ўртачаси
         await query(
