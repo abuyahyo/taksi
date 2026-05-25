@@ -57,5 +57,10 @@ export default defineConfig({
     host: true,
     // Cloudflare quick tunnel (trycloudflare.com) host'ини рад этмаслик учун
     allowedHosts: ['.trycloudflare.com'],
+    // HMR (hot reload) HTTPS тоннел орқали ишлаши учун
+    hmr: {
+      clientPort: 443,
+      protocol: 'wss',
+    },
   },
 })
