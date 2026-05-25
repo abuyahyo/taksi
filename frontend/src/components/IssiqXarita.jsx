@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, Circle, useMap } from 'react-leaflet';
 import { api } from '../services/api';
 import { useT } from '../i18n';
 import { parseLatLng } from '../utils/geo';
+import Ikonka from './Ikonka';
 import 'leaflet/dist/leaflet.css';
 
 const TOSHKENT = [41.2995, 69.2401];
@@ -39,12 +40,13 @@ export default function IssiqXarita({ onYopish }) {
   return (
     <div style={st.fon} onClick={onYopish}>
       <div style={st.panel} onClick={(e) => e.stopPropagation()}>
+        <div style={st.grabber} />
         <div style={st.header}>
           <div>
-            <div style={st.sarlavha}>🔥 {t('heat.title')}</div>
+            <div style={st.sarlavha}>{t('heat.title')}</div>
             <div style={st.izoh}>{t('heat.hint')}</div>
           </div>
-          <button style={st.yopish} onClick={onYopish}>✕</button>
+          <button style={st.yopish} onClick={onYopish}><Ikonka nom="x" size={16} /></button>
         </div>
 
         <div style={st.harita}>
@@ -74,14 +76,14 @@ export default function IssiqXarita({ onYopish }) {
 
         <div style={st.legenda}>
           <div style={st.legElem}>
-            <span style={{ ...st.dot, background: '#EF4444' }} />
+            <span style={{ ...st.dot, background: 'var(--qizil)' }} />
             <span>{t('heat.pending')}: <b>{faol}</b></span>
           </div>
           <div style={st.legElem}>
-            <span style={{ ...st.dot, background: '#FACC15' }} />
+            <span style={{ ...st.dot, background: 'var(--amber)' }} />
             <span>{t('heat.completed')}: <b>{yakun}</b></span>
           </div>
-          {yuklanmoqda && <div style={st.refresh}>⏳</div>}
+          {yuklanmoqda && <div className="spinner" style={st.refresh} />}
         </div>
 
         <div style={st.zerno}>{t('heat.refreshNote')}</div>
@@ -91,16 +93,17 @@ export default function IssiqXarita({ onYopish }) {
 }
 
 const st = {
-  fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.6)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 3600 },
-  panel: { background: 'var(--oq)', width: '100%', maxWidth: 480, height: '90vh', borderRadius: '24px 24px 0 0', display: 'flex', flexDirection: 'column' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: 16, borderBottom: '1px solid var(--neutral-200)' },
-  sarlavha: { fontSize: 18, fontWeight: 800 },
-  izoh: { fontSize: 12, color: 'var(--kulrang)', marginTop: 2 },
-  yopish: { width: 36, height: 36, borderRadius: '50%', background: 'var(--och-kulrang)', fontSize: 16 },
+  fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 3600, backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)' },
+  panel: { background: 'var(--surface-elevated)', width: '100%', maxWidth: 480, height: '90vh', borderRadius: '14px 14px 0 0', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
+  grabber: { width: 36, height: 5, borderRadius: 3, background: 'var(--fill-strong)', margin: '6px auto 4px' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '8px 16px 12px', borderBottom: '0.5px solid var(--separator)' },
+  sarlavha: { fontSize: 20, fontWeight: 600 },
+  izoh: { fontSize: 13, color: 'var(--secondary-label)', marginTop: 2 },
+  yopish: { width: 30, height: 30, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   harita: { flex: 1, position: 'relative' },
-  legenda: { display: 'flex', gap: 16, alignItems: 'center', padding: '10px 16px', background: 'var(--oq)', borderTop: '1px solid var(--neutral-200)', fontSize: 13 },
+  legenda: { display: 'flex', gap: 16, alignItems: 'center', padding: '12px 16px', background: 'var(--surface)', borderTop: '0.5px solid var(--separator)', fontSize: 14, color: 'var(--label)' },
   legElem: { display: 'flex', alignItems: 'center', gap: 8 },
   dot: { width: 12, height: 12, borderRadius: '50%' },
-  refresh: { marginLeft: 'auto', fontSize: 14 },
-  zerno: { padding: '8px 16px', fontSize: 11, color: 'var(--kulrang)', textAlign: 'center', borderTop: '1px solid var(--neutral-200)' },
+  refresh: { marginLeft: 'auto', width: 18, height: 18, borderWidth: 2 },
+  zerno: { padding: '8px 16px calc(8px + env(safe-area-inset-bottom))', fontSize: 13, color: 'var(--secondary-label)', textAlign: 'center', borderTop: '0.5px solid var(--separator)' },
 };

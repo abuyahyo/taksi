@@ -5,6 +5,7 @@ import Kirish from '../components/Kirish';
 import { SkeletKarta } from '../components/Skelet';
 import { useT } from '../i18n';
 import { useToast } from '../components/Toast';
+import Ikonka from '../components/Ikonka';
 
 export default function AdminSahifa() {
   const [user, setUser] = useState(() => {
@@ -138,7 +139,7 @@ function AdminIchki({ onChiqish }) {
       {/* SOS аларм banner — фаол сигналлар бўлса */}
       {sosOyna.length > 0 && (
         <div style={st.sosBanner}>
-          <div style={st.sosBoshi}>🆘 {t('sos.activeAlerts', { n: sosOyna.length })}</div>
+          <div style={st.sosBoshi}><Ikonka nom="sos" size={16} /> {t('sos.activeAlerts', { n: sosOyna.length })}</div>
           {sosOyna.map((s) => (
             <div key={s.id} style={st.sosKarta}>
               <div style={{ flex: 1 }}>
@@ -157,9 +158,11 @@ function AdminIchki({ onChiqish }) {
       )}
 
       <div style={st.tablar}>
-        {[['statistika', t('admin.tab.stats')], ['users', t('admin.tab.users')], ['rides', t('admin.tab.rides')]].map(([k, n]) => (
-          <button key={k} style={{ ...st.tab, ...(tab === k ? st.tabFaol : {}) }} onClick={() => setTab(k)}>{n}</button>
-        ))}
+        <div className="ios-segmented">
+          {[['statistika', t('admin.tab.stats')], ['users', t('admin.tab.users')], ['rides', t('admin.tab.rides')]].map(([k, n]) => (
+            <button key={k} className="ios-seg" data-on={tab === k} onClick={() => setTab(k)}>{n}</button>
+          ))}
+        </div>
       </div>
 
       <div style={st.kontent}>
@@ -168,11 +171,11 @@ function AdminIchki({ onChiqish }) {
         {tab === 'statistika' && (
           stat == null ? <Yuklanmoqda /> : (
             <div style={st.statGrid}>
-              <Stat raqam={stat.jami_foydalanuvchi.toLocaleString()} matn={t('admin.users')} ikon="👥" />
-              <Stat raqam={stat.jami_haydovchi.toLocaleString()} matn={t('admin.drivers')} ikon="🚗" />
-              <Stat raqam={stat.jami_safar.toLocaleString()} matn={t('admin.totalRides')} ikon="📦" />
-              <Stat raqam={stat.yakunlangan_safar.toLocaleString()} matn={t('admin.completed')} ikon="✅" />
-              <Stat raqam={stat.jami_daromad >= 1_000_000 ? `${(stat.jami_daromad / 1_000_000).toFixed(1)}M` : stat.jami_daromad.toLocaleString()} matn={t('admin.income')} ikon="💰" keng />
+              <Stat raqam={stat.jami_foydalanuvchi.toLocaleString()} matn={t('admin.users')} nom="user" rang="var(--kok)" />
+              <Stat raqam={stat.jami_haydovchi.toLocaleString()} matn={t('admin.drivers')} nom="car" rang="var(--tint)" />
+              <Stat raqam={stat.jami_safar.toLocaleString()} matn={t('admin.totalRides')} nom="receipt" rang="var(--amber)" />
+              <Stat raqam={stat.yakunlangan_safar.toLocaleString()} matn={t('admin.completed')} nom="check" rang="var(--yashil)" />
+              <Stat raqam={stat.jami_daromad >= 1_000_000 ? `${(stat.jami_daromad / 1_000_000).toFixed(1)}M` : stat.jami_daromad.toLocaleString()} matn={t('admin.income')} nom="money" rang="var(--tint)" keng />
             </div>
           )
         )}
@@ -252,10 +255,10 @@ function AdminIchki({ onChiqish }) {
   );
 }
 
-function Stat({ raqam, matn, ikon, keng }) {
+function Stat({ raqam, matn, nom, rang, keng }) {
   return (
     <div style={{ ...stStat.karta, ...(keng ? { gridColumn: '1 / -1' } : {}) }}>
-      <div style={stStat.ikon}>{ikon}</div>
+      <div style={{ ...stStat.ikon, background: rang }}><Ikonka nom={nom} size={18} /></div>
       <div style={stStat.raqam}>{raqam}</div>
       <div style={stStat.matn}>{matn}</div>
     </div>
@@ -272,63 +275,61 @@ function Yuklanmoqda() {
 
 function Bosh({ matn }) {
   return (
-    <div style={{ textAlign: 'center', padding: '48px 20px', color: 'var(--kulrang)' }}>
-      <div style={{ fontSize: 44, marginBottom: 10 }}>📭</div>
-      <div style={{ fontSize: 14 }}>{matn}</div>
+    <div style={{ textAlign: 'center', padding: '48px 20px', color: 'var(--secondary-label)' }}>
+      <div style={{ display: 'inline-flex', color: 'var(--tertiary-label)', marginBottom: 10 }}><Ikonka nom="receipt" size={34} /></div>
+      <div style={{ fontSize: 15 }}>{matn}</div>
     </div>
   );
 }
 
 const st = {
-  sahifa: { width: '100%', maxWidth: 720, margin: '0 auto', minHeight: '100dvh', background: 'var(--och-kulrang)', paddingBottom: 'env(safe-area-inset-bottom)' },
-  header: { padding: 20, paddingTop: 'calc(20px + env(safe-area-inset-top))', background: 'linear-gradient(135deg, #1F2937, #111827)', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  logo: { fontWeight: 800, fontSize: 18 },
-  chiqish: { background: 'transparent', color: 'var(--oq)', border: '1px solid rgba(255,255,255,.3)', padding: '6px 12px', borderRadius: 8, fontSize: 13 },
-  sosBanner: { background: '#FEE2E2', borderTop: '3px solid #DC2626', padding: '12px 16px' },
-  sosBoshi: { fontSize: 13, fontWeight: 800, color: '#7F1D1D', marginBottom: 10 },
-  sosKarta: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--oq)', padding: 12, borderRadius: 12, marginBottom: 8, boxShadow: '0 2px 8px rgba(220,38,38,0.15)' },
-  sosIsm: { fontWeight: 800, fontSize: 14 },
-  sosMeta: { fontSize: 12, color: 'var(--kulrang)', marginTop: 2 },
-  sosQabulTugma: { background: '#DC2626', color: '#fff', padding: '8px 14px', borderRadius: 10, fontWeight: 800, fontSize: 12 },
-  tablar: { display: 'flex', gap: 8, padding: 16, background: 'var(--oq)' },
-  tab: { flex: 1, padding: 12, borderRadius: 12, background: 'var(--och-kulrang)', fontWeight: 600, fontSize: 13 },
-  tabFaol: { background: 'var(--sariq)', color: '#fff', fontWeight: 800 },
-  kontent: { padding: 16 },
-  xato: { background: '#FEE2E2', color: '#991B1B', padding: 12, borderRadius: 10, marginBottom: 12, fontSize: 14 },
+  sahifa: { width: '100%', maxWidth: 720, margin: '0 auto', minHeight: '100dvh', background: 'var(--bg)', paddingBottom: 'env(safe-area-inset-bottom)' },
+  header: { padding: '12px 16px', paddingTop: 'calc(12px + env(safe-area-inset-top))', background: 'var(--material-bar)', backdropFilter: 'saturate(180%) blur(20px)', WebkitBackdropFilter: 'saturate(180%) blur(20px)', borderBottom: '0.5px solid var(--separator)', color: 'var(--label)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50 },
+  logo: { fontWeight: 600, fontSize: 17 },
+  chiqish: { background: 'transparent', color: 'var(--tint)', padding: '6px 8px', fontSize: 15, fontWeight: 400 },
+  sosBanner: { background: 'rgba(255,59,48,0.1)', padding: '12px 16px', borderBottom: '0.5px solid var(--separator)' },
+  sosBoshi: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 600, color: 'var(--qizil)', marginBottom: 10 },
+  sosKarta: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--surface)', padding: 12, borderRadius: 'var(--r-md)', marginBottom: 8, boxShadow: 'var(--shadow-1)' },
+  sosIsm: { fontWeight: 600, fontSize: 15 },
+  sosMeta: { fontSize: 13, color: 'var(--secondary-label)', marginTop: 2 },
+  sosQabulTugma: { background: 'var(--qizil)', color: '#fff', padding: '8px 14px', borderRadius: 'var(--r-full)', fontWeight: 600, fontSize: 13 },
+  tablar: { padding: 16 },
+  kontent: { padding: '0 16px 16px' },
+  xato: { background: 'rgba(255,59,48,0.12)', color: 'var(--qizil)', padding: 12, borderRadius: 'var(--r-md)', marginBottom: 12, fontSize: 14 },
   statGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 },
   royxat: { display: 'flex', flexDirection: 'column', gap: 10 },
-  userKarta: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--oq)', padding: 14, borderRadius: 14, boxShadow: 'var(--soya)' },
-  avatar: { width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 18, flexShrink: 0 },
-  userIsm: { fontWeight: 700, fontSize: 15 },
-  userMeta: { fontSize: 12, color: 'var(--kulrang)', marginTop: 2 },
-  blokBelgi: { fontSize: 12, color: 'var(--qizil)', marginTop: 4, fontWeight: 600 },
-  blokTugma: { background: 'var(--qizil)', color: 'var(--oq)', padding: '8px 14px', borderRadius: 10, fontWeight: 700, fontSize: 13 },
-  yechishTugma: { background: 'var(--yashil)', color: 'var(--oq)', padding: '8px 14px', borderRadius: 10, fontWeight: 700, fontSize: 13 },
+  userKarta: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--surface)', padding: 14, borderRadius: 'var(--r-lg)', boxShadow: 'var(--shadow-1)' },
+  avatar: { width: 44, height: 44, borderRadius: '50%', background: 'var(--tint)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: 18, flexShrink: 0 },
+  userIsm: { fontWeight: 600, fontSize: 16 },
+  userMeta: { fontSize: 13, color: 'var(--secondary-label)', marginTop: 2 },
+  blokBelgi: { fontSize: 13, color: 'var(--qizil)', marginTop: 4, fontWeight: 500 },
+  blokTugma: { background: 'var(--qizil)', color: '#fff', padding: '7px 14px', borderRadius: 'var(--r-full)', fontWeight: 600, fontSize: 13 },
+  yechishTugma: { background: 'var(--yashil)', color: '#fff', padding: '7px 14px', borderRadius: 'var(--r-full)', fontWeight: 600, fontSize: 13 },
   tugmalarUstun: { display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'stretch' },
-  tasdiqlaTugma: { background: 'var(--asosiy)', color: '#fff', padding: '8px 14px', borderRadius: 10, fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap' },
-  tasdiqYechTugma: { background: 'var(--och-kulrang)', color: 'var(--qora-soft)', padding: '8px 14px', borderRadius: 10, fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap' },
-  tasdiqMeta: { display: 'inline-block', marginLeft: 8, fontSize: 12, fontWeight: 800, color: 'var(--asosiy)' },
-  rideKarta: { background: 'var(--oq)', padding: 14, borderRadius: 14, boxShadow: 'var(--soya)' },
+  tasdiqlaTugma: { background: 'var(--tint)', color: '#fff', padding: '7px 14px', borderRadius: 'var(--r-full)', fontWeight: 600, fontSize: 13, whiteSpace: 'nowrap' },
+  tasdiqYechTugma: { background: 'var(--fill)', color: 'var(--label)', padding: '7px 14px', borderRadius: 'var(--r-full)', fontWeight: 600, fontSize: 13, whiteSpace: 'nowrap' },
+  tasdiqMeta: { display: 'inline-block', marginLeft: 8, fontSize: 12, fontWeight: 600, color: 'var(--tint)' },
+  rideKarta: { background: 'var(--surface)', padding: 14, borderRadius: 'var(--r-lg)', boxShadow: 'var(--shadow-1)' },
   rideYuqori: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  rideId: { fontWeight: 800, fontSize: 14 },
-  holatBelgi: { padding: '4px 10px', borderRadius: 8, fontSize: 12, fontWeight: 700 },
-  holatYashil: { background: '#DCFCE7', color: '#16A34A' },
-  holatSariq: { background: '#FEF9C3', color: '#CA8A04' },
-  rideYol: { fontSize: 14, fontWeight: 600 },
-  rideMeta: { fontSize: 12, color: 'var(--kulrang)', marginTop: 4 },
-  modalFon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: 16 },
-  modal: { background: 'var(--oq)', width: '100%', maxWidth: 400, borderRadius: 20, padding: 24 },
-  modalSarlavha: { fontSize: 20, fontWeight: 800, marginBottom: 8 },
-  modalIzoh: { fontSize: 13, color: 'var(--kulrang)', marginBottom: 16 },
-  modalShaffoflik: { fontSize: 13, color: '#92400E', background: '#FEF3C7', borderLeft: '4px solid #F59E0B', padding: '10px 12px', borderRadius: 8, marginBottom: 16, lineHeight: 1.5 },
-  input: { width: '100%', padding: 14, borderRadius: 12, border: '1px solid var(--neutral-200)', background: 'var(--oq)', color: 'var(--qora)', fontSize: 15, marginBottom: 16 },
-  tasdiqTugma: { width: '100%', background: 'var(--qizil)', color: 'var(--oq)', padding: 14, borderRadius: 12, fontWeight: 700, fontSize: 15 },
-  bekorTugma: { width: '100%', background: 'transparent', padding: 12, color: 'var(--kulrang)', fontSize: 14, marginTop: 4 },
+  rideId: { fontWeight: 600, fontSize: 15 },
+  holatBelgi: { padding: '3px 10px', borderRadius: 'var(--r-full)', fontSize: 12, fontWeight: 600 },
+  holatYashil: { background: 'rgba(52,199,89,0.16)', color: 'var(--yashil)' },
+  holatSariq: { background: 'rgba(255,149,0,0.16)', color: 'var(--amber)' },
+  rideYol: { fontSize: 15, fontWeight: 500 },
+  rideMeta: { fontSize: 13, color: 'var(--secondary-label)', marginTop: 4 },
+  modalFon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: 24, backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)' },
+  modal: { background: 'var(--surface-elevated)', width: '100%', maxWidth: 400, borderRadius: 'var(--r-xl)', padding: 24 },
+  modalSarlavha: { fontSize: 20, fontWeight: 600, marginBottom: 8 },
+  modalIzoh: { fontSize: 14, color: 'var(--secondary-label)', marginBottom: 16 },
+  modalShaffoflik: { fontSize: 13, color: 'var(--amber)', background: 'rgba(255,149,0,0.12)', padding: '11px 14px', borderRadius: 'var(--r-md)', marginBottom: 16, lineHeight: 1.45 },
+  input: { width: '100%', padding: 14, borderRadius: 'var(--r-md)', border: 'none', background: 'var(--fill)', color: 'var(--label)', fontSize: 17, marginBottom: 16 },
+  tasdiqTugma: { width: '100%', background: 'var(--qizil)', color: '#fff', padding: 15, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 17 },
+  bekorTugma: { width: '100%', background: 'transparent', padding: 12, color: 'var(--tint)', fontSize: 17, fontWeight: 400, marginTop: 4 },
 };
 
 const stStat = {
-  karta: { background: 'var(--oq)', padding: 20, borderRadius: 16, boxShadow: 'var(--soya)', textAlign: 'center' },
-  ikon: { fontSize: 28, marginBottom: 8 },
-  raqam: { fontSize: 26, fontWeight: 800 },
-  matn: { fontSize: 13, color: 'var(--kulrang)', marginTop: 2 },
+  karta: { background: 'var(--surface)', padding: 18, borderRadius: 'var(--r-lg)', boxShadow: 'var(--shadow-1)', textAlign: 'center' },
+  ikon: { width: 36, height: 36, borderRadius: 9, color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
+  raqam: { fontSize: 26, fontWeight: 700, letterSpacing: '0.3px' },
+  matn: { fontSize: 13, color: 'var(--secondary-label)', marginTop: 2 },
 };
