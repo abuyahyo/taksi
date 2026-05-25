@@ -45,7 +45,7 @@ function Ichki({ user, onChiqish }) {
   const [stats, setStats] = useState({ daromad: 0, safar: 0 });
   const [faolSafar, setFaolSafar] = useState(null); // {rideId, narx, mijoz_ism, holati: 'kelmoqda'|'yetib_keldi'|'yolda', kelgan_vaqti, kutish_haqi}
   const [chatOchiq, setChatOchiq] = useState(false);
-  const [hozir, setHozir] = useState(Date.now()); // таймер учун
+  const [hozir, setHozir] = useState(() => Date.now()); // таймер учун
   const [baholashUchun, setBaholashUchun] = useState(null); // {rideId, ism} — модаль очилади
   const [mashina, setMashina] = useState(null); // {mashina_modeli, mashina_raqami, mashina_rangi}
   const [profilOchiq, setProfilOchiq] = useState(false);

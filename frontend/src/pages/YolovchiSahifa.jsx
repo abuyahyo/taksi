@@ -49,17 +49,14 @@ export default function YolovchiSahifa() {
 
   const meId = user?.id || null;
 
-  // Логин қилинган йўловчи — push билдиришномага обуна (рухсат берилган бўлса)
+  // Логин қилинган йўловчи — push билдиришнома + профил/манзилларни юклаймиз
   useEffect(() => {
-    if (user) ruxsatSora().then((ok) => { if (ok) pushObunaBol(); });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
-
-  // Логин қилинган бўлса профилни ва сўнгги манзилларни юклаймиз
-  if (user && !profil) {
+    if (!user) return;
+    ruxsatSora().then((ok) => { if (ok) pushObunaBol(); });
     api.get('/passenger/me').then(({ data }) => setProfil(data)).catch(() => {});
     api.get('/passenger/recent').then(({ data }) => setSonggiManzillar(data)).catch(() => {});
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const { yubor } = useSocket({
     buyurtma_yaratildi: ({ id }) => {
