@@ -53,4 +53,9 @@ export default defineConfig({
   build: {
     chunkSizeWarningLimit: 600,
   },
+  server: {
+    host: true,
+    // Cloudflare quick tunnel (trycloudflare.com) host'ини рад этмаслик учун
+    allowedHosts: ['.trycloudflare.com'],
+  },
 })
