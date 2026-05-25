@@ -26,10 +26,22 @@ async function checkPerform(params, id) {
   if (ride.rows.length === 0) {
     return xatoJavob(id, XATO.BUYURTMA_TOPILMADI, 'Буюртма топилмади');
   }
+  // Бекор қилинган сафарга тўлов йўқ
+  if (ride.rows[0].holat === 'bekor_qilindi') {
+    return xatoJavob(id, XATO.BAJARIB_BOLMAYDI, 'Сафар бекор қилинган');
+  }
   // Сумма тўғрими? (тийинда солиштирамиз)
   const kerakli = ride.rows[0].kelishilgan_narx * 100;
   if (params.amount !== kerakli) {
     return xatoJavob(id, XATO.NOTOGRI_SUMMA, 'Сумма нотўғри');
+  }
+  // Аллақачон тўланганми?
+  const tolangan = await query(
+    `SELECT 1 FROM transactions WHERE ride_id = $1 AND holat = 'tolandi' LIMIT 1`,
+    [buyurtmaId]
+  );
+  if (tolangan.rows.length) {
+    return xatoJavob(id, XATO.BAJARIB_BOLMAYDI, 'Аллақачон тўланган');
   }
   return muvaffaqiyat(id, { allow: true });
 }

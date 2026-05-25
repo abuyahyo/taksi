@@ -100,6 +100,8 @@ CREATE INDEX IF NOT EXISTS idx_offers_ride ON offers(ride_id);
 CREATE INDEX IF NOT EXISTS idx_drivers_holati ON drivers(holati);
 CREATE INDEX IF NOT EXISTS idx_drivers_user ON drivers(user_id);
 CREATE INDEX IF NOT EXISTS idx_ratings_baholanuvchi ON ratings(baholanuvchi_id);
+-- Бир сафар — бир баҳоловчидан фақат битта баҳо (икки марта баҳолашни тўсади)
+CREATE UNIQUE INDEX IF NOT EXISTS uq_ratings_ride_baholovchi ON ratings(ride_id, baholovchi_id);
 CREATE INDEX IF NOT EXISTS idx_users_telefon ON users(telefon);
 
 -- Тўлов транзакциялари (Payme + Click)

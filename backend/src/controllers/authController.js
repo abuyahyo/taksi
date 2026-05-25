@@ -85,8 +85,12 @@ const login = async (req, res) => {
     }
 
     const token = tokenYaratish(user);
-    delete user.parol_hash; // паролни жўнатмаймиз
-    res.json({ token, user });
+    // Фақат керакли майдонларни қайтарамиз (parol_hash, блок ва манзил майдонлари кетмасин)
+    const javobUser = {
+      id: user.id, ism: user.ism, telefon: user.telefon,
+      rol: user.rol, reyting: user.reyting,
+    };
+    res.json({ token, user: javobUser });
   } catch (err) {
     console.error('Login хатоси:', err.message);
     res.status(500).json({ xato: 'Сервер хатоси' });

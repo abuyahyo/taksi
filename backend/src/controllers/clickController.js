@@ -38,6 +38,24 @@ const prepare = async (req, res) => {
   if (ride.rows.length === 0) {
     return res.json({ error: XATO.BUYURTMA_TOPILMADI, error_note: 'Буюртма топилмади' });
   }
+  const r0 = ride.rows[0];
+
+  // Бекор қилинган сафарга тўлов йўқ
+  if (r0.holat === 'bekor_qilindi') {
+    return res.json({ error: XATO.BEKOR_QILINGAN, error_note: 'Сафар бекор қилинган' });
+  }
+  // Сумма сафар нархига мос келиши шарт (Click сўм бирлигида юборади)
+  if (!r0.kelishilgan_narx || Math.round(Number(b.amount)) !== Number(r0.kelishilgan_narx)) {
+    return res.json({ error: XATO.SUMMA_XATO, error_note: 'Сумма нотўғри' });
+  }
+  // Икки марта тўловни тўсамиз
+  const tolangan = await query(
+    `SELECT 1 FROM transactions WHERE ride_id = $1 AND holat = 'tolandi' LIMIT 1`,
+    [b.merchant_trans_id]
+  );
+  if (tolangan.rows.length) {
+    return res.json({ error: XATO.ALLAQACHON_TOLANGAN, error_note: 'Аллақачон тўланган' });
+  }
 
   // Транзакция яратамиз
   const natija = await query(
