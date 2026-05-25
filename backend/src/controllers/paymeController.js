@@ -192,4 +192,4 @@ function paymeCheckoutUrl({ rideId, summaSum, returnUrl, til = 'uz' }) {
   return `https://checkout.paycom.uz/${base64}`;
 }
 
-module.exports = { paymeWebhook, paymeCheckoutUrl };
+module.exports = { paymeWebhook, paymeCheckoutUrl, authTekshir };

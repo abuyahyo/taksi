@@ -125,4 +125,4 @@ function clickCheckoutUrl({ rideId, summaSum, returnUrl }) {
   return `https://my.click.uz/services/pay?${params.toString()}`;
 }
 
-module.exports = { prepare, complete, clickCheckoutUrl };
+module.exports = { prepare, complete, clickCheckoutUrl, imzoTekshir };
