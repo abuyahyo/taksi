@@ -165,7 +165,7 @@ export default function YolovchiSahifa() {
       haydovchi_ism: t.haydovchi_ism,
       narx: t.haydovchi_narx,
     });
-    setHaydovchiInfo({ ism: t.haydovchi_ism, narx: t.haydovchi_narx, mashina: t.mashina, reyting: t.reyting });
+    setHaydovchiInfo({ ism: t.haydovchi_ism, narx: t.haydovchi_narx, mashina: t.mashina, reyting: t.reyting, tasdiqlangan: t.tasdiqlangan });
     setBosqich('safar');
   };
 
@@ -283,7 +283,11 @@ export default function YolovchiSahifa() {
             <div style={st.haydovchi}>
               <div style={st.avatar}>{haydovchiInfo.ism[0]}</div>
               <div style={{ flex: 1 }}>
-                <div style={st.hIsm}>{haydovchiInfo.ism} ⭐ {haydovchiInfo.reyting}</div>
+                <div style={st.hIsm}>
+                  {haydovchiInfo.ism}
+                  {haydovchiInfo.tasdiqlangan && <span style={st.tasdiqBelgi} title={t('verify.badge')}>✓</span>}
+                  {' '}⭐ {haydovchiInfo.reyting}
+                </div>
                 <div style={st.hMashina}>{haydovchiInfo.mashina} · {Number(haydovchiInfo.narx).toLocaleString()}</div>
               </div>
             </div>
@@ -345,7 +349,11 @@ export default function YolovchiSahifa() {
                     <div key={i} style={st.haydovchi}>
                       <div style={st.avatar}>{tk.haydovchi_ism[0]}</div>
                       <div style={{ flex: 1 }}>
-                        <div style={st.hIsm}>{tk.haydovchi_ism} ⭐ {tk.reyting}</div>
+                        <div style={st.hIsm}>
+                          {tk.haydovchi_ism}
+                          {tk.tasdiqlangan && <span style={st.tasdiqBelgi} title={t('verify.badge')}>✓</span>}
+                          {' '}⭐ {tk.reyting}
+                        </div>
                         <div style={st.hMashina}>{tk.mashina} · {tk.min} {t('drv.minute')}</div>
                       </div>
                       <button style={st.qabul} onClick={() => haydovchiTanla(tk)}>
@@ -440,6 +448,7 @@ const st = {
   haydovchi: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--och-kulrang)', padding: 12, borderRadius: 14, marginBottom: 10 },
   avatar: { width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 18, flexShrink: 0 },
   hIsm: { fontWeight: 700, fontSize: 15 },
+  tasdiqBelgi: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 16, height: 16, borderRadius: '50%', background: 'var(--asosiy)', color: '#fff', fontSize: 10, fontWeight: 900, marginLeft: 5, verticalAlign: 'middle' },
   hMashina: { fontSize: 12, color: 'var(--kulrang)' },
   qabul: { background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', padding: '10px 16px', borderRadius: 10, fontWeight: 800, fontSize: 15, boxShadow: 'var(--shadow-sariq)' },
   kuzatishMatn: { textAlign: 'center', padding: 12, color: 'var(--kulrang)', fontSize: 13, marginTop: 4 },

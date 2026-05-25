@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const { authMiddleware, roleMiddleware } = require('../middleware/auth');
 const {
-  statistika, foydalanuvchilar, bloklash, blokniYechish, buyurtmalar,
+  statistika, foydalanuvchilar, bloklash, blokniYechish, buyurtmalar, tasdiqlash, tasdiqBekor,
 } = require('../controllers/adminController');
 
 // Барча админ йўллари токен + админ роли талаб қилади
@@ -13,6 +13,8 @@ router.get('/statistika', statistika);
 router.get('/foydalanuvchilar', foydalanuvchilar);
 router.post('/bloklash/:id', bloklash);
 router.post('/blok-yechish/:id', blokniYechish);
+router.post('/tasdiqlash/:id', tasdiqlash);
+router.post('/tasdiq-bekor/:id', tasdiqBekor);
 router.get('/buyurtmalar', buyurtmalar);
 
 const { royxat: sosRoyxat, qabul: sosQabul } = require('../controllers/sosController');

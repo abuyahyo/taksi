@@ -108,6 +108,25 @@ function AdminIchki({ onChiqish }) {
     }
   };
 
+  const tasdiqla = async (id) => {
+    try {
+      await api.post(`/admin/tasdiqlash/${id}`);
+      toast.success(t('admin.verified'));
+      yukla();
+    } catch (err) {
+      toast.error(err.response?.data?.xato || t('common.error'));
+    }
+  };
+
+  const tasdiqBekor = async (id) => {
+    try {
+      await api.post(`/admin/tasdiq-bekor/${id}`);
+      yukla();
+    } catch (err) {
+      toast.error(err.response?.data?.xato || t('common.error'));
+    }
+  };
+
   return (
     <div style={st.sahifa}>
       <div style={st.header}>
@@ -164,17 +183,29 @@ function AdminIchki({ onChiqish }) {
                 <div key={u.id} style={st.userKarta}>
                   <div style={st.avatar}>{u.ism[0]}</div>
                   <div style={{ flex: 1 }}>
-                    <div style={st.userIsm}>{u.ism}</div>
+                    <div style={st.userIsm}>
+                      {u.ism}
+                      {u.rol === 'haydovchi' && u.tasdiqlangan && (
+                        <span style={st.tasdiqMeta} title={t('verify.badge')}>{t('admin.verified')}</span>
+                      )}
+                    </div>
                     <div style={st.userMeta}>
                       {u.telefon} · {u.rol === 'haydovchi' ? t('admin.roleDriver') : u.rol === 'admin' ? t('admin.roleAdmin') : t('admin.roleClient')} · ⭐ {u.reyting}
                     </div>
                     {u.bloklangan && <div style={st.blokBelgi}>{t('admin.blocked', { sabab: u.blok_sababi })}</div>}
                   </div>
-                  {u.rol !== 'admin' && (u.bloklangan ? (
-                    <button style={st.yechishTugma} onClick={() => blokniYechish(u.id)}>{t('admin.unblock')}</button>
-                  ) : (
-                    <button style={st.blokTugma} onClick={() => setBlokModal(u)}>{t('admin.block')}</button>
-                  ))}
+                  <div style={st.tugmalarUstun}>
+                    {u.rol === 'haydovchi' && (u.tasdiqlangan ? (
+                      <button style={st.tasdiqYechTugma} onClick={() => tasdiqBekor(u.id)}>{t('admin.unverify')}</button>
+                    ) : (
+                      <button style={st.tasdiqlaTugma} onClick={() => tasdiqla(u.id)}>{t('admin.verify')}</button>
+                    ))}
+                    {u.rol !== 'admin' && (u.bloklangan ? (
+                      <button style={st.yechishTugma} onClick={() => blokniYechish(u.id)}>{t('admin.unblock')}</button>
+                    ) : (
+                      <button style={st.blokTugma} onClick={() => setBlokModal(u)}>{t('admin.block')}</button>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
@@ -263,6 +294,10 @@ const st = {
   blokBelgi: { fontSize: 12, color: 'var(--qizil)', marginTop: 4, fontWeight: 600 },
   blokTugma: { background: 'var(--qizil)', color: 'var(--oq)', padding: '8px 14px', borderRadius: 10, fontWeight: 700, fontSize: 13 },
   yechishTugma: { background: 'var(--yashil)', color: 'var(--oq)', padding: '8px 14px', borderRadius: 10, fontWeight: 700, fontSize: 13 },
+  tugmalarUstun: { display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'stretch' },
+  tasdiqlaTugma: { background: 'var(--asosiy)', color: '#fff', padding: '8px 14px', borderRadius: 10, fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap' },
+  tasdiqYechTugma: { background: 'var(--och-kulrang)', color: 'var(--qora-soft)', padding: '8px 14px', borderRadius: 10, fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap' },
+  tasdiqMeta: { display: 'inline-block', marginLeft: 8, fontSize: 12, fontWeight: 800, color: 'var(--asosiy)' },
   rideKarta: { background: 'var(--oq)', padding: 14, borderRadius: 14, boxShadow: 'var(--soya)' },
   rideYuqori: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   rideId: { fontWeight: 800, fontSize: 14 },
