@@ -33,6 +33,7 @@ export default function YolovchiSahifa() {
   const [boshlanishManzil, setBoshlanishManzil] = useState('');
   const [tugashManzil, setTugashManzil] = useState('');
   const [tanlovRejimi, setTanlovRejimi] = useState('boshlanish');
+  const [oraliqlar, setOraliqlar] = useState([]); // [{ nuqta:[lat,lng], manzil }] — манзил(лар), охиргиси якуний
   // Yandex услуби — харита маркази (пин остидаги нуқта ва манзил)
   const [markazNuqta, setMarkazNuqta] = useState(null);
   const [markazManzil, setMarkazManzil] = useState('');
@@ -123,6 +124,7 @@ export default function YolovchiSahifa() {
     setBoshlanishManzil('');
     setTugashManzil('');
     setTanlovRejimi('boshlanish');
+    setOraliqlar([]);
     setMarkazManzil('');
     setSafarPin(null);
     setIzoh('');
@@ -150,7 +152,7 @@ export default function YolovchiSahifa() {
     }, 450);
   };
 
-  // Пин остидаги нуқтани тасдиқлаш (тап билан қўйиш ўрнига)
+  // Пин остидаги нуқтани тасдиқлаш — бошланиш ёки манзил (оралиқ) қўшиш
   const markaznidanTanla = () => {
     if (!markazNuqta) return;
     if (tanlovRejimi === 'boshlanish') {
@@ -158,14 +160,32 @@ export default function YolovchiSahifa() {
       setBoshlanishManzil(markazManzil);
       setTanlovRejimi('tugash');
     } else {
-      setTugash(markazNuqta);
-      setTugashManzil(markazManzil);
-      setNarx(tavsiyaHisobi(masofaKm(boshlanish, markazNuqta)));
-      setBosqich('narx');
+      // Манзилни рўйхатга қўшамиз (кўп манзил — оралиқ нуқталар)
+      setOraliqlar((eski) => [...eski, { nuqta: markazNuqta, manzil: markazManzil }]);
     }
   };
 
-  const masofa = () => masofaKm(boshlanish, tugash);
+  // "Давом этиш" — манзил(лар) танлангач нарх босқичига ўтамиз
+  const manzillarTasdiqla = () => {
+    if (oraliqlar.length === 0) return;
+    const oxirgi = oraliqlar[oraliqlar.length - 1];
+    setTugash(oxirgi.nuqta);
+    setTugashManzil(oxirgi.manzil);
+    setNarx(tavsiyaHisobi(yolMasofa(), tarif));
+    setBosqich('narx');
+  };
+
+  const oraliqOchir = (i) => setOraliqlar((eski) => eski.filter((_, j) => j !== i));
+
+  // Тўлиқ йўл масофаси — бошланиш → манзил1 → ... → охирги
+  const yolMasofa = () => {
+    const nuqtalar = [boshlanish, ...oraliqlar.map((o) => o.nuqta)].filter(Boolean);
+    let jami = 0;
+    for (let i = 0; i < nuqtalar.length - 1; i++) jami += masofaKm(nuqtalar[i], nuqtalar[i + 1]);
+    return Math.round(jami * 100) / 100;
+  };
+
+  const masofa = () => yolMasofa();
 
   // Ҳайдовчининг келиш вақти (ETA) — жонли GPS'дан пикап нуқтасигача, шаҳар ўртача тезлиги
   const kelishVaqti = () => {
@@ -212,6 +232,8 @@ export default function YolovchiSahifa() {
       tarif,
       opsiyalar: { izoh: izoh.trim() || null, boshqaUchun, yuk },
       reja_vaqt: rejaVaqt || null,
+      // оралиқ манзиллар (бошланиш ва якуний орасидаги тўхташлар)
+      oraliq_manzillar: oraliqlar.slice(0, -1).map((o) => o.manzil || `${o.nuqta[0].toFixed(4)}, ${o.nuqta[1].toFixed(4)}`),
       vaqt: 'ҳозиргина',
     });
   };
@@ -240,6 +262,7 @@ export default function YolovchiSahifa() {
           markaz={TOSHKENT}
           boshlanish={boshlanish}
           tugash={tugash}
+          yol={[boshlanish, ...oraliqlar.map((o) => o.nuqta)].filter(Boolean)}
           haydovchi={haydovchiNuqta}
           markazRejim={bosqich === 'manzil'}
           markazRang={tanlovRejimi === 'boshlanish' ? '#0E9384' : '#EF4444'}
@@ -270,6 +293,19 @@ export default function YolovchiSahifa() {
               onTanlandi={(nuqta) => setUchish([nuqta[0], nuqta[1]])}
             />
 
+            {/* Танланган манзиллар рўйхати (кўп манзил) */}
+            {oraliqlar.length > 0 && (
+              <div style={st.oraliqRoyxat}>
+                {oraliqlar.map((o, i) => (
+                  <div key={i} style={st.oraliqQator}>
+                    <span style={{ ...st.nuqta, background: i === oraliqlar.length - 1 ? 'var(--qizil)' : 'var(--tint)' }} />
+                    <span style={st.oraliqMatn}>{o.manzil || `${o.nuqta[0].toFixed(3)}, ${o.nuqta[1].toFixed(3)}`}</span>
+                    <button style={st.oraliqOchir} onClick={() => oraliqOchir(i)}><Ikonka nom="x" size={14} /></button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Пин остидаги жонли манзил */}
             <div style={st.markazManzilQator}>
               <span style={{ ...st.nuqta, background: tanlovRejimi === 'boshlanish' ? 'var(--yashil)' : 'var(--qizil)' }} />
@@ -298,11 +334,28 @@ export default function YolovchiSahifa() {
               </div>
             )}
 
-            <button style={{ ...st.tugma, opacity: markazNuqta ? 1 : 0.5 }} onClick={markaznidanTanla} disabled={!markazNuqta}>
-              {tanlovRejimi === 'boshlanish' ? t('pass.confirmStart') : t('common.continue')}
-            </button>
-            {tanlovRejimi === 'tugash' && (
-              <button style={st.orqaga} onClick={() => setTanlovRejimi('boshlanish')}><Ikonka nom="arrow-left" size={16} /> {t('common.back')}</button>
+            {tanlovRejimi === 'boshlanish' ? (
+              <button style={{ ...st.tugma, opacity: markazNuqta ? 1 : 0.5 }} onClick={markaznidanTanla} disabled={!markazNuqta}>
+                {t('pass.confirmStart')}
+              </button>
+            ) : (
+              <>
+                {oraliqlar.length > 0 && (
+                  <button style={st.tugma} onClick={manzillarTasdiqla}>
+                    {t('common.continue')}
+                  </button>
+                )}
+                <button
+                  style={{ ...(oraliqlar.length === 0 ? st.tugma : st.qoshTugma), opacity: markazNuqta ? 1 : 0.5 }}
+                  onClick={markaznidanTanla}
+                  disabled={!markazNuqta}
+                >
+                  {oraliqlar.length === 0 ? t('pass.markDest') : `+ ${t('pass.addStop')}`}
+                </button>
+                <button style={st.orqaga} onClick={() => { setTanlovRejimi('boshlanish'); setOraliqlar([]); }}>
+                  <Ikonka nom="arrow-left" size={16} /> {t('common.back')}
+                </button>
+              </>
             )}
           </>
         )}
@@ -568,6 +621,11 @@ const st = {
   maydon: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--fill)', padding: 14, borderRadius: 'var(--r-md)', marginBottom: 10, cursor: 'pointer' },
   nuqta: { width: 11, height: 11, borderRadius: '50%', flexShrink: 0 },
   maydonMatn: { fontSize: 15 },
+  oraliqRoyxat: { display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 10 },
+  oraliqQator: { display: 'flex', alignItems: 'center', gap: 10, background: 'var(--fill)', padding: '10px 12px', borderRadius: 'var(--r-md)' },
+  oraliqMatn: { flex: 1, minWidth: 0, fontSize: 14, fontWeight: 500, color: 'var(--label)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  oraliqOchir: { width: 26, height: 26, borderRadius: '50%', background: 'var(--fill-strong)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  qoshTugma: { width: '100%', background: 'var(--fill)', color: 'var(--tint)', padding: 14, borderRadius: 'var(--r-lg)', fontSize: 16, fontWeight: 600, marginTop: 8 },
   markazManzilQator: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--fill)', padding: 14, borderRadius: 'var(--r-md)', marginBottom: 10, minHeight: 48 },
   markazManzilMatn: { fontSize: 15, fontWeight: 500, lineHeight: 1.3, color: 'var(--label)' },
   tugma: { width: '100%', background: 'var(--tint)', color: '#fff', padding: 15, borderRadius: 'var(--r-lg)', fontSize: 17, fontWeight: 600, marginTop: 8 },

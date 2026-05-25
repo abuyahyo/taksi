@@ -21,6 +21,12 @@ const pinSvg = (rang) => `<svg width="30" height="40" viewBox="0 0 24 32" xmlns=
 </svg>`;
 const boshlanishIcon = L.divIcon({ className: 'brand-pin', html: pinSvg('#0E9384'), iconSize: [30, 40], iconAnchor: [15, 40] });
 const tugashIcon = L.divIcon({ className: 'brand-pin', html: pinSvg('#EF4444'), iconSize: [30, 40], iconAnchor: [15, 40] });
+// Оралиқ тўхташ — кичик бирюза доира
+const oraliqIcon = L.divIcon({
+  className: 'oraliq-pin',
+  html: `<div style="width:16px;height:16px;border-radius:50%;background:#0E9384;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)"></div>`,
+  iconSize: [16, 16], iconAnchor: [8, 8],
+});
 
 // Ҳайдовчи учун машина иконкаси (SVG + бирюза доира)
 const haydovchiIcon = L.divIcon({
@@ -81,8 +87,11 @@ function MarkazKuzat({ onMarkaz }) {
 
 export default function Harita({
   markaz, boshlanish, tugash, haydovchi, onBosish,
-  markazRejim = false, markazRang = '#0E9384', onMarkaz, uchish,
+  markazRejim = false, markazRang = '#0E9384', onMarkaz, uchish, yol,
 }) {
+  // Кўп манзил: yol = [бошланиш, ...оралиқлар]. 2+ нуқта бўлса йўлни шу бўйича чизамиз.
+  const koplik = Array.isArray(yol) && yol.length >= 2;
+  const oraliqlar = koplik ? yol.slice(1, -1) : [];
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       <MapContainer center={markaz} zoom={13} zoomControl={false}>
@@ -94,10 +103,14 @@ export default function Harita({
         {uchish && <UchishKuzat uchish={uchish} />}
         {onBosish && <BosishHodisasi onBosish={onBosish} />}
         {markazRejim && onMarkaz && <MarkazKuzat onMarkaz={onMarkaz} />}
-        {/* Йўл чизиғи — pickup ↔ борар манзил */}
-        {boshlanish && tugash && (
+        {/* Йўл чизиғи — кўп манзил бўлса барча нуқталар орқали, акс ҳолда pickup ↔ манзил */}
+        {koplik ? (
+          <Polyline positions={yol} pathOptions={{ color: '#0E9384', weight: 4, opacity: 0.85 }} />
+        ) : boshlanish && tugash && (
           <Polyline positions={[boshlanish, tugash]} pathOptions={{ color: '#0E9384', weight: 4, opacity: 0.85 }} />
         )}
+        {/* Оралиқ тўхташ маркерлари */}
+        {oraliqlar.map((nuqta, i) => <Marker key={`or-${i}`} position={nuqta} icon={oraliqIcon} />)}
         {/* Ҳайдовчи → pickup (пунктир) — ҳайдовчи йўлда бўлганда */}
         {haydovchi && boshlanish && (
           <Polyline positions={[haydovchi, boshlanish]} pathOptions={{ color: '#0E9384', weight: 3, opacity: 0.55, dashArray: '6 8' }} />

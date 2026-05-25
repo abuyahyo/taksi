@@ -79,14 +79,18 @@ module.exports = (io) => {
             rejaVaqt = d.toISOString();
           }
         }
+        // Оралиқ манзиллар (кўп манзил) — стринглар рўйхати, макс 5 та
+        const oraliqlar = Array.isArray(buyurtma.oraliq_manzillar)
+          ? buyurtma.oraliq_manzillar.filter((x) => typeof x === 'string' && x.trim()).slice(0, 5).map((x) => x.trim().slice(0, 200))
+          : [];
         const result = await query(
-          `INSERT INTO rides (mijoz_id, boshlanish_manzil, tugash_manzil, masofa_km, taklif_narx, holat, pin, tarif, opsiyalar, rejalashtirilgan_vaqt)
-           VALUES ($1, $2, $3, $4, $5, 'kutilmoqda', $6, $7, $8, $9)
+          `INSERT INTO rides (mijoz_id, boshlanish_manzil, tugash_manzil, masofa_km, taklif_narx, holat, pin, tarif, opsiyalar, rejalashtirilgan_vaqt, oraliq_manzillar)
+           VALUES ($1, $2, $3, $4, $5, 'kutilmoqda', $6, $7, $8, $9, $10)
            RETURNING id`,
-          [mijoz_id, buyurtma.boshlanish, buyurtma.tugash, buyurtma.masofa, buyurtma.narx, pin, tarif, JSON.stringify(opsiyalar), rejaVaqt]
+          [mijoz_id, buyurtma.boshlanish, buyurtma.tugash, buyurtma.masofa, buyurtma.narx, pin, tarif, JSON.stringify(opsiyalar), rejaVaqt, JSON.stringify(oraliqlar)]
         );
         const dbId = result.rows[0].id;
-        const enriched = { ...buyurtma, id: dbId, taklif_id: buyurtma.id, tarif, opsiyalar, reja_vaqt: rejaVaqt, mijoz_id, mijoz_ism, mijoz: mijoz_ism, reyting: mijoz_reyting };
+        const enriched = { ...buyurtma, id: dbId, taklif_id: buyurtma.id, tarif, opsiyalar, reja_vaqt: rejaVaqt, oraliq_manzillar: oraliqlar, mijoz_id, mijoz_ism, mijoz: mijoz_ism, reyting: mijoz_reyting };
 
         faolBuyurtmalar.set(dbId, enriched);
         socket.join(`ride_${dbId}`);
