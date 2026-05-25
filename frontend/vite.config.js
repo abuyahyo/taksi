@@ -55,8 +55,9 @@ export default defineConfig({
   },
   server: {
     host: true,
-    // Тоннел хостлари (Blocked request бўлмаслиги учун) — қайси провайдер ишлатилса ҳам
-    allowedHosts: ['.trycloudflare.com', '.ngrok-free.app', '.ngrok.app', '.loca.lt', '.serveo.net'],
+    // Dev'да исталган тоннел host'ига рухсат (ngrok/localtunnel/cloudflared) —
+    // host текшируви туфайли 400/403 бўлмаслиги учун. Фақат development.
+    allowedHosts: true,
     // HMR (hot reload) HTTPS тоннел орқали ишлаши учун
     hmr: {
       clientPort: 443,
