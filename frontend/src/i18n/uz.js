@@ -101,6 +101,11 @@ export default {
   'chat.empty':          'Ҳали хабар йўқ. Биринчи бўлинг.',
   'chat.placeholder':    'Хабар ёзинг...',
   'chat.guestName':      'Йўловчи',
+  'chat.qr1':            'Кетяпман',
+  'chat.qr2':            'Тайёрман',
+  'chat.qr3':            'Пастдаман',
+  'chat.qr4':            '5 дақиқа',
+  'chat.qr5':            'Тирбандлик бор',
 
   // Баҳолаш
   'rate.titleDriver':    'Ҳайдовчини баҳоланг',
@@ -110,6 +115,11 @@ export default {
   'rate.ackTitle':       'Раҳмат!',
   'rate.ackBody':        'Баҳойингиз қабул қилинди',
   'rate.askPassenger':   'Илтимос, ҳайдовчини баҳоланг',
+
+  // 💵 Чаёвой
+  'tip.title':           'Чаёвой қолдиринг',
+  'tip.no':              'Йўқ',
+  'tip.sent':            '✅ {sum} сўм чаёвой юборилди',
 
   // Сафар тарихи
   'hist.title':          '🕒 Сафар тарихи',

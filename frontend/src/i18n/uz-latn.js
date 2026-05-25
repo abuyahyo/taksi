@@ -101,6 +101,11 @@ export default {
   'chat.empty':          'Hali xabar yoʻq. Birinchi boʻling.',
   'chat.placeholder':    'Xabar yozing...',
   'chat.guestName':      'Yoʻlovchi',
+  'chat.qr1':            'Ketyapman',
+  'chat.qr2':            'Tayyorman',
+  'chat.qr3':            'Pastdaman',
+  'chat.qr4':            '5 daqiqa',
+  'chat.qr5':            'Tirbandlik bor',
 
   // Baholash
   'rate.titleDriver':    'Haydovchini baholang',
@@ -110,6 +115,11 @@ export default {
   'rate.ackTitle':       'Rahmat!',
   'rate.ackBody':        'Bahoyingiz qabul qilindi',
   'rate.askPassenger':   'Iltimos, haydovchini baholang',
+
+  // 💵 Chayovoy
+  'tip.title':           'Chayovoy qoldiring',
+  'tip.no':              'Yoʻq',
+  'tip.sent':            '✅ {sum} soʻm chayovoy yuborildi',
 
   // Safar tarixi
   'hist.title':          '🕒 Safar tarixi',

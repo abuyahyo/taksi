@@ -43,17 +43,14 @@ export default function YolovchiSahifa() {
     catch { return null; }
   });
   const [profil, setProfil] = useState(null);
-
-  // Логин қилинган мижоз бўлса — Уй/Иш манзилларини олиб қўямиз (тез-тугма учун)
-  useState(() => {
-    // dummy — биз profil'ни fetch учун useEffect ишлатамиз. (Бу қаторни ўчирмаймиз сонлик учун.)
-  });
+  const [songgiManzillar, setSonggiManzillar] = useState([]);
 
   const meId = user?.id || null;
 
-  // Логин қилинган бўлса профилни юклаб қўямиз (тез-манзил тугмалари учун)
+  // Логин қилинган бўлса профилни ва сўнгги манзилларни юклаймиз
   if (user && !profil) {
     api.get('/passenger/me').then(({ data }) => setProfil(data)).catch(() => {});
+    api.get('/passenger/recent').then(({ data }) => setSonggiManzillar(data)).catch(() => {});
   }
 
   const { yubor } = useSocket({
@@ -209,23 +206,34 @@ export default function YolovchiSahifa() {
               <span style={{ ...st.nuqta, background: 'var(--qizil)' }} />
               <div style={st.maydonMatn}>{tugash ? t('pass.endPicked') : t('pass.markEnd')}</div>
             </div>
-            {/* Сақланган манзиллар — Уй/Иш тез-тугмалари */}
-            {profil && (profil.home_lat || profil.ish_lat) && (
+            {/* Сақланган манзиллар — Уй/Иш + сўнгги манзиллар */}
+            {(profil?.home_lat || profil?.ish_lat || songgiManzillar.length > 0) && (
               <div style={st.tezManzillar}>
-                {profil.home_lat && (
+                {profil?.home_lat && (
                   <button style={st.tezTugma} onClick={() => {
                     const p = [Number(profil.home_lat), Number(profil.home_lng)];
                     if (tanlovRejimi === 'boshlanish') { setBoshlanish(p); setTanlovRejimi('tugash'); }
                     else setTugash(p);
                   }}>{t('prof.useHome')}</button>
                 )}
-                {profil.ish_lat && (
+                {profil?.ish_lat && (
                   <button style={st.tezTugma} onClick={() => {
                     const p = [Number(profil.ish_lat), Number(profil.ish_lng)];
                     if (tanlovRejimi === 'boshlanish') { setBoshlanish(p); setTanlovRejimi('tugash'); }
                     else setTugash(p);
                   }}>{t('prof.useWork')}</button>
                 )}
+                {songgiManzillar.slice(0, 3).map((m, i) => {
+                  const parse = (s) => { const x = s.match(/(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/); return x ? [parseFloat(x[1]), parseFloat(x[2])] : null; };
+                  const p = parse(m.manzil);
+                  if (!p) return null;
+                  return (
+                    <button key={i} style={st.tezTugma} onClick={() => {
+                      if (tanlovRejimi === 'boshlanish') { setBoshlanish(p); setTanlovRejimi('tugash'); }
+                      else setTugash(p);
+                    }}>🕒 {p[0].toFixed(2)}, {p[1].toFixed(2)}</button>
+                  );
+                })}
               </div>
             )}
             <button style={{ ...st.tugma, opacity: boshlanish && tugash ? 1 : 0.5 }} onClick={davomEtish} disabled={!boshlanish || !tugash}>
@@ -371,6 +379,7 @@ export default function YolovchiSahifa() {
           rideId={baholashUchun.rideId}
           kimni="driver"
           ism={baholashUchun.ism}
+          narx={haydovchiInfo?.narx}
           onYopish={() => { setBaholashUchun(null); boshlanishigaQayt(); }}
         />
       )}

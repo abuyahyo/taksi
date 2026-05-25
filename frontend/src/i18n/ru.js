@@ -101,6 +101,11 @@ export default {
   'chat.empty':          'Сообщений пока нет. Будьте первым.',
   'chat.placeholder':    'Введите сообщение...',
   'chat.guestName':      'Пассажир',
+  'chat.qr1':            'Я еду',
+  'chat.qr2':            'Готов',
+  'chat.qr3':            'Я внизу',
+  'chat.qr4':            '5 минут',
+  'chat.qr5':            'Пробка',
 
   // Оценка
   'rate.titleDriver':    'Оцените водителя',
@@ -110,6 +115,11 @@ export default {
   'rate.ackTitle':       'Спасибо!',
   'rate.ackBody':        'Ваша оценка принята',
   'rate.askPassenger':   'Пожалуйста, оцените водителя',
+
+  // 💵 Чаевые
+  'tip.title':           'Оставить чаевые',
+  'tip.no':              'Нет',
+  'tip.sent':            '✅ {sum} сум чаевых отправлено',
 
   // История
   'hist.title':          '🕒 История поездок',

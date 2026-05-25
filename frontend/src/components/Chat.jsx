@@ -81,6 +81,25 @@ export default function Chat({ rideId, meId, hamrohIsm, onClose }) {
           )}
         </div>
 
+        {/* Тез-жавоб шаблонлари — Yandex'ча */}
+        <div style={st.shablonlar}>
+          {[
+            t('chat.qr1'),
+            t('chat.qr2'),
+            t('chat.qr3'),
+            t('chat.qr4'),
+            t('chat.qr5'),
+          ].map((m, i) => (
+            <button
+              key={i}
+              style={st.shablonTugma}
+              onClick={() => {
+                socket.emit('xabar_yuborish', { rideId, matn: m });
+              }}
+            >{m}</button>
+          ))}
+        </div>
+
         <div style={st.kiritish}>
           <input
             style={st.input}
@@ -115,6 +134,8 @@ const st = {
   yuboruvchi: { fontSize: 11, fontWeight: 700, color: 'var(--kulrang)', marginBottom: 2 },
   matn: { fontSize: 14, lineHeight: 1.4, whiteSpace: 'pre-wrap', wordBreak: 'break-word' },
   vaqt: { fontSize: 10, color: 'var(--kulrang)', textAlign: 'right', marginTop: 2 },
+  shablonlar: { display: 'flex', gap: 6, padding: '8px 12px', overflowX: 'auto', borderTop: '1px solid #E5E7EB' },
+  shablonTugma: { background: 'var(--neutral-100)', padding: '6px 12px', borderRadius: 'var(--r-full)', fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0, color: 'var(--qora-soft)' },
   kiritish: { display: 'flex', gap: 8, padding: 12, borderTop: '1px solid #E5E7EB' },
   input: { flex: 1, padding: 12, borderRadius: 22, border: '1px solid #E5E7EB', fontSize: 15 },
   yuborTugma: { width: 44, height: 44, borderRadius: '50%', background: 'var(--sariq)', fontSize: 18, fontWeight: 800, color: 'var(--qora)' },

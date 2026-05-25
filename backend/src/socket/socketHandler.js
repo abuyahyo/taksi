@@ -288,6 +288,30 @@ module.exports = (io) => {
       }
     });
 
+    // 💵 Чаёвой — йўловчи сафар тугагач ҳайдовчига рағбат қўшади
+    socket.on('chayovoy', async (data) => {
+      try {
+        const userId = socket.data.userId;
+        if (!userId) return;
+        const summa = Number(data.summa);
+        if (!Number.isFinite(summa) || summa <= 0 || summa > 1_000_000) return;
+        // Сафар йўловчиси текширилади
+        const r = await query(`SELECT mijoz_id, haydovchi_id, kelishilgan_narx FROM rides WHERE id = $1`, [data.rideId]);
+        if (r.rows.length === 0 || r.rows[0].mijoz_id !== userId) return;
+        // Чаёвой ёзилади ва нархга қўшилади
+        await query(
+          `UPDATE rides SET chayovoy = COALESCE(chayovoy, 0) + $2,
+                            kelishilgan_narx = COALESCE(kelishilgan_narx, 0) + $2
+           WHERE id = $1`,
+          [data.rideId, summa]
+        );
+        console.log(`💵 Чаёвой #${data.rideId}: +${summa}`);
+        socket.emit('chayovoy_qabul', { ok: true, summa });
+      } catch (err) {
+        console.error('chayovoy xato:', err.message);
+      }
+    });
+
     // Баҳолаш — мижоз ҳайдовчини, ҳайдовчи мижозни баҳолайди
     socket.on('baholash', async (data) => {
       // data = { rideId, ball, izoh }

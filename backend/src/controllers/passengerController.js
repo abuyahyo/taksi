@@ -70,4 +70,24 @@ const updateMe = async (req, res) => {
   }
 };
 
-module.exports = { me, updateMe };
+// GET /api/passenger/recent — сўнгги уникал манзиллар (тез-танлов учун)
+const songgiManzillar = async (req, res) => {
+  try {
+    const r = await query(
+      `SELECT DISTINCT ON (tugash_manzil) tugash_manzil AS manzil, yaratilgan
+       FROM rides
+       WHERE mijoz_id = $1 AND tugash_manzil IS NOT NULL
+       ORDER BY tugash_manzil, yaratilgan DESC
+       LIMIT 5`,
+      [req.user.id]
+    );
+    // Энг кейинги ишлатилганлар олдинда
+    const sort = r.rows.sort((a, b) => new Date(b.yaratilgan) - new Date(a.yaratilgan));
+    res.json(sort);
+  } catch (err) {
+    console.error('passenger recent xato:', err.message);
+    res.status(500).json({ xato: 'Сервер хатоси' });
+  }
+};
+
+module.exports = { me, updateMe, songgiManzillar };

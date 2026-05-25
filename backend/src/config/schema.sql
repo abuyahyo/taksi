@@ -60,6 +60,7 @@ CREATE TABLE IF NOT EXISTS rides (
   kelgan_vaqti TIMESTAMP,           -- ҳайдовчи "етиб келдим" деган вақт
   yolga_chiqqan_vaqti TIMESTAMP,    -- "йўлга чиқдик" деган вақт
   kutish_haqi INTEGER DEFAULT 0,    -- сўмда, асосий нархга қўшилади
+  chayovoy INTEGER DEFAULT 0,       -- йўловчи берган чаёвой
   -- Вақтлар
   yaratilgan TIMESTAMP DEFAULT NOW(),
   qabul_vaqti TIMESTAMP,
