@@ -29,6 +29,11 @@ export default {
   'home.uniqueTitle':    'Прозрачная справедливость',
   'home.uniqueHint':     'При блокировке причина обязательна — пользователь её видит. У Yandex/Uber/Bolt такой функции нет.',
 
+  'home.city':           'Ташкент',
+  'home.featPrice':      'Вы сами назначаете цену',
+  'home.featSafe':       'SOS и поездка в реальном времени',
+  'home.featFair':       'Прозрачная цена — без скрытых платежей',
+
   // Вход
   'login.title':         'Вход',
   'login.register':      'Регистрация',

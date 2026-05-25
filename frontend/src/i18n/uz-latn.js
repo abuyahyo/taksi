@@ -29,6 +29,11 @@ export default {
   'home.uniqueTitle':    'Shaffof adolat',
   'home.uniqueHint':     'Bloklashda sabab majburiy — foydalanuvchi buni koʻradi. Yandex/Uber/Bolt\'da yoʻq funksiya.',
 
+  'home.city':           'Toshkent',
+  'home.featPrice':      'Narxni oʻzingiz belgilaysiz',
+  'home.featSafe':       'SOS va safarni real vaqtda ulashish',
+  'home.featFair':       'Shaffof narx — yashirin toʻlov yoʻq',
+
   // Login
   'login.title':         'Kirish',
   'login.register':      'Roʻyxatdan oʻtish',
