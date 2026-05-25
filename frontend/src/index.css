@@ -169,7 +169,16 @@
 /* ===== Глобал ===== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { -webkit-tap-highlight-color: transparent; }
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;     /* iOS'да автомат катталаштирмаслик */
+  text-size-adjust: 100%;
+  accent-color: var(--tint);          /* нативе контроллар (datetime, checkbox) бренд рангида */
+}
+
+/* Матн танлаш ва расм/иконка тортишни ўчириш — нативе ҳис */
+::selection { background: var(--tint-fill); }
+img, svg { -webkit-user-drag: none; user-select: none; }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
@@ -453,6 +462,13 @@ button.ios-row:active:not(:disabled) { opacity: 1; background: var(--fill); }
   .kotariladi, .strelka-anim { transition: none; }
   .kotariladi:hover { transform: none; }
 }
+
+/* Босилганда енгил қисилиш (iOS ҳис) */
+.press { transition: transform var(--t-fast), opacity var(--t-fast); }
+.press:active:not(:disabled) { transform: scale(0.97); opacity: 0.85; }
+
+/* Рақамлар бир текис кенгликда (нарх, вақт) */
+.tabular { font-variant-numeric: tabular-nums; }
 
 /* ---- Scrollbar ---- */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
