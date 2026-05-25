@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import { useT } from '../i18n';
+import Ikonka from './Ikonka';
 
 export default function MashinaProfili({ onYopish, onSaqlandi }) {
   const { t } = useT();
@@ -44,7 +45,7 @@ export default function MashinaProfili({ onYopish, onSaqlandi }) {
       <div style={st.modal} className="glass slide-up" onClick={(e) => e.stopPropagation()}>
         <div style={st.header}>
           <div style={st.sarlavha}>{t('car.title')}</div>
-          <button style={st.yopish} onClick={onYopish}>✕</button>
+          <button style={st.yopish} onClick={onYopish}><Ikonka nom="x" size={16} /></button>
         </div>
 
         {yuklanmoqda ? (
@@ -108,16 +109,16 @@ export function mashinaMatn(profil) {
 }
 
 const st = {
-  fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3500, padding: 16 },
-  modal: { width: '100%', maxWidth: 420, borderRadius: 20, padding: 24 },
+  fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3500, padding: 24, backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)' },
+  modal: { width: '100%', maxWidth: 420, borderRadius: 'var(--r-xl)', padding: 24 },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 },
-  sarlavha: { fontSize: 19, fontWeight: 800 },
-  yopish: { width: 36, height: 36, borderRadius: '50%', background: 'var(--och-kulrang)', fontSize: 16, fontWeight: 700 },
-  bosh: { textAlign: 'center', padding: 40, color: 'var(--kulrang)' },
+  sarlavha: { fontSize: 20, fontWeight: 600 },
+  yopish: { width: 30, height: 30, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  bosh: { textAlign: 'center', padding: 40, color: 'var(--secondary-label)' },
   form: { display: 'flex', flexDirection: 'column', gap: 14 },
   label: { display: 'flex', flexDirection: 'column', gap: 6 },
-  labelMatn: { fontSize: 13, fontWeight: 700, color: 'var(--kulrang)' },
-  input: { padding: 14, borderRadius: 12, border: '1px solid var(--neutral-200)', fontSize: 15 },
-  xato: { color: 'var(--qizil)', fontSize: 13, textAlign: 'center' },
-  tugma: { background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', padding: 14, borderRadius: 12, fontWeight: 800, fontSize: 16, marginTop: 4, boxShadow: 'var(--shadow-sariq)' },
+  labelMatn: { fontSize: 13, fontWeight: 400, color: 'var(--secondary-label)', textTransform: 'uppercase', letterSpacing: '-0.08px', paddingLeft: 4 },
+  input: { padding: 14, borderRadius: 'var(--r-md)', border: 'none', background: 'var(--fill)', color: 'var(--label)', fontSize: 17 },
+  xato: { color: 'var(--qizil)', fontSize: 14, textAlign: 'center' },
+  tugma: { background: 'var(--tint)', color: '#fff', padding: 15, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 17, marginTop: 4 },
 };
