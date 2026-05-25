@@ -2,6 +2,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { I18nProvider } from './i18n';
+import { ToastProvider } from './components/Toast';
 import YangilanishBanner from './components/YangilanishBanner';
 
 // Route-based code splitting — ҳар саҳифа алоҳида chunk
@@ -24,6 +25,7 @@ function Yuklanmoqda() {
 export default function App() {
   return (
     <I18nProvider>
+      <ToastProvider>
       <BrowserRouter>
         <Suspense fallback={<Yuklanmoqda />}>
           <Routes>
@@ -37,6 +39,7 @@ export default function App() {
         </Suspense>
         <YangilanishBanner />
       </BrowserRouter>
+      </ToastProvider>
     </I18nProvider>
   );
 }

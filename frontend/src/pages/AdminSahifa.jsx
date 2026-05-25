@@ -1,8 +1,9 @@
 // Админ панели — статистика, фойдаланувчилар, буюртмалар, блоклаш
 import { useEffect, useState } from 'react';
-import { api } from '../services/api';
+import { api, socket } from '../services/api';
 import Kirish from '../components/Kirish';
 import { useT } from '../i18n';
+import { useToast } from '../components/Toast';
 
 export default function AdminSahifa() {
   const [user, setUser] = useState(() => {
@@ -23,7 +24,9 @@ export default function AdminSahifa() {
 
 function AdminIchki({ onChiqish }) {
   const { t } = useT();
+  const toast = useToast();
   const [tab, setTab] = useState('statistika');
+  const [sosOyna, setSosOyna] = useState([]); // фаол SOS сигналлар
   const [stat, setStat] = useState(null);
   const [users, setUsers] = useState(null);
   const [rides, setRides] = useState(null);
@@ -53,23 +56,55 @@ function AdminIchki({ onChiqish }) {
 
   useEffect(() => { yukla(); }, []);
 
+  // SOS — жонли қабул қилиш
+  useEffect(() => {
+    if (!socket.connected) socket.connect();
+    socket.emit('admin_qoshil');
+    // Олдинги тугатилмаган SOS'ларни оламиз
+    api.get('/admin/sos').then(({ data }) => {
+      setSosOyna(data.filter((s) => !s.qabul_qilindi));
+    }).catch(() => {});
+    const tinglovchi = (sig) => {
+      setSosOyna((eski) => [sig, ...eski]);
+      toast.error(`🆘 SOS! ${sig.yuboruvchi_ism || sig.rol} — сафар #${sig.rideId || '?'}`, { muddat: 10000 });
+      // Браузер уведомление ҳам — таб ёпиқ бўлса
+      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        try { new Notification('🆘 SOS', { body: `${sig.yuboruvchi_ism} (${sig.rol})`, tag: 'sos-' + sig.id }); } catch {}
+      }
+    };
+    socket.on('sos_keldi', tinglovchi);
+    return () => socket.off('sos_keldi', tinglovchi);
+  }, []);
+
+  const sosQabul = async (id) => {
+    try {
+      await api.post(`/admin/sos/${id}/qabul`);
+      setSosOyna((eski) => eski.filter((s) => s.id !== id));
+      toast.success(t('sos.acknowledged'));
+    } catch {
+      toast.error(t('common.error'));
+    }
+  };
+
   const bloklash = async () => {
     try {
       await api.post(`/admin/bloklash/${blokModal.id}`, { sabab });
+      toast.success(`${blokModal.ism} ${t('admin.blockSuccess')}`);
       setBlokModal(null);
       setSabab('');
       yukla();
     } catch (err) {
-      alert(err.response?.data?.xato || 'Блоклашда хато');
+      toast.error(err.response?.data?.xato || t('common.error'));
     }
   };
 
   const blokniYechish = async (id) => {
     try {
       await api.post(`/admin/blok-yechish/${id}`);
+      toast.success(t('admin.unblockSuccess'));
       yukla();
     } catch (err) {
-      alert(err.response?.data?.xato || 'Хато');
+      toast.error(err.response?.data?.xato || t('common.error'));
     }
   };
 
@@ -79,6 +114,27 @@ function AdminIchki({ onChiqish }) {
         <div style={st.logo}>{t('admin.title')}</div>
         <button style={st.chiqish} onClick={onChiqish}>{t('common.exit')}</button>
       </div>
+
+      {/* SOS аларм banner — фаол сигналлар бўлса */}
+      {sosOyna.length > 0 && (
+        <div style={st.sosBanner}>
+          <div style={st.sosBoshi}>🆘 {t('sos.activeAlerts', { n: sosOyna.length })}</div>
+          {sosOyna.map((s) => (
+            <div key={s.id} style={st.sosKarta}>
+              <div style={{ flex: 1 }}>
+                <div style={st.sosIsm}>{s.yuboruvchi_ism || s.rol} {s.yuboruvchi_telefon ? `· ${s.yuboruvchi_telefon}` : ''}</div>
+                <div style={st.sosMeta}>
+                  {t('chat.ride')} #{s.ride_id || '—'} · {s.rol}
+                  {s.lat && ` · ${Number(s.lat).toFixed(4)}, ${Number(s.lng).toFixed(4)}`}
+                </div>
+              </div>
+              <button style={st.sosQabulTugma} onClick={() => sosQabul(s.id)}>
+                {t('sos.acknowledge')}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div style={st.tablar}>
         {[['statistika', t('admin.tab.stats')], ['users', t('admin.tab.users')], ['rides', t('admin.tab.rides')]].map(([k, n]) => (
@@ -187,6 +243,12 @@ const st = {
   header: { padding: 20, background: 'var(--qora)', color: 'var(--oq)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   logo: { fontWeight: 800, fontSize: 18 },
   chiqish: { background: 'transparent', color: 'var(--oq)', border: '1px solid rgba(255,255,255,.3)', padding: '6px 12px', borderRadius: 8, fontSize: 13 },
+  sosBanner: { background: '#FEE2E2', borderTop: '3px solid #DC2626', padding: '12px 16px' },
+  sosBoshi: { fontSize: 13, fontWeight: 800, color: '#7F1D1D', marginBottom: 10 },
+  sosKarta: { display: 'flex', alignItems: 'center', gap: 12, background: '#fff', padding: 12, borderRadius: 12, marginBottom: 8, boxShadow: '0 2px 8px rgba(220,38,38,0.15)' },
+  sosIsm: { fontWeight: 800, fontSize: 14 },
+  sosMeta: { fontSize: 12, color: 'var(--kulrang)', marginTop: 2 },
+  sosQabulTugma: { background: '#DC2626', color: '#fff', padding: '8px 14px', borderRadius: 10, fontWeight: 800, fontSize: 12 },
   tablar: { display: 'flex', gap: 8, padding: 16, background: 'var(--oq)' },
   tab: { flex: 1, padding: 12, borderRadius: 12, background: 'var(--och-kulrang)', fontWeight: 600, fontSize: 13 },
   tabFaol: { background: 'var(--sariq)', fontWeight: 800 },

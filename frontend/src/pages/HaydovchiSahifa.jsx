@@ -9,6 +9,7 @@ import Baholash from '../components/Baholash';
 import MashinaProfili, { mashinaMatn } from '../components/MashinaProfili';
 import HaritaPreview, { parseLatLng } from '../components/HaritaPreview';
 import IssiqXarita from '../components/IssiqXarita';
+import SOS from '../components/SOS';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
 import { useT, TilTanlovchi } from '../i18n';
 
@@ -255,6 +256,9 @@ function Ichki({ user, onChiqish }) {
             {faolSafar.holati === 'yolda' && (
               <button style={st.harakatTugma} onClick={safarTugatish}>{t('drv.endRide')}</button>
             )}
+            <div style={{ marginTop: 10 }}>
+              <SOS rideId={faolSafar.rideId} />
+            </div>
           </div>
         </>
       )}

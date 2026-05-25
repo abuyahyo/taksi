@@ -9,6 +9,7 @@ import Kirish from '../components/Kirish';
 import YolovchiProfili from '../components/YolovchiProfili';
 import Ulashish from '../components/Ulashish';
 import ManzilQidirish from '../components/ManzilQidirish';
+import SOS from '../components/SOS';
 import NarxTarkibi, { tavsiyaHisobi, ASOSIY, PER_KM } from '../components/NarxTarkibi';
 import { api } from '../services/api';
 import { useSocket } from '../services/useSocket';
@@ -304,6 +305,9 @@ export default function YolovchiSahifa() {
               <button style={st.tolovTugma} onClick={() => setTolovOchiq(true)}>{t('pay.open')}</button>
             </div>
             <button style={st.ulashishTugma} onClick={() => setUlashishOchiq(true)}>{t('share.open')}</button>
+            <div style={{ marginTop: 8 }}>
+              <SOS rideId={rideId} />
+            </div>
             <div style={st.kuzatishMatn}>
               {haydovchiNuqta ? t('pass.gpsLive') : t('pass.gpsWait')}
             </div>

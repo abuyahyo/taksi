@@ -145,6 +145,8 @@ export default {
   'admin.blockHint':     '🌟 Шаффоф блоклаш одатимиз: сабаб мажбурий. Фойдаланувчи буни кўради ва тузатиш имконига эга бўлади. Бу бизнинг рақобатчилардан фарқимиз.',
   'admin.blockReason':   'Блоклаш сабаби',
   'admin.blockConfirm':  'Блоклашни тасдиқлаш',
+  'admin.blockSuccess':  'блокланди',
+  'admin.unblockSuccess':'Блок ечилди',
 
   // Билдиришнома
   'notif.newOrder':      '🚖 Янги буюртма',
@@ -229,6 +231,16 @@ export default {
   // PWA — янги версия билдиришномаси
   'pwa.newVersion':      'Янги версия мавжуд',
   'pwa.update':          'Янгилаш',
+
+  // 🆘 SOS шошилинч
+  'sos.button':          'Шошилинч',
+  'sos.confirmTitle':    'Шошилинч ёрдам сўрайсизми?',
+  'sos.confirmHint':     'Жойлашувингиз ва маълумотингиз дарҳол админга юборилади. Фақат хавфли ҳолатда босинг.',
+  'sos.send':            'Юбориш',
+  'sos.sent':            '✅ SOS юборилди. Админ хабардор',
+  'sos.acknowledged':    'SOS қабул қилинди',
+  'sos.acknowledge':     'Кўрдим',
+  'sos.activeAlerts':    'Фаол шошилинч сигналлар: {n}',
 
   // Тил
   'lang.label':          'Тил',

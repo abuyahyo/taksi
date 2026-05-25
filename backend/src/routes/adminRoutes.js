@@ -15,4 +15,8 @@ router.post('/bloklash/:id', bloklash);
 router.post('/blok-yechish/:id', blokniYechish);
 router.get('/buyurtmalar', buyurtmalar);
 
+const { royxat: sosRoyxat, qabul: sosQabul } = require('../controllers/sosController');
+router.get('/sos', sosRoyxat);
+router.post('/sos/:id/qabul', sosQabul);
+
 module.exports = router;

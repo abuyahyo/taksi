@@ -209,6 +209,52 @@ module.exports = (io) => {
       io.to(`ride_${data.rideId}`).emit('haydovchi_joylashuvi', data);
     });
 
+    // Админ хонасига қўшиш — sos сигналлари учун
+    socket.on('admin_qoshil', () => {
+      if (socket.data.rol === 'admin') {
+        socket.join('adminlar');
+      }
+    });
+
+    // 🆘 SOS — шошилинч сигнал
+    socket.on('sos_yuborildi', async (data) => {
+      // data = { rideId, lat, lng, matn }
+      try {
+        const userId = socket.data.userId;
+        const rol = socket.data.rol || 'mijoz';
+        const r = await query(
+          `INSERT INTO sos_signals (ride_id, yuboruvchi_id, rol, lat, lng, matn)
+           VALUES ($1, $2, $3, $4, $5, $6)
+           RETURNING id, vaqt`,
+          [data.rideId || null, userId || null, rol, data.lat || null, data.lng || null, data.matn || null]
+        );
+        // Юборувчи исмини оламиз
+        let ism = 'Меҳмон';
+        if (userId) {
+          const u = await query(`SELECT ism, telefon FROM users WHERE id = $1`, [userId]);
+          ism = u.rows[0]?.ism || 'Фойдаланувчи';
+        }
+        const sig = {
+          id: r.rows[0].id,
+          rideId: data.rideId,
+          yuboruvchi_id: userId,
+          yuboruvchi_ism: ism,
+          rol,
+          lat: data.lat, lng: data.lng,
+          matn: data.matn,
+          vaqt: r.rows[0].vaqt,
+        };
+        // Барча админларга жонли юборамиз
+        io.to('adminlar').emit('sos_keldi', sig);
+        // Юборувчига тасдиқ
+        socket.emit('sos_qabul_qilindi', { id: sig.id });
+        console.log(`🆘 SOS #${sig.id} ${rol}=${ism}, ride=${data.rideId}`);
+      } catch (err) {
+        console.error('sos_yuborildi xato:', err.message);
+        socket.emit('xato', { sabab: 'SOS жўнатилмади' });
+      }
+    });
+
     // ЧАТ — йўловчи ↔ ҳайдовчи хабар алмашуви (меҳмон ҳам юбора олади)
     socket.on('xabar_yuborish', async (data) => {
       // data = { rideId, matn }

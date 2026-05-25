@@ -145,6 +145,8 @@ export default {
   'admin.blockHint':     '🌟 Shaffof bloklash odatimiz: sabab majburiy. Foydalanuvchi buni koʻradi va tuzatish imkoniga ega boʻladi. Bu bizning raqobatchilardan farqimiz.',
   'admin.blockReason':   'Bloklash sababi',
   'admin.blockConfirm':  'Bloklashni tasdiqlash',
+  'admin.blockSuccess':  'bloklandi',
+  'admin.unblockSuccess':'Blok yechildi',
 
   // Bildirishnomalar
   'notif.newOrder':      '🚖 Yangi buyurtma',
@@ -229,6 +231,16 @@ export default {
   // PWA — yangi versiya bildirishnomasi
   'pwa.newVersion':      'Yangi versiya mavjud',
   'pwa.update':          'Yangilash',
+
+  // 🆘 SOS shoshilinch
+  'sos.button':          'Shoshilinch',
+  'sos.confirmTitle':    'Shoshilinch yordam soʻraysizmi?',
+  'sos.confirmHint':     'Joylashuvingiz va maʼlumotingiz darhol adminga yuboriladi. Faqat xavfli holatda bosing.',
+  'sos.send':            'Yuborish',
+  'sos.sent':            '✅ SOS yuborildi. Admin xabardor',
+  'sos.acknowledged':    'SOS qabul qilindi',
+  'sos.acknowledge':     'Koʻrdim',
+  'sos.activeAlerts':    'Faol shoshilinch signallar: {n}',
 
   // Til
   'lang.label':          'Til',

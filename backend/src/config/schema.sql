@@ -119,6 +119,23 @@ CREATE TABLE IF NOT EXISTS transactions (
 CREATE INDEX IF NOT EXISTS idx_tx_ride ON transactions(ride_id);
 CREATE INDEX IF NOT EXISTS idx_tx_tashqi ON transactions(tashqi_id);
 
+-- 🆘 SOS шошилинч сигналлар — фойдаланувчи қизил тугмани босганида
+CREATE TABLE IF NOT EXISTS sos_signals (
+  id SERIAL PRIMARY KEY,
+  ride_id INTEGER REFERENCES rides(id),
+  yuboruvchi_id INTEGER REFERENCES users(id),
+  rol VARCHAR(20),
+  lat NUMERIC(10,7),
+  lng NUMERIC(10,7),
+  matn TEXT,
+  qabul_qilindi BOOLEAN DEFAULT FALSE,
+  qabul_qilgan_id INTEGER REFERENCES users(id),
+  qabul_vaqti TIMESTAMP,
+  vaqt TIMESTAMP DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_sos_ride ON sos_signals(ride_id);
+CREATE INDEX IF NOT EXISTS idx_sos_qabul ON sos_signals(qabul_qilindi);
+
 -- Сафарни улашиш — қисқа калит билан оила/дўст реал вақтда кузатиши учун
 CREATE TABLE IF NOT EXISTS ride_shares (
   id SERIAL PRIMARY KEY,
