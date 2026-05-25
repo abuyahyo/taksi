@@ -47,7 +47,7 @@ export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
   return (
     <div style={st.fon}>
       <div style={st.til}><TilTanlovchi /></div>
-      <form style={st.karta} onSubmit={yubor}>
+      <form style={st.karta} className="slide-up" onSubmit={yubor}>
         <div style={st.logo}>🚕</div>
         <h2 style={st.sarlavha}>{sarlavha}</h2>
 

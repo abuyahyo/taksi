@@ -77,7 +77,7 @@ export default function YolovchiProfili({ onYopish, onYangilandi, mapNuqta }) {
 
   return (
     <div style={st.fon} onClick={onYopish}>
-      <div style={st.modal} onClick={(e) => e.stopPropagation()}>
+      <div style={st.modal} className="slide-up-modal" onClick={(e) => e.stopPropagation()}>
         <div style={st.header}>
           <div style={st.sarlavha}>👤 {t('prof.title')}</div>
           <button style={st.yopish} onClick={onYopish}>✕</button>

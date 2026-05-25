@@ -53,7 +53,7 @@ export default function Chat({ rideId, meId, hamrohIsm, onClose }) {
 
   return (
     <div style={st.fon} onClick={onClose}>
-      <div style={st.panel} onClick={(e) => e.stopPropagation()}>
+      <div style={st.panel} className="slide-up-modal" onClick={(e) => e.stopPropagation()}>
         <div style={st.header}>
           <div>
             <div style={st.sarlavha}>💬 {sarlavha}</div>

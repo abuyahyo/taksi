@@ -35,7 +35,7 @@ export default function Ulashish({ rideId, onYopish }) {
 
   return (
     <div style={st.fon} onClick={onYopish}>
-      <div style={st.modal} onClick={(e) => e.stopPropagation()}>
+      <div style={st.modal} className="slide-up-modal" onClick={(e) => e.stopPropagation()}>
         <div style={st.header}>
           <div style={st.sarlavha}>🆘 {t('share.title')}</div>
           <button style={st.yopish} onClick={onYopish}>✕</button>

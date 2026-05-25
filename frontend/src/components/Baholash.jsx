@@ -20,7 +20,7 @@ export default function Baholash({ rideId, kimni, ism, onYopish }) {
 
   return (
     <div style={st.fon}>
-      <div style={st.modal}>
+      <div style={st.modal} className="slide-up">
         {yuborildi ? (
           <div style={st.tugadi}>
             <div style={{ fontSize: 56 }}>🎉</div>
