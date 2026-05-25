@@ -119,5 +119,5 @@ const st = {
   labelMatn: { fontSize: 13, fontWeight: 700, color: 'var(--kulrang)' },
   input: { padding: 14, borderRadius: 12, border: '1px solid var(--neutral-200)', fontSize: 15 },
   xato: { color: 'var(--qizil)', fontSize: 13, textAlign: 'center' },
-  tugma: { background: 'var(--sariq)', padding: 14, borderRadius: 12, fontWeight: 800, fontSize: 16, marginTop: 4 },
+  tugma: { background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', padding: 14, borderRadius: 12, fontWeight: 800, fontSize: 16, marginTop: 4, boxShadow: 'var(--shadow-sariq)' },
 };

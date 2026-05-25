@@ -67,7 +67,7 @@ export default function YolovchiProfili({ onYopish, onYangilandi, mapNuqta }) {
   if (!profil) {
     return (
       <div style={st.fon} onClick={onYopish}>
-        <div style={st.modal} onClick={(e) => e.stopPropagation()}>
+        <div style={st.modal} className="glass slide-up-modal" onClick={(e) => e.stopPropagation()}>
           <div>{t('common.loading')}</div>
           {xato && <div style={st.xato}>{xato}</div>}
         </div>
@@ -149,7 +149,7 @@ const st = {
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
   sarlavha: { fontSize: 19, fontWeight: 800 },
   yopish: { width: 36, height: 36, borderRadius: '50%', background: 'var(--och-kulrang)', fontSize: 16 },
-  avatar: { width: 72, height: 72, borderRadius: '50%', background: 'var(--sariq)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, fontWeight: 800, margin: '0 auto 12px' },
+  avatar: { width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, fontWeight: 800, margin: '0 auto 12px' },
   ismQator: { display: 'flex', gap: 8, marginBottom: 6 },
   input: { flex: 1, padding: 12, borderRadius: 10, border: '1px solid var(--neutral-200)', fontSize: 15 },
   kichikTugma: { background: 'var(--qora)', color: 'var(--oq)', padding: '8px 14px', borderRadius: 10, fontWeight: 700, fontSize: 12 },
