@@ -81,7 +81,7 @@ export default function Chat({ rideId, meId, hamrohIsm, onClose }) {
           )}
         </div>
 
-        {/* Тез-жавоб шаблонлари — Yandex'ча */}
+        {/* Тез-жавоб шаблонлари */}
         <div style={st.shablonlar}>
           {[
             t('chat.qr1'),

@@ -27,7 +27,7 @@ export default {
   'home.driver':         'Haydovchiman',
   'home.driverSub':      'Buyurtma olaman',
   'home.uniqueTitle':    'Shaffof adolat',
-  'home.uniqueHint':     'Bloklashda sabab majburiy — foydalanuvchi buni koʻradi. Yandex/Uber/Bolt\'da yoʻq funksiya.',
+  'home.uniqueHint':     'Bloklashda sabab majburiy — foydalanuvchi buni koʻradi. Boshqa ilovalarda yoʻq noyob funksiya.',
 
   'home.city':           'Toshkent',
   'home.featPrice':      'Narxni oʻzingiz belgilaysiz',

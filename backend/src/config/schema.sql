@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS rides (
   tugash_lat NUMERIC(10,7),
   tugash_lng NUMERIC(10,7),
   masofa_km NUMERIC(6,2),
-  -- Нарх (inDrive услуби)
+  -- Нарх (йўловчи таклиф қилади)
   taklif_narx INTEGER NOT NULL,        -- йўловчи таклиф қилган нарх
   kelishilgan_narx INTEGER,            -- охирги келишилган нарх
   -- Ҳолат
@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS rides (
   yakun_vaqti TIMESTAMP
 );
 
--- Ҳайдовчи нарх таклифлари (inDrive — ҳар ким ўз нархини беради)
+-- Ҳайдовчи нарх таклифлари (ҳар ким ўз нархини беради)
 CREATE TABLE IF NOT EXISTS offers (
   id SERIAL PRIMARY KEY,
   ride_id INTEGER REFERENCES rides(id) ON DELETE CASCADE,

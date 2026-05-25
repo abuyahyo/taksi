@@ -10,7 +10,7 @@ export default defineConfig({
       registerType: 'autoUpdate',           // Янги версия → дарҳол кешни алмаштириш
       includeAssets: ['favicon.svg', 'icons.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Safar Taksi — inDrive услуби',
+        name: 'Safar Taksi — нархни ўзингиз белгиланг',
         short_name: 'Safar Taksi',
         description: 'Нархни ўзингиз белгилайдиган такси хизмати',
         lang: 'uz',
