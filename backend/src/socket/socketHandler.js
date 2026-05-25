@@ -61,11 +61,12 @@ module.exports = (io) => {
             mijoz_reyting = Number(u.rows[0].reyting);
           }
         }
+        const pin = String(Math.floor(1000 + Math.random() * 9000)); // 4 хонали машина PIN-коди
         const result = await query(
-          `INSERT INTO rides (mijoz_id, boshlanish_manzil, tugash_manzil, masofa_km, taklif_narx, holat)
-           VALUES ($1, $2, $3, $4, $5, 'kutilmoqda')
+          `INSERT INTO rides (mijoz_id, boshlanish_manzil, tugash_manzil, masofa_km, taklif_narx, holat, pin)
+           VALUES ($1, $2, $3, $4, $5, 'kutilmoqda', $6)
            RETURNING id`,
-          [mijoz_id, buyurtma.boshlanish, buyurtma.tugash, buyurtma.masofa, buyurtma.narx]
+          [mijoz_id, buyurtma.boshlanish, buyurtma.tugash, buyurtma.masofa, buyurtma.narx, pin]
         );
         const dbId = result.rows[0].id;
         const enriched = { ...buyurtma, id: dbId, taklif_id: buyurtma.id, mijoz_id, mijoz_ism, mijoz: mijoz_ism, reyting: mijoz_reyting };
@@ -73,8 +74,8 @@ module.exports = (io) => {
         faolBuyurtmalar.set(dbId, enriched);
         socket.join(`ride_${dbId}`);
 
-        // Йўловчига — DB id'ни айтамиз (керак бўлса буюртмани кейин ишлатиш учун)
-        socket.emit('buyurtma_yaratildi', { id: dbId, taklif_id: buyurtma.id });
+        // Йўловчига — DB id ва PIN (фақат йўловчига; ҳайдовчиларга юборилмайди)
+        socket.emit('buyurtma_yaratildi', { id: dbId, taklif_id: buyurtma.id, pin });
         // Барча онлайн ҳайдовчиларга — янги буюртма
         io.to('haydovchilar').emit('buyurtma_keldi', enriched);
         // Push — илова ёпиқ ҳайдовчиларга ҳам (обуна қилганлари)
@@ -229,6 +230,16 @@ module.exports = (io) => {
             [data.rideId]
           );
         } catch (err) { console.error('kelgan_vaqti xato:', err.message); }
+      }
+
+      // "Йўлга чиқдик" — машина PIN-кодини текшириш (нотўғри/қалбаки машинадан ҳимоя)
+      if (data.holat === 'yolda') {
+        const p = await query(`SELECT pin FROM rides WHERE id = $1`, [data.rideId]);
+        const haqiqiyPin = p.rows[0]?.pin;
+        if (haqiqiyPin && String(data.pin || '') !== String(haqiqiyPin)) {
+          socket.emit('pin_xato', { rideId: data.rideId, sabab: 'PIN нотўғри' });
+          return;
+        }
       }
 
       // "Йўлга чиқдик" — кутиш ҳақини ҳисоблаб нархни янгилаймиз

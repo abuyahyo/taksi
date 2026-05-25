@@ -46,6 +46,8 @@ function Ichki({ user, onChiqish }) {
   const [stats, setStats] = useState({ daromad: 0, safar: 0 });
   const [faolSafar, setFaolSafar] = useState(null); // {rideId, narx, mijoz_ism, holati: 'kelmoqda'|'yetib_keldi'|'yolda', kelgan_vaqti, kutish_haqi}
   const [chatOchiq, setChatOchiq] = useState(false);
+  const [pinModal, setPinModal] = useState(false); // машина PIN-кодини сўраш модали
+  const [pinKiritma, setPinKiritma] = useState('');
   const [hozir, setHozir] = useState(() => Date.now()); // таймер учун
   const [baholashUchun, setBaholashUchun] = useState(null); // {rideId, ism} — модаль очилади
   const [mashina, setMashina] = useState(null); // {mashina_modeli, mashina_raqami, mashina_rangi}
@@ -131,7 +133,13 @@ function Ichki({ user, onChiqish }) {
       if (!faolSafar || Number(data.rideId) !== Number(faolSafar.rideId)) return;
       if (data.holat === 'yolda' && data.yangi_narx != null) {
         setFaolSafar((s) => s && ({ ...s, holati: 'yolda', narx: data.yangi_narx, kutish_haqi: data.kutish_haqi || 0 }));
+        setPinModal(false); setPinKiritma(''); // тўғри PIN — модал ёпилади
       }
+    },
+    // Машина PIN-коди нотўғри
+    pin_xato: () => {
+      toast.error(t('pin.wrong'));
+      setPinKiritma('');
     },
   });
 
@@ -152,8 +160,14 @@ function Ichki({ user, onChiqish }) {
   // Ҳайдовчи "Йўлга чиқдик" дейди — кутиш таймери тўхтайди, кутиш ҳақи нархга қўшилади
   const yolgaChiqdik = () => {
     if (!faolSafar) return;
-    yubor('safar_holati', { rideId: faolSafar.rideId, holat: 'yolda' });
-    // narx ва kutish_haqi server holat_yangilandi'дан келади
+    setPinKiritma('');
+    setPinModal(true); // йўловчидан машина PIN-кодини сўраймиз
+  };
+
+  const pinTasdiqla = () => {
+    if (!faolSafar) return;
+    yubor('safar_holati', { rideId: faolSafar.rideId, holat: 'yolda', pin: pinKiritma });
+    // narx ва kutish_haqi server holat_yangilandi'дан келади; тўғри бўлса модал ёпилади
   };
 
   // Сафар тугатиш — backend rides.holat = 'yakunlandi', сўнг баҳолаш модаль
@@ -393,6 +407,31 @@ function Ichki({ user, onChiqish }) {
           </div>
         </div>
       )}
+
+      {/* Машина PIN-кодини сўраш — сафар фақат тўғри PIN билан бошланади */}
+      {pinModal && (
+        <div style={st.modalFon} onClick={() => setPinModal(false)}>
+          <div style={st.modal} onClick={(e) => e.stopPropagation()}>
+            <h3 style={st.modalSarlavha}>🔒 {t('pin.enterTitle')}</h3>
+            <input
+              style={st.pinInput}
+              type="tel"
+              inputMode="numeric"
+              maxLength={4}
+              value={pinKiritma}
+              onChange={(e) => setPinKiritma(e.target.value.replace(/\D/g, '').slice(0, 4))}
+              placeholder="••••"
+              autoFocus
+            />
+            <button
+              style={{ ...st.yuborishTugma, opacity: pinKiritma.length === 4 ? 1 : 0.5 }}
+              disabled={pinKiritma.length !== 4}
+              onClick={pinTasdiqla}
+            >{t('wait.startDrive')}</button>
+            <button style={st.bekorTugma} onClick={() => setPinModal(false)}>{t('common.cancel')}</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -446,5 +485,6 @@ const st = {
   narxTugma: { width: 44, height: 44, borderRadius: '50%', background: 'var(--oq)', fontSize: 24, fontWeight: 700, boxShadow: 'var(--soya)' },
   modalNarx: { fontSize: 28, fontWeight: 800 },
   yuborishTugma: { width: '100%', background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', padding: 16, borderRadius: 14, fontWeight: 800, fontSize: 16, boxShadow: 'var(--shadow-sariq)' },
+  pinInput: { width: '100%', textAlign: 'center', letterSpacing: 14, fontSize: 32, fontWeight: 900, padding: '14px 0', borderRadius: 14, border: '2px solid var(--neutral-200)', background: 'var(--oq)', color: 'var(--qora)', marginBottom: 16 },
   bekorTugma: { width: '100%', background: 'transparent', padding: 12, color: 'var(--kulrang)', fontSize: 14, marginTop: 4 },
 };
