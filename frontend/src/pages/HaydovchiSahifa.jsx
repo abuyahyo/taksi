@@ -380,6 +380,15 @@ function Ichki({ user, onChiqish }) {
                   <span style={{ ...st.nuqta, background: 'var(--yashil)' }} />
                   <span style={st.yolMatn}>{b.boshlanish}</span>
                 </div>
+                {Array.isArray(b.oraliq_manzillar) && b.oraliq_manzillar.map((m, i) => (
+                  <div key={`o-${i}`}>
+                    <div style={st.chiziq} />
+                    <div style={st.yol}>
+                      <span style={{ ...st.nuqta, background: 'var(--tint)' }} />
+                      <span style={st.yolMatn}>{m}</span>
+                    </div>
+                  </div>
+                ))}
                 <div style={st.chiziq} />
                 <div style={st.yol}>
                   <span style={{ ...st.nuqta, background: 'var(--qizil)' }} />
