@@ -1,13 +1,23 @@
 // PostgreSQL базага уланиш
 const { Pool } = require('pg');
+const fs = require('fs');
 require('dotenv').config();
+
+// SSL созлама. Агар DB_SSL_CA берилса (Supabase CA серти йўли) — серверни
+// тўлиқ текширамиз (MITM'дан ҳимоя). Берилмаса — эски хатти-ҳаракат сақланади.
+function sslSozlama() {
+  if (process.env.DB_SSL_CA) {
+    return { ca: fs.readFileSync(process.env.DB_SSL_CA, 'utf8'), rejectUnauthorized: true };
+  }
+  return { rejectUnauthorized: false };
+}
 
 // Render каби хостинглар DATABASE_URL беради — уни биринчи кўрамиз.
 // Локал ишлаганда DB_* алоҳида ўзгарувчилардан фойдаланамиз.
 const pool = process.env.DATABASE_URL
   ? new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: false },
+      ssl: sslSozlama(),
     })
   : new Pool({
       host: process.env.DB_HOST,
