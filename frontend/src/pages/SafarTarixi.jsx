@@ -107,8 +107,8 @@ function Ichki({ user, onOrqaga, onChiqish }) {
 }
 
 const st = {
-  sahifa: { width: '100vw', maxWidth: 720, margin: '0 auto', minHeight: '100vh', background: 'var(--och-kulrang)' },
-  header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, background: 'var(--qora)', color: 'var(--oq)', gap: 12 },
+  sahifa: { width: '100%', maxWidth: 720, margin: '0 auto', minHeight: '100dvh', background: 'var(--och-kulrang)', paddingBottom: 'env(safe-area-inset-bottom)' },
+  header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, paddingTop: 'calc(16px + env(safe-area-inset-top))', background: 'linear-gradient(135deg, #1F2937, #111827)', color: '#fff', gap: 12 },
   orqaga: { width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,.15)', color: 'var(--oq)', fontSize: 18, fontWeight: 700 },
   sarlavha: { flex: 1, fontWeight: 800, fontSize: 17 },
   chiqish: { background: 'transparent', color: 'var(--oq)', border: '1px solid rgba(255,255,255,.3)', padding: '6px 12px', borderRadius: 8, fontSize: 13 },
@@ -124,7 +124,7 @@ const st = {
   holatYashil: { bg: '#DCFCE7', fg: '#16A34A' },
   holatKok:    { bg: '#DBEAFE', fg: '#1D4ED8' },
   holatSariq:  { bg: '#FEF9C3', fg: '#CA8A04' },
-  holatKulrang:{ bg: 'var(--neutral-200)', fg: '#374151' },
+  holatKulrang:{ bg: 'var(--neutral-200)', fg: 'var(--qora-soft)' },
   yol: { display: 'flex', alignItems: 'center', gap: 10 },
   nuqta: { width: 10, height: 10, borderRadius: '50%', flexShrink: 0 },
   chiziq: { width: 2, height: 14, background: 'var(--neutral-200)', marginLeft: 4 },

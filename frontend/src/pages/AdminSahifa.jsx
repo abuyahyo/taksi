@@ -239,8 +239,8 @@ function Bosh({ matn }) {
 }
 
 const st = {
-  sahifa: { width: '100vw', maxWidth: 720, margin: '0 auto', minHeight: '100vh', background: 'var(--och-kulrang)' },
-  header: { padding: 20, background: 'var(--qora)', color: 'var(--oq)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  sahifa: { width: '100%', maxWidth: 720, margin: '0 auto', minHeight: '100dvh', background: 'var(--och-kulrang)', paddingBottom: 'env(safe-area-inset-bottom)' },
+  header: { padding: 20, paddingTop: 'calc(20px + env(safe-area-inset-top))', background: 'linear-gradient(135deg, #1F2937, #111827)', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   logo: { fontWeight: 800, fontSize: 18 },
   chiqish: { background: 'transparent', color: 'var(--oq)', border: '1px solid rgba(255,255,255,.3)', padding: '6px 12px', borderRadius: 8, fontSize: 13 },
   sosBanner: { background: '#FEE2E2', borderTop: '3px solid #DC2626', padding: '12px 16px' },
@@ -251,13 +251,13 @@ const st = {
   sosQabulTugma: { background: '#DC2626', color: '#fff', padding: '8px 14px', borderRadius: 10, fontWeight: 800, fontSize: 12 },
   tablar: { display: 'flex', gap: 8, padding: 16, background: 'var(--oq)' },
   tab: { flex: 1, padding: 12, borderRadius: 12, background: 'var(--och-kulrang)', fontWeight: 600, fontSize: 13 },
-  tabFaol: { background: 'var(--sariq)', fontWeight: 800 },
+  tabFaol: { background: 'var(--sariq)', color: '#fff', fontWeight: 800 },
   kontent: { padding: 16 },
   xato: { background: '#FEE2E2', color: '#991B1B', padding: 12, borderRadius: 10, marginBottom: 12, fontSize: 14 },
   statGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 },
   royxat: { display: 'flex', flexDirection: 'column', gap: 10 },
   userKarta: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--oq)', padding: 14, borderRadius: 14, boxShadow: 'var(--soya)' },
-  avatar: { width: 44, height: 44, borderRadius: '50%', background: 'var(--sariq)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 18, flexShrink: 0 },
+  avatar: { width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 18, flexShrink: 0 },
   userIsm: { fontWeight: 700, fontSize: 15 },
   userMeta: { fontSize: 12, color: 'var(--kulrang)', marginTop: 2 },
   blokBelgi: { fontSize: 12, color: 'var(--qizil)', marginTop: 4, fontWeight: 600 },
@@ -276,7 +276,7 @@ const st = {
   modalSarlavha: { fontSize: 20, fontWeight: 800, marginBottom: 8 },
   modalIzoh: { fontSize: 13, color: 'var(--kulrang)', marginBottom: 16 },
   modalShaffoflik: { fontSize: 13, color: '#92400E', background: '#FEF3C7', borderLeft: '4px solid #F59E0B', padding: '10px 12px', borderRadius: 8, marginBottom: 16, lineHeight: 1.5 },
-  input: { width: '100%', padding: 14, borderRadius: 12, border: '1px solid var(--neutral-200)', fontSize: 15, marginBottom: 16 },
+  input: { width: '100%', padding: 14, borderRadius: 12, border: '1px solid var(--neutral-200)', background: 'var(--oq)', color: 'var(--qora)', fontSize: 15, marginBottom: 16 },
   tasdiqTugma: { width: '100%', background: 'var(--qizil)', color: 'var(--oq)', padding: 14, borderRadius: 12, fontWeight: 700, fontSize: 15 },
   bekorTugma: { width: '100%', background: 'transparent', padding: 12, color: 'var(--kulrang)', fontSize: 14, marginTop: 4 },
 };
