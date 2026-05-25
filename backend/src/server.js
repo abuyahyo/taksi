@@ -17,6 +17,7 @@ const shareRoutes = require('./routes/shareRoutes');
 const geocodeRoutes = require('./routes/geocodeRoutes');
 const heatmapRoutes = require('./routes/heatmapRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const pushRoutes = require('./routes/pushRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -49,6 +50,7 @@ app.use('/api/share', shareRoutes);
 app.use('/api/geocode', geocodeRoutes);
 app.use('/api/heatmap', heatmapRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/push', pushRoutes);
 
 // Health check (frontend build йўқлигида)
 const distPath = path.join(__dirname, '..', '..', 'frontend', 'dist');

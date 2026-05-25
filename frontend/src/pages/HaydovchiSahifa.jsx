@@ -13,6 +13,7 @@ import IssiqXarita from '../components/IssiqXarita';
 import SOS from '../components/SOS';
 import Obuna from '../components/Obuna';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
+import { pushObunaBol } from '../services/push';
 import { useT, TilTanlovchi } from '../i18n';
 import { TemaTanlovchi } from '../theme';
 
@@ -71,7 +72,10 @@ function Ichki({ user, onChiqish }) {
       setObuna(data.faol);
     } catch {}
   };
-  useEffect(() => { statsYukla(); profilYukla(); obunaYukla(); ruxsatSora(); }, []);
+  useEffect(() => {
+    statsYukla(); profilYukla(); obunaYukla();
+    ruxsatSora().then((ok) => { if (ok) pushObunaBol(); });
+  }, []);
 
   // Обуна қолган кунлар
   const obunaKun = obuna?.tugash_sana ? Math.max(0, Math.ceil((new Date(obuna.tugash_sana) - new Date()) / 86400000)) : 0;

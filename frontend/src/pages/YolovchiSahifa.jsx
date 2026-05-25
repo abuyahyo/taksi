@@ -1,5 +1,5 @@
 // Йўловчи саҳифаси — socket билан реал вақтда уланган
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Harita from '../components/Harita';
 import Chat from '../components/Chat';
@@ -14,6 +14,7 @@ import NarxTarkibi, { tavsiyaHisobi, ASOSIY, PER_KM } from '../components/NarxTa
 import { api } from '../services/api';
 import { useSocket } from '../services/useSocket';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
+import { pushObunaBol } from '../services/push';
 import { useT, TilTanlovchi } from '../i18n';
 import { TemaTanlovchi } from '../theme';
 
@@ -47,6 +48,12 @@ export default function YolovchiSahifa() {
   const [songgiManzillar, setSonggiManzillar] = useState([]);
 
   const meId = user?.id || null;
+
+  // Логин қилинган йўловчи — push билдиришномага обуна (рухсат берилган бўлса)
+  useEffect(() => {
+    if (user) ruxsatSora().then((ok) => { if (ok) pushObunaBol(); });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   // Логин қилинган бўлса профилни ва сўнгги манзилларни юклаймиз
   if (user && !profil) {

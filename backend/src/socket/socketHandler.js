@@ -2,6 +2,7 @@
 const jwt = require('jsonwebtoken');
 const { query } = require('../config/db');
 const { obunaFaolmi } = require('../controllers/subscriptionController');
+const { yuborFoydalanuvchiga, yuborRolga } = require('../controllers/pushController');
 
 // Кутиш ҳақи параметрлари
 const KUTISH_TEKIN_DAQ = 3;      // 3 дақиқа бепул кутиш
@@ -79,6 +80,13 @@ module.exports = (io) => {
         socket.emit('buyurtma_yaratildi', { id: dbId, taklif_id: buyurtma.id });
         // Барча онлайн ҳайдовчиларга — янги буюртма
         io.to('haydovchilar').emit('buyurtma_keldi', enriched);
+        // Push — илова ёпиқ ҳайдовчиларга ҳам (обуна қилганлари)
+        yuborRolga('haydovchi', {
+          title: '🚖 Янги буюртма',
+          body: `${Number(buyurtma.narx).toLocaleString()} сўм · ${buyurtma.boshlanish} → ${buyurtma.tugash}`,
+          tag: `buyurtma-${dbId}`,
+          url: '/haydovchi',
+        });
         console.log(`📦 Янги буюртма #${dbId}: ${buyurtma.narx} сўм (mijoz=${mijoz_id})`);
       } catch (err) {
         console.error('yangi_buyurtma xato:', err.message);
@@ -87,7 +95,7 @@ module.exports = (io) => {
     });
 
     // ҲАЙДОВЧИ нарх таклиф қилади
-    socket.on('narx_taklif', (taklif) => {
+    socket.on('narx_taklif', async (taklif) => {
       // Фақат онлайн (обунаси текширилган) ҳайдовчи таклиф бера олади.
       // haydovchi_online'да 'haydovchilar' хонасига қўшилган — шуни талаб қиламиз.
       if (!socket.data.userId || !socket.rooms.has('haydovchilar')) return;
@@ -96,6 +104,19 @@ module.exports = (io) => {
       // Танлансак сафар хонасига қўшилишимиз учун — ҳозироқ қўшилиб қўямиз
       socket.join(`ride_${taklif.rideId}`);
       io.to(`ride_${taklif.rideId}`).emit('yangi_taklif', enriched);
+      // Push — йўловчига (илова ёпиқ бўлса ҳам янги таклифни кўрсин)
+      try {
+        const rr = await query(`SELECT mijoz_id FROM rides WHERE id = $1`, [taklif.rideId]);
+        const mid = rr.rows[0]?.mijoz_id;
+        if (mid) {
+          yuborFoydalanuvchiga(mid, {
+            title: '💰 Янги таклиф',
+            body: `${taklif.haydovchi_ism} · ${Number(taklif.haydovchi_narx).toLocaleString()} сўм`,
+            tag: `taklif-${taklif.rideId}`,
+            url: '/yolovchi',
+          });
+        }
+      } catch (err) { console.error('taklif push xato:', err.message); }
       console.log(`💰 Таклиф #${taklif.rideId}: ${taklif.haydovchi_narx} сўм (haydovchi=${enriched.haydovchi_id})`);
     });
 
@@ -245,6 +266,20 @@ module.exports = (io) => {
       }
 
       io.to(`ride_${data.rideId}`).emit('holat_yangilandi', javob);
+
+      // Push — йўловчига (ҳайдовчи етиб келди / сафар тугади)
+      if (data.holat === 'yetib_keldi' || data.holat === 'yakunlandi') {
+        try {
+          const rr = await query(`SELECT mijoz_id FROM rides WHERE id = $1`, [data.rideId]);
+          const mid = rr.rows[0]?.mijoz_id;
+          if (mid) {
+            const payload = data.holat === 'yetib_keldi'
+              ? { title: '🚗 Ҳайдовчи етиб келди', body: 'Ҳайдовчи сизни кутмоқда', tag: `holat-${data.rideId}`, url: '/yolovchi' }
+              : { title: '✅ Сафар тугади', body: 'Ҳайдовчини баҳоланг', tag: `holat-${data.rideId}`, url: '/yolovchi' };
+            yuborFoydalanuvchiga(mid, payload);
+          }
+        } catch (err) { console.error('holat push xato:', err.message); }
+      }
     });
 
     socket.on('joylashuv', (data) => {
@@ -288,6 +323,13 @@ module.exports = (io) => {
         };
         // Барча админларга жонли юборамиз
         io.to('adminlar').emit('sos_keldi', sig);
+        // Push — барча админларга (панель ёпиқ бўлса ҳам)
+        yuborRolga('admin', {
+          title: '🆘 SOS сигнал',
+          body: `${ism} (${rol}) — сафар #${data.rideId || '?'}`,
+          tag: `sos-${sig.id}`,
+          url: '/admin',
+        });
         // Юборувчига тасдиқ
         socket.emit('sos_qabul_qilindi', { id: sig.id });
         console.log(`🆘 SOS #${sig.id} ${rol}=${ism}, ride=${data.rideId}`);
@@ -324,6 +366,22 @@ module.exports = (io) => {
           vaqt: r.rows[0].vaqt,
         };
         io.to(`ride_${data.rideId}`).emit('xabar_keldi', xabar);
+        // Push — суҳбатдошга (чат ёпиқ/илова ёпиқ бўлса ҳам)
+        try {
+          const rr = await query(`SELECT mijoz_id, haydovchi_id FROM rides WHERE id = $1`, [data.rideId]);
+          if (rr.rows[0]) {
+            const { mijoz_id, haydovchi_id } = rr.rows[0];
+            const qabul = Number(userId) === Number(mijoz_id) ? haydovchi_id : mijoz_id;
+            if (qabul) {
+              yuborFoydalanuvchiga(qabul, {
+                title: `💬 ${yuboruvchi_ism}`,
+                body: matn.slice(0, 120),
+                tag: `chat-${data.rideId}`,
+                url: '/',
+              });
+            }
+          }
+        } catch (err) { console.error('chat push xato:', err.message); }
         console.log(`💬 #${data.rideId} ${userId || 'guest'}: ${matn.slice(0, 30)}`);
       } catch (err) {
         console.error('xabar_yuborish xato:', err.message);
