@@ -45,6 +45,7 @@ export default function YolovchiSahifa() {
   const [izoh, setIzoh] = useState('');
   const [boshqaUchun, setBoshqaUchun] = useState(false);
   const [yuk, setYuk] = useState(false);
+  const [rejaVaqt, setRejaVaqt] = useState(''); // datetime-local; '' = ҳозир
   const [bosqich, setBosqich] = useState('manzil');
   const [takliflar, setTakliflar] = useState([]);
   const [rideId, setRideId] = useState(null);
@@ -127,6 +128,7 @@ export default function YolovchiSahifa() {
     setIzoh('');
     setBoshqaUchun(false);
     setYuk(false);
+    setRejaVaqt('');
     setTakliflar([]);
     setRideId(null);
     setHaydovchiInfo(null);
@@ -182,6 +184,17 @@ export default function YolovchiSahifa() {
     setNarx(tavsiyaHisobi(masofa(), kod));
   };
 
+  // datetime-local форматига ўгириш (маҳаллий вақт)
+  const toLocalInput = (d) => {
+    const p = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+  };
+  const rejaMin = toLocalInput(new Date());
+  const rejaMatn = (s) => {
+    try { return new Date(s).toLocaleString(undefined, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }); }
+    catch { return s; }
+  };
+
   // Буюртма бериш — socket орқали ҳайдовчиларга юборилади
   const buyurtmaBerish = () => {
     const taklifId = Date.now(); // вақтинча — сервер DB id'ни қайтариб buyurtma_yaratildi'да юборади
@@ -198,6 +211,7 @@ export default function YolovchiSahifa() {
       narx,
       tarif,
       opsiyalar: { izoh: izoh.trim() || null, boshqaUchun, yuk },
+      reja_vaqt: rejaVaqt || null,
       vaqt: 'ҳозиргина',
     });
   };
@@ -344,6 +358,23 @@ export default function YolovchiSahifa() {
                   <Ikonka nom={yuk ? 'check' : 'receipt'} size={15} /> {t('opt.luggage')}
                 </button>
               </div>
+
+              {/* Олдиндан буюртма */}
+              <button
+                style={{ ...st.rejaTugma, ...(rejaVaqt ? st.opChipFaol : {}) }}
+                onClick={() => setRejaVaqt(rejaVaqt ? '' : toLocalInput(new Date(Date.now() + 3600000)))}
+              >
+                <Ikonka nom="clock" size={15} /> {rejaVaqt ? t('sched.for', { vaqt: rejaMatn(rejaVaqt) }) : t('sched.toggle')}
+              </button>
+              {rejaVaqt && (
+                <input
+                  type="datetime-local"
+                  style={st.opIzoh}
+                  value={rejaVaqt}
+                  min={rejaMin}
+                  onChange={(e) => setRejaVaqt(e.target.value)}
+                />
+              )}
             </div>
 
             {/* Шаффоф нарх таркиби */}
@@ -546,6 +577,7 @@ const st = {
   opChiplar: { display: 'flex', gap: 8 },
   opChip: { flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '9px 10px', borderRadius: 'var(--r-full)', background: 'var(--fill)', color: 'var(--label)', fontSize: 13, fontWeight: 500 },
   opChipFaol: { background: 'var(--tint)', color: '#fff' },
+  rejaTugma: { width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '11px 10px', borderRadius: 'var(--r-md)', background: 'var(--fill)', color: 'var(--label)', fontSize: 14, fontWeight: 500, marginTop: 8 },
   tariflar: { display: 'flex', gap: 8, marginBottom: 16 },
   tarifKarta: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, padding: '10px 6px', borderRadius: 'var(--r-md)', background: 'var(--fill)', border: '1.5px solid transparent', color: 'var(--label)' },
   tarifFaol: { background: 'var(--tint)', color: '#fff', borderColor: 'var(--tint)' },

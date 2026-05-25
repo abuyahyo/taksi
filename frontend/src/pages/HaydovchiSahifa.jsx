@@ -362,6 +362,11 @@ function Ichki({ user, onChiqish }) {
               <div style={st.kartaYuqori}>
                 <div>
                   <span style={st.tarifChip}>{t(`tarif.${b.tarif || 'ekonom'}`)}</span>
+                  {b.reja_vaqt && (
+                    <span style={st.rejaChip}>
+                      <Ikonka nom="clock" size={11} /> {new Date(b.reja_vaqt).toLocaleString(undefined, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  )}
                   <div style={st.narx}>{Number(b.narx).toLocaleString()}</div>
                   <div style={st.masofa}>{b.masofa} км · {b.mijoz} <Ikonka nom="star" size={12} /> {b.reyting}</div>
                 </div>
@@ -477,6 +482,7 @@ const st = {
   karta: { background: 'var(--surface)', borderRadius: 'var(--r-lg)', padding: 16, marginBottom: 12, boxShadow: 'var(--shadow-1)' },
   kartaYuqori: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 },
   tarifChip: { display: 'inline-block', fontSize: 11, fontWeight: 600, color: 'var(--tint)', background: 'var(--tint-fill)', padding: '2px 8px', borderRadius: 'var(--r-full)', marginBottom: 6 },
+  rejaChip: { display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 600, color: 'var(--amber)', background: 'rgba(255,149,0,0.14)', padding: '2px 8px', borderRadius: 'var(--r-full)', marginLeft: 6, marginBottom: 6, verticalAlign: 'middle' },
   narx: { fontSize: 24, fontWeight: 700, letterSpacing: '0.3px' },
   masofa: { display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 13, color: 'var(--secondary-label)', marginTop: 2 },
   vaqt: { fontSize: 13, color: 'var(--secondary-label)' },

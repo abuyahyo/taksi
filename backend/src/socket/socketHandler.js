@@ -70,14 +70,23 @@ module.exports = (io) => {
           boshqaUchun: !!o.boshqaUchun,
           yuk: !!o.yuk,
         };
+        // Олдиндан буюртма — режа вақти (келажакда, макс 14 кун) бўлса сақлаймиз
+        let rejaVaqt = null;
+        if (buyurtma.reja_vaqt) {
+          const d = new Date(buyurtma.reja_vaqt);
+          const now = Date.now();
+          if (!isNaN(d) && d.getTime() > now + 5 * 60000 && d.getTime() < now + 14 * 86400000) {
+            rejaVaqt = d.toISOString();
+          }
+        }
         const result = await query(
-          `INSERT INTO rides (mijoz_id, boshlanish_manzil, tugash_manzil, masofa_km, taklif_narx, holat, pin, tarif, opsiyalar)
-           VALUES ($1, $2, $3, $4, $5, 'kutilmoqda', $6, $7, $8)
+          `INSERT INTO rides (mijoz_id, boshlanish_manzil, tugash_manzil, masofa_km, taklif_narx, holat, pin, tarif, opsiyalar, rejalashtirilgan_vaqt)
+           VALUES ($1, $2, $3, $4, $5, 'kutilmoqda', $6, $7, $8, $9)
            RETURNING id`,
-          [mijoz_id, buyurtma.boshlanish, buyurtma.tugash, buyurtma.masofa, buyurtma.narx, pin, tarif, JSON.stringify(opsiyalar)]
+          [mijoz_id, buyurtma.boshlanish, buyurtma.tugash, buyurtma.masofa, buyurtma.narx, pin, tarif, JSON.stringify(opsiyalar), rejaVaqt]
         );
         const dbId = result.rows[0].id;
-        const enriched = { ...buyurtma, id: dbId, taklif_id: buyurtma.id, tarif, opsiyalar, mijoz_id, mijoz_ism, mijoz: mijoz_ism, reyting: mijoz_reyting };
+        const enriched = { ...buyurtma, id: dbId, taklif_id: buyurtma.id, tarif, opsiyalar, reja_vaqt: rejaVaqt, mijoz_id, mijoz_ism, mijoz: mijoz_ism, reyting: mijoz_reyting };
 
         faolBuyurtmalar.set(dbId, enriched);
         socket.join(`ride_${dbId}`);
