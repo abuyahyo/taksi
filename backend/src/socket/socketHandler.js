@@ -3,10 +3,7 @@ const jwt = require('jsonwebtoken');
 const { query } = require('../config/db');
 const { obunaFaolmi } = require('../controllers/subscriptionController');
 const { yuborFoydalanuvchiga, yuborRolga } = require('../controllers/pushController');
-
-// Кутиш ҳақи параметрлари
-const KUTISH_TEKIN_DAQ = 3;      // 3 дақиқа бепул кутиш
-const KUTISH_NARX_DAQ  = 500;    // кейин 500 сўм/дақ
+const { kutishHaqiHisobla } = require('../utils/kutishHaqi');
 
 // Фаол буюртмалар: rideId -> buyurtma ma'lumoti
 const faolBuyurtmalar = new Map();
@@ -246,8 +243,7 @@ module.exports = (io) => {
           if (r.rows[0]) {
             // floor — фақат тўла пуллик дақиқалар учун ҳақ оламиз (йўловчи учун адолатли)
             const totalDaq = parseFloat(r.rows[0].daqiqa);
-            const kutib_daq = Math.floor(Math.max(0, totalDaq - KUTISH_TEKIN_DAQ));
-            const haq = kutib_daq * KUTISH_NARX_DAQ;
+            const haq = kutishHaqiHisobla(totalDaq);
             const eskiNarx = Number(r.rows[0].kelishilgan_narx) || 0;
             const yangiNarx = eskiNarx + haq;
             await query(
