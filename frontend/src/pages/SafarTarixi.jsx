@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import Kirish from '../components/Kirish';
+import { SkeletKarta } from '../components/Skelet';
 import { useT } from '../i18n';
 
 export default function SafarTarixi() {
@@ -59,7 +60,9 @@ function Ichki({ user, onOrqaga, onChiqish }) {
         {xato && <div style={st.xato}>{xato}</div>}
 
         {rides == null ? (
-          <div style={st.bosh}>{t('common.loading')}</div>
+          <div style={st.royxat}>
+            {[0, 1, 2, 3].map((i) => <SkeletKarta key={i} />)}
+          </div>
         ) : rides.length === 0 ? (
           <div style={st.bosh}>
             <div style={st.boshIkon}>🚖</div>

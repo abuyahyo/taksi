@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { api, socket } from '../services/api';
 import Kirish from '../components/Kirish';
+import { SkeletKarta } from '../components/Skelet';
 import { useT } from '../i18n';
 import { useToast } from '../components/Toast';
 
@@ -262,11 +263,20 @@ function Stat({ raqam, matn, ikon, keng }) {
 }
 
 function Yuklanmoqda() {
-  return <div style={{ textAlign: 'center', padding: 40, color: 'var(--kulrang)' }}>Юкланмоқда...</div>;
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      {[0, 1, 2, 3].map((i) => <SkeletKarta key={i} />)}
+    </div>
+  );
 }
 
 function Bosh({ matn }) {
-  return <div style={{ textAlign: 'center', padding: 40, color: 'var(--kulrang)', fontSize: 14 }}>{matn}</div>;
+  return (
+    <div style={{ textAlign: 'center', padding: '48px 20px', color: 'var(--kulrang)' }}>
+      <div style={{ fontSize: 44, marginBottom: 10 }}>📭</div>
+      <div style={{ fontSize: 14 }}>{matn}</div>
+    </div>
+  );
 }
 
 const st = {
