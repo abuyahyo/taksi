@@ -62,7 +62,7 @@ export function TilTanlovchi({ style }) {
     background: til === k ? 'var(--qora)' : 'transparent',
     color: til === k ? 'var(--oq)' : 'var(--qora)',
     padding: '4px 8px', borderRadius: 8, fontSize: 11, fontWeight: 700,
-    border: '1px solid #E5E7EB',
+    border: '1px solid var(--neutral-200)',
   });
   const tugmalar = [
     ['uz',      'Кир'],

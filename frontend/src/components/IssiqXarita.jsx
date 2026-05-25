@@ -93,14 +93,14 @@ export default function IssiqXarita({ onYopish }) {
 const st = {
   fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.6)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 3600 },
   panel: { background: 'var(--oq)', width: '100%', maxWidth: 480, height: '90vh', borderRadius: '24px 24px 0 0', display: 'flex', flexDirection: 'column' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: 16, borderBottom: '1px solid #E5E7EB' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: 16, borderBottom: '1px solid var(--neutral-200)' },
   sarlavha: { fontSize: 18, fontWeight: 800 },
   izoh: { fontSize: 12, color: 'var(--kulrang)', marginTop: 2 },
   yopish: { width: 36, height: 36, borderRadius: '50%', background: 'var(--och-kulrang)', fontSize: 16 },
   harita: { flex: 1, position: 'relative' },
-  legenda: { display: 'flex', gap: 16, alignItems: 'center', padding: '10px 16px', background: 'var(--oq)', borderTop: '1px solid #E5E7EB', fontSize: 13 },
+  legenda: { display: 'flex', gap: 16, alignItems: 'center', padding: '10px 16px', background: 'var(--oq)', borderTop: '1px solid var(--neutral-200)', fontSize: 13 },
   legElem: { display: 'flex', alignItems: 'center', gap: 8 },
   dot: { width: 12, height: 12, borderRadius: '50%' },
   refresh: { marginLeft: 'auto', fontSize: 14 },
-  zerno: { padding: '8px 16px', fontSize: 11, color: 'var(--kulrang)', textAlign: 'center', borderTop: '1px solid #F3F4F6' },
+  zerno: { padding: '8px 16px', fontSize: 11, color: 'var(--kulrang)', textAlign: 'center', borderTop: '1px solid var(--neutral-200)' },
 };

@@ -94,7 +94,7 @@ const st = {
   spin: { fontSize: 14 },
   rejim: { fontSize: 11, color: 'var(--kulrang)', marginTop: 4, paddingLeft: 4 },
   dropdown: { position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4, background: 'var(--oq)', borderRadius: 12, boxShadow: '0 4px 16px rgba(0,0,0,.15)', zIndex: 1500, maxHeight: 260, overflowY: 'auto' },
-  kandidat: { width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', background: 'transparent', border: 'none', borderBottom: '1px solid #F3F4F6', textAlign: 'left', cursor: 'pointer', fontSize: 13 },
+  kandidat: { width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', background: 'transparent', border: 'none', borderBottom: '1px solid var(--neutral-200)', textAlign: 'left', cursor: 'pointer', fontSize: 13 },
   kIkon: { fontSize: 14, flexShrink: 0 },
   kMatn: { color: 'var(--qora)', lineHeight: 1.3 },
   bosh: { padding: 14, textAlign: 'center', color: 'var(--kulrang)', fontSize: 13 },

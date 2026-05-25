@@ -43,6 +43,6 @@ const st = {
   qator: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0', fontSize: 13 },
   label: { color: 'var(--qora)' },
   qiymat: { fontWeight: 600 },
-  chiziq: { height: 1, background: '#E5E7EB', margin: '8px 0' },
+  chiziq: { height: 1, background: 'var(--neutral-200)', margin: '8px 0' },
   izoh: { fontSize: 11, color: 'var(--kulrang)', marginTop: 8, fontStyle: 'italic' },
 };

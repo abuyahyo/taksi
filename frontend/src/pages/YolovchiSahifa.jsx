@@ -15,6 +15,7 @@ import { api } from '../services/api';
 import { useSocket } from '../services/useSocket';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
 import { useT, TilTanlovchi } from '../i18n';
+import { TemaTanlovchi } from '../theme';
 
 if (typeof window !== 'undefined') ruxsatSora();
 
@@ -175,7 +176,7 @@ export default function YolovchiSahifa() {
         <Harita markaz={TOSHKENT} boshlanish={boshlanish} tugash={tugash} haydovchi={haydovchiNuqta} onBosish={haritaBosildi} />
       </div>
       <div style={st.logo}>🚕 Safar Taksi</div>
-      <div style={st.tilWrap}><TilTanlovchi /></div>
+      <div style={st.tilWrap}><TemaTanlovchi /><TilTanlovchi /></div>
       <button
         style={st.profilTugma}
         onClick={() => user ? setProfilOchiq(true) : setKirishOchiq(true)}
@@ -409,7 +410,7 @@ const st = {
   yordam: { position: 'absolute', top: 16, right: 16, zIndex: 1000, background: 'var(--oq)', padding: '8px 14px', borderRadius: 12, fontWeight: 600, fontSize: 13, boxShadow: 'var(--soya)', color: 'var(--kulrang)' },
   tarixTugma: { position: 'absolute', top: 16, right: 116, zIndex: 1000, background: 'var(--oq)', width: 38, height: 38, borderRadius: '50%', fontSize: 16, boxShadow: 'var(--soya)' },
   profilTugma: { position: 'absolute', top: 16, right: 162, zIndex: 1000, background: 'var(--oq)', width: 38, height: 38, borderRadius: '50%', fontSize: 16, boxShadow: 'var(--soya)' },
-  tilWrap: { position: 'absolute', top: 64, right: 16, zIndex: 1000 },
+  tilWrap: { position: 'absolute', top: 64, right: 16, zIndex: 1000, display: 'flex', alignItems: 'center', gap: 6 },
   tolovTugma: { background: 'var(--qora)', color: 'var(--oq)', padding: 16, borderRadius: 14, fontSize: 14, fontWeight: 800, whiteSpace: 'nowrap' },
   ulashishTugma: { width: '100%', background: 'var(--och-kulrang)', padding: 12, borderRadius: 12, fontSize: 14, fontWeight: 700, marginTop: 8 },
   tezManzillar: { display: 'flex', gap: 8, marginTop: 8, marginBottom: 8 },

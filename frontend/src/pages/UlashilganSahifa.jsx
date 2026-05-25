@@ -6,6 +6,7 @@ import { socket } from '../services/api';
 import Harita from '../components/Harita';
 import HaritaPreview, { parseLatLng } from '../components/HaritaPreview';
 import { useT, TilTanlovchi } from '../i18n';
+import { TemaTanlovchi } from '../theme';
 
 const TOSHKENT = [41.2995, 69.2401];
 
@@ -76,7 +77,7 @@ export default function UlashilganSahifa() {
       </div>
 
       <div style={st.logo}>🚕 Safar Taksi</div>
-      <div style={st.tilWrap}><TilTanlovchi /></div>
+      <div style={st.tilWrap}><TemaTanlovchi /><TilTanlovchi /></div>
 
       <div style={st.panel}>
         <div style={st.sarlavhaBolimi}>
@@ -130,7 +131,7 @@ const st = {
   sahifa: { position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden' },
   harita: { position: 'absolute', inset: 0 },
   logo: { position: 'absolute', top: 16, left: 16, zIndex: 1000, background: 'var(--sariq)', padding: '8px 14px', borderRadius: 12, fontWeight: 800, fontSize: 16, boxShadow: 'var(--soya)' },
-  tilWrap: { position: 'absolute', top: 16, right: 16, zIndex: 1000 },
+  tilWrap: { position: 'absolute', top: 16, right: 16, zIndex: 1000, display: 'flex', alignItems: 'center', gap: 6 },
   panel: { position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 1000, background: 'var(--oq)', borderRadius: '24px 24px 0 0', padding: 20, boxShadow: '0 -4px 20px rgba(0,0,0,0.1)', maxHeight: '65vh', overflowY: 'auto' },
   sarlavhaBolimi: { marginBottom: 12 },
   sarlavha: { fontSize: 18, fontWeight: 800 },

@@ -1,6 +1,7 @@
 // Бошланғич саҳифа — рол танлаш
 import { useNavigate } from 'react-router-dom';
 import { useT, TilTanlovchi } from '../i18n';
+import { TemaTanlovchi } from '../theme';
 
 export default function KirishSahifa() {
   const navigate = useNavigate();
@@ -9,7 +10,7 @@ export default function KirishSahifa() {
   return (
     <div style={st.sahifa} className="fon-blobs">
       {/* Юқорида тил свитчер */}
-      <div style={st.tilSwitcher}><TilTanlovchi /></div>
+      <div style={st.tilSwitcher}><TemaTanlovchi /><TilTanlovchi /></div>
 
       {/* Hero бўлим — баланд */}
       <div style={st.hero} className="fade-in">
@@ -68,7 +69,7 @@ const st = {
     background: 'var(--sariq-surface)',
     overflow: 'hidden',
   },
-  tilSwitcher: { position: 'absolute', top: 'var(--space-4)', right: 'var(--space-5)', zIndex: 10 },
+  tilSwitcher: { position: 'absolute', top: 'var(--space-4)', right: 'var(--space-5)', zIndex: 10, display: 'flex', alignItems: 'center', gap: 6 },
 
   hero: {
     flex: 1,

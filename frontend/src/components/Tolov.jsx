@@ -104,7 +104,7 @@ const st = {
   tugmalar: { display: 'flex', flexDirection: 'column', gap: 10 },
   payme: { background: '#00C2A6', color: 'var(--oq)', padding: 16, borderRadius: 14, fontWeight: 800, fontSize: 16 },
   click: { background: '#1E40AF', color: 'var(--oq)', padding: 16, borderRadius: 14, fontWeight: 800, fontSize: 16 },
-  ajratgich: { height: 1, background: '#E5E7EB', margin: '6px 0' },
+  ajratgich: { height: 1, background: 'var(--neutral-200)', margin: '6px 0' },
   test: { background: 'var(--sariq)', color: 'var(--qora)', padding: 14, borderRadius: 14, fontWeight: 700, fontSize: 14 },
   testHint: { fontSize: 11, color: 'var(--kulrang)', textAlign: 'center', marginTop: -4 },
   xato: { color: 'var(--qizil)', fontSize: 13, textAlign: 'center', marginTop: 12 },

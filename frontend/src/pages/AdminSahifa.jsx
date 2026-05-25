@@ -245,7 +245,7 @@ const st = {
   chiqish: { background: 'transparent', color: 'var(--oq)', border: '1px solid rgba(255,255,255,.3)', padding: '6px 12px', borderRadius: 8, fontSize: 13 },
   sosBanner: { background: '#FEE2E2', borderTop: '3px solid #DC2626', padding: '12px 16px' },
   sosBoshi: { fontSize: 13, fontWeight: 800, color: '#7F1D1D', marginBottom: 10 },
-  sosKarta: { display: 'flex', alignItems: 'center', gap: 12, background: '#fff', padding: 12, borderRadius: 12, marginBottom: 8, boxShadow: '0 2px 8px rgba(220,38,38,0.15)' },
+  sosKarta: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--oq)', padding: 12, borderRadius: 12, marginBottom: 8, boxShadow: '0 2px 8px rgba(220,38,38,0.15)' },
   sosIsm: { fontWeight: 800, fontSize: 14 },
   sosMeta: { fontSize: 12, color: 'var(--kulrang)', marginTop: 2 },
   sosQabulTugma: { background: '#DC2626', color: '#fff', padding: '8px 14px', borderRadius: 10, fontWeight: 800, fontSize: 12 },
@@ -276,7 +276,7 @@ const st = {
   modalSarlavha: { fontSize: 20, fontWeight: 800, marginBottom: 8 },
   modalIzoh: { fontSize: 13, color: 'var(--kulrang)', marginBottom: 16 },
   modalShaffoflik: { fontSize: 13, color: '#92400E', background: '#FEF3C7', borderLeft: '4px solid #F59E0B', padding: '10px 12px', borderRadius: 8, marginBottom: 16, lineHeight: 1.5 },
-  input: { width: '100%', padding: 14, borderRadius: 12, border: '1px solid #E5E7EB', fontSize: 15, marginBottom: 16 },
+  input: { width: '100%', padding: 14, borderRadius: 12, border: '1px solid var(--neutral-200)', fontSize: 15, marginBottom: 16 },
   tasdiqTugma: { width: '100%', background: 'var(--qizil)', color: 'var(--oq)', padding: 14, borderRadius: 12, fontWeight: 700, fontSize: 15 },
   bekorTugma: { width: '100%', background: 'transparent', padding: 12, color: 'var(--kulrang)', fontSize: 14, marginTop: 4 },
 };

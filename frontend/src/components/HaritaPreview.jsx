@@ -37,7 +37,7 @@ export function parseLatLng(s) {
 export default function HaritaPreview({ boshlanish, tugash, height = 110 }) {
   if (!boshlanish || !tugash) return null;
   return (
-    <div style={{ height, borderRadius: 12, overflow: 'hidden', border: '1px solid #E5E7EB' }}>
+    <div style={{ height, borderRadius: 12, overflow: 'hidden', border: '1px solid var(--neutral-200)' }}>
       <MapContainer
         center={boshlanish}
         zoom={13}
