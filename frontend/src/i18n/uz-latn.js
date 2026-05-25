@@ -226,6 +226,7 @@ export default {
   'wait.feeAccruing':    '⏱ Haq hisoblanmoqda',
   'wait.sum':            'soʻm',
   'wait.driverComing':   'Haydovchi yoʻlda',
+  'wait.etaMin':         '≈ {min} daqiqa qoldi',
   'wait.driverHere':     '🚗 Haydovchi yetib keldi!',
   'wait.driverArrived':  '🚗 Haydovchi yetib keldi',
   'wait.comeOut':        'Iltimos, chiqing — 3 daqiqadan soʻng kutish haqi',

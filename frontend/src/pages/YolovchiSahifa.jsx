@@ -154,6 +154,15 @@ export default function YolovchiSahifa() {
 
   const masofa = () => masofaKm(boshlanish, tugash);
 
+  // Ҳайдовчининг келиш вақти (ETA) — жонли GPS'дан пикап нуқтасигача, шаҳар ўртача тезлиги
+  const kelishVaqti = () => {
+    if (!haydovchiNuqta || !boshlanish) return null;
+    const km = masofaKm(haydovchiNuqta, boshlanish);
+    if (!km) return null;
+    const SHAHAR_TEZLIK = 22; // км/соат
+    return Math.max(1, Math.round((km / SHAHAR_TEZLIK) * 60));
+  };
+
   const tavsiyaNarx = tavsiyaHisobi(masofa());
 
   // Буюртма бериш — socket орқали ҳайдовчиларга юборилади
@@ -296,6 +305,10 @@ export default function YolovchiSahifa() {
                : haydovchiInfo.holati === 'yolda' ? t('pass.inRide')
                : t('wait.driverComing')}
             </h2>
+            {/* Келиш вақти (ETA) — ҳайдовчи йўлда бўлганда */}
+            {haydovchiInfo.holati !== 'yetib_keldi' && haydovchiInfo.holati !== 'yolda' && kelishVaqti() && (
+              <div style={st.eta}>🚗 {t('wait.etaMin', { min: kelishVaqti() })}</div>
+            )}
             <div style={st.haydovchi}>
               <div style={st.avatar}>{haydovchiInfo.ism[0]}</div>
               <div style={{ flex: 1 }}>
@@ -470,4 +483,5 @@ const st = {
   hMashina: { fontSize: 12, color: 'var(--kulrang)' },
   qabul: { background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', padding: '10px 16px', borderRadius: 10, fontWeight: 800, fontSize: 15, boxShadow: 'var(--shadow-sariq)' },
   kuzatishMatn: { textAlign: 'center', padding: 12, color: 'var(--kulrang)', fontSize: 13, marginTop: 4 },
+  eta: { background: 'rgba(14,147,132,0.12)', color: 'var(--asosiy-dark)', padding: '8px 12px', borderRadius: 10, fontSize: 15, fontWeight: 800, marginBottom: 12, textAlign: 'center' },
 };

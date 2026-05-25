@@ -226,6 +226,7 @@ export default {
   'wait.feeAccruing':    '⏱ Ҳақ ҳисобланмоқда',
   'wait.sum':            'сўм',
   'wait.driverComing':   'Ҳайдовчи йўлда',
+  'wait.etaMin':         '≈ {min} мин қолди',
   'wait.driverHere':     '🚗 Ҳайдовчи етиб келди!',
   'wait.driverArrived':  '🚗 Ҳайдовчи етиб келди',
   'wait.comeOut':        'Илтимос, чиқинг — 3 дақиқадан сўнг кутиш ҳақи',
