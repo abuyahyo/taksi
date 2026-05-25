@@ -51,6 +51,10 @@ export default {
 
   // Йўловчи
   'pass.whereTo':        'Қаёрга борасиз?',
+  'pass.fromWhere':      'Қаердан?',
+  'pass.toWhere':        'Қаёққа?',
+  'pass.movePin':        'Харитани суринг — пинни манзилга қўйинг',
+  'pass.confirmStart':   'Бу ердан',
   'pass.markStart':      'Харитадан бошланишни белгиланг',
   'pass.startPicked':    'Бошланиш танланди ✓',
   'pass.markEnd':        'Харитадан манзилни белгиланг',

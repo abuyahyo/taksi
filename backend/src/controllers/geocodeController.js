@@ -45,4 +45,32 @@ const qidir = async (req, res) => {
   }
 };
 
-module.exports = { qidir };
+// Тескари геокод — координатадан манзил (харита маркази учун)
+const teskari = async (req, res) => {
+  try {
+    const lat = parseFloat(req.query.lat);
+    const lng = parseFloat(req.query.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return res.json({ manzil: '' });
+
+    const tilParam = String(req.query.til || 'uz');
+    const til = tilParam === 'ru' ? 'ru' : 'uz';
+
+    const kalit = `r|${lat.toFixed(4)}|${lng.toFixed(4)}|${til}`;
+    const eski = xotira.get(kalit);
+    if (eski && Date.now() - eski.vaqt < TTL) return res.json(eski.natija);
+
+    const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=${til}&zoom=18`;
+    const r = await fetch(url, { headers: { 'User-Agent': 'SafarTaksi/1.0' } });
+    if (!r.ok) return res.json({ manzil: '' });
+
+    const data = await r.json();
+    const natija = { manzil: data.display_name || '', lat, lng };
+    xotira.set(kalit, { vaqt: Date.now(), natija });
+    res.json(natija);
+  } catch (err) {
+    console.error('reverse geocode xato:', err.message);
+    res.json({ manzil: '' });
+  }
+};
+
+module.exports = { qidir, teskari };
