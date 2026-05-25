@@ -1,4 +1,4 @@
-// Socket.io реал вақт мантиғи — буюртма ва нарх алмашуви (inDrive услуби)
+// Socket.io реал вақт мантиғи — буюртма ва нарх алмашуви
 const jwt = require('jsonwebtoken');
 const { query } = require('../config/db');
 const { obunaFaolmi } = require('../controllers/subscriptionController');
