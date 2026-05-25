@@ -11,7 +11,7 @@ import Ulashish from '../components/Ulashish';
 import ManzilQidirish from '../components/ManzilQidirish';
 import SOS from '../components/SOS';
 import NarxTarkibi from '../components/NarxTarkibi';
-import { tavsiyaHisobi, ASOSIY, PER_KM } from '../utils/narx';
+import { tavsiyaHisobi, ASOSIY, PER_KM, TARIFLAR } from '../utils/narx';
 import { masofaKm } from '../utils/geo';
 import { api } from '../services/api';
 import { useSocket } from '../services/useSocket';
@@ -41,6 +41,7 @@ export default function YolovchiSahifa() {
   const [safarPin, setSafarPin] = useState(null); // машина PIN-коди
   const reverseTimerRef = useRef(null);
   const [narx, setNarx] = useState(15000);
+  const [tarif, setTarif] = useState('ekonom');
   const [bosqich, setBosqich] = useState('manzil');
   const [takliflar, setTakliflar] = useState([]);
   const [rideId, setRideId] = useState(null);
@@ -167,7 +168,13 @@ export default function YolovchiSahifa() {
     return Math.max(1, Math.round((km / SHAHAR_TEZLIK) * 60));
   };
 
-  const tavsiyaNarx = tavsiyaHisobi(masofa());
+  const tavsiyaNarx = tavsiyaHisobi(masofa(), tarif);
+
+  // Тариф танлаш — тавсия нархни шу тарифга мослаб янгилаймиз
+  const tarifTanla = (kod) => {
+    setTarif(kod);
+    setNarx(tavsiyaHisobi(masofa(), kod));
+  };
 
   // Буюртма бериш — socket орқали ҳайдовчиларга юборилади
   const buyurtmaBerish = () => {
@@ -183,6 +190,7 @@ export default function YolovchiSahifa() {
       tugash: tugashManzil || `${tugash[0].toFixed(4)}, ${tugash[1].toFixed(4)}`,
       masofa: masofa(),
       narx,
+      tarif,
       vaqt: 'ҳозиргина',
     });
   };
@@ -281,6 +289,25 @@ export default function YolovchiSahifa() {
         {bosqich === 'narx' && (
           <>
             <h2 style={st.sarlavha}>{t('pass.offerPrice')}</h2>
+
+            {/* Тариф класслари — Yandex услуби */}
+            <div style={st.tariflar}>
+              {TARIFLAR.map((tr) => {
+                const faol = tarif === tr.kod;
+                return (
+                  <button
+                    key={tr.kod}
+                    style={{ ...st.tarifKarta, ...(faol ? st.tarifFaol : {}) }}
+                    onClick={() => tarifTanla(tr.kod)}
+                  >
+                    <span style={{ ...st.tarifIkon, color: faol ? '#fff' : 'var(--tint)' }}><Ikonka nom={tr.ikon} size={20} /></span>
+                    <span style={st.tarifNom}>{t(`tarif.${tr.kod}`)}</span>
+                    <span style={st.tarifNarx}>{tavsiyaHisobi(masofa(), tr.kod).toLocaleString()}</span>
+                  </button>
+                );
+              })}
+            </div>
+
             <p style={st.izoh}>{t('pass.distance')}: {masofa()} км · {t('pass.recommended')}: {tavsiyaNarx.toLocaleString()}</p>
             <div style={st.narxBox}>
               <button style={st.narxTugma} onClick={() => setNarx(Math.max(5000, narx - 1000))}><Ikonka nom="minus" size={20} /></button>
@@ -483,6 +510,12 @@ const st = {
   markazManzilMatn: { fontSize: 15, fontWeight: 500, lineHeight: 1.3, color: 'var(--label)' },
   tugma: { width: '100%', background: 'var(--tint)', color: '#fff', padding: 15, borderRadius: 'var(--r-lg)', fontSize: 17, fontWeight: 600, marginTop: 8 },
   orqaga: { width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 2, background: 'transparent', padding: 12, color: 'var(--tint)', fontSize: 17, fontWeight: 400, marginTop: 2 },
+  tariflar: { display: 'flex', gap: 8, marginBottom: 16 },
+  tarifKarta: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, padding: '10px 6px', borderRadius: 'var(--r-md)', background: 'var(--fill)', border: '1.5px solid transparent', color: 'var(--label)' },
+  tarifFaol: { background: 'var(--tint)', color: '#fff', borderColor: 'var(--tint)' },
+  tarifIkon: { display: 'inline-flex' },
+  tarifNom: { fontSize: 13, fontWeight: 600 },
+  tarifNarx: { fontSize: 12, fontWeight: 400, opacity: 0.85, fontVariantNumeric: 'tabular-nums' },
   narxBox: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--fill)', padding: 14, borderRadius: 'var(--r-lg)', marginBottom: 16 },
   narxTugma: { width: 44, height: 44, borderRadius: '50%', background: 'var(--surface)', color: 'var(--tint)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-1)' },
   narxMatn: { fontSize: 30, fontWeight: 700, letterSpacing: '0.3px' },
