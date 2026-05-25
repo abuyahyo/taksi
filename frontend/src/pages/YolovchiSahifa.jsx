@@ -37,6 +37,7 @@ export default function YolovchiSahifa() {
   const [markazManzil, setMarkazManzil] = useState('');
   const [markazManzilYuk, setMarkazManzilYuk] = useState(false);
   const [uchish, setUchish] = useState(null); // харитани кўчириш мақсади
+  const [safarPin, setSafarPin] = useState(null); // машина PIN-коди
   const reverseTimerRef = useRef(null);
   const [narx, setNarx] = useState(15000);
   const [bosqich, setBosqich] = useState('manzil');
@@ -69,8 +70,9 @@ export default function YolovchiSahifa() {
   }, [user?.id]);
 
   const { yubor } = useSocket({
-    buyurtma_yaratildi: ({ id }) => {
+    buyurtma_yaratildi: ({ id, pin }) => {
       setRideId(id); // мижоз ID'сини базадан келган реал ID билан алмаштирамиз
+      if (pin) setSafarPin(pin); // машина PIN-коди — ҳайдовчига айтилади
     },
     yangi_taklif: (taklif) => {
       setTakliflar((oldin) => [...oldin, taklif]);
@@ -116,6 +118,7 @@ export default function YolovchiSahifa() {
     setTugashManzil('');
     setTanlovRejimi('boshlanish');
     setMarkazManzil('');
+    setSafarPin(null);
     setTakliflar([]);
     setRideId(null);
     setHaydovchiInfo(null);
@@ -321,6 +324,14 @@ export default function YolovchiSahifa() {
               </div>
             </div>
 
+            {/* Машина PIN-коди — ҳайдовчига айтилади, сафар фақат тўғри PIN билан бошланади */}
+            {safarPin && haydovchiInfo.holati !== 'yolda' && (
+              <div style={st.pinKarta}>
+                <div style={st.pinLabel}>🔒 {t('pin.tellDriver')}</div>
+                <div style={st.pinRaqam}>{String(safarPin).split('').map((d, i) => <span key={i} style={st.pinXona}>{d}</span>)}</div>
+              </div>
+            )}
+
             {/* Кутиш огоҳлантириш — ҳайдовчи етиб келганда */}
             {haydovchiInfo.holati === 'yetib_keldi' && (
               <div style={st.kutishOgoh}>
@@ -484,4 +495,8 @@ const st = {
   qabul: { background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', padding: '10px 16px', borderRadius: 10, fontWeight: 800, fontSize: 15, boxShadow: 'var(--shadow-sariq)' },
   kuzatishMatn: { textAlign: 'center', padding: 12, color: 'var(--kulrang)', fontSize: 13, marginTop: 4 },
   eta: { background: 'rgba(14,147,132,0.12)', color: 'var(--asosiy-dark)', padding: '8px 12px', borderRadius: 10, fontSize: 15, fontWeight: 800, marginBottom: 12, textAlign: 'center' },
+  pinKarta: { background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', borderRadius: 14, padding: 14, marginBottom: 12, textAlign: 'center', boxShadow: 'var(--shadow-sariq)' },
+  pinLabel: { fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.9)', marginBottom: 8 },
+  pinRaqam: { display: 'flex', justifyContent: 'center', gap: 8 },
+  pinXona: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 48, borderRadius: 10, background: 'rgba(255,255,255,0.2)', color: '#fff', fontSize: 26, fontWeight: 900 },
 };

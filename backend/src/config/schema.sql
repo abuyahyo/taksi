@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS rides (
   kelishilgan_narx INTEGER,            -- охирги келишилган нарх
   -- Ҳолат
   holat VARCHAR(20) DEFAULT 'kutilmoqda',
+  pin VARCHAR(4),                      -- машина PIN-коди (тўғри машинага тушганини текшириш)
   -- kutilmoqda, qabul_qilindi, yo'lda, yakunlandi, bekor_qilindi
   -- Кутиш ҳақи — ҳайдовчи ёлғизланган кутиш муддати ва ҳақи
   kelgan_vaqti TIMESTAMP,           -- ҳайдовчи "етиб келдим" деган вақт
