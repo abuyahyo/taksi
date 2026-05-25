@@ -27,8 +27,11 @@ const statistika = async (req, res) => {
 const foydalanuvchilar = async (req, res) => {
   try {
     const natija = await query(
-      `SELECT id, ism, telefon, rol, reyting, bloklangan, blok_sababi, yaratilgan
-       FROM users ORDER BY yaratilgan DESC`
+      `SELECT u.id, u.ism, u.telefon, u.rol, u.reyting, u.bloklangan, u.blok_sababi, u.yaratilgan,
+              COALESCE(d.tasdiqlangan, FALSE) AS tasdiqlangan
+       FROM users u
+       LEFT JOIN drivers d ON d.user_id = u.id
+       ORDER BY u.yaratilgan DESC`
     );
     res.json(natija.rows);
   } catch (err) {
@@ -70,6 +73,31 @@ const blokniYechish = async (req, res) => {
   }
 };
 
+// Ҳайдовчини тасдиқлаш / тасдиқни бекор қилиш (ишончли ҳайдовчи белгиси)
+const tasdiqlash = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const r = await query(
+      `UPDATE drivers SET tasdiqlangan = TRUE WHERE user_id = $1`,
+      [id]
+    );
+    if (r.rowCount === 0) return res.status(404).json({ xato: 'Ҳайдовчи топилмади' });
+    res.json({ xabar: 'Ҳайдовчи тасдиқланди' });
+  } catch (err) {
+    res.status(500).json({ xato: 'Сервер хатоси' });
+  }
+};
+
+const tasdiqBekor = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await query(`UPDATE drivers SET tasdiqlangan = FALSE WHERE user_id = $1`, [id]);
+    res.json({ xabar: 'Тасдиқ бекор қилинди' });
+  } catch (err) {
+    res.status(500).json({ xato: 'Сервер хатоси' });
+  }
+};
+
 // Сўнгги буюртмалар
 const buyurtmalar = async (req, res) => {
   try {
@@ -88,4 +116,4 @@ const buyurtmalar = async (req, res) => {
   }
 };
 
-module.exports = { statistika, foydalanuvchilar, bloklash, blokniYechish, buyurtmalar };
+module.exports = { statistika, foydalanuvchilar, bloklash, blokniYechish, buyurtmalar, tasdiqlash, tasdiqBekor };

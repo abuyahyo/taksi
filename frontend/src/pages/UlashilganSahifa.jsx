@@ -95,7 +95,11 @@ export default function UlashilganSahifa() {
           <div style={st.haydovchi}>
             <div style={st.avatar}>{safar.haydovchi_ism[0]}</div>
             <div style={{ flex: 1 }}>
-              <div style={st.hIsm}>{safar.haydovchi_ism} ⭐ {safar.haydovchi_reyting || '5.0'}</div>
+              <div style={st.hIsm}>
+                {safar.haydovchi_ism}
+                {safar.tasdiqlangan && <span style={st.tasdiqBelgi} title={t('verify.badge')}>✓</span>}
+                {' '}⭐ {safar.haydovchi_reyting || '5.0'}
+              </div>
               {(safar.mashina_modeli || safar.mashina_raqami) && (
                 <div style={st.hMashina}>
                   {[safar.mashina_modeli, safar.mashina_rangi].filter(Boolean).join(' ')}
@@ -140,6 +144,7 @@ const st = {
   haydovchi: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--och-kulrang)', padding: 12, borderRadius: 14, marginBottom: 12 },
   avatar: { width: 44, height: 44, borderRadius: '50%', background: 'var(--sariq)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 18, flexShrink: 0 },
   hIsm: { fontWeight: 700, fontSize: 15 },
+  tasdiqBelgi: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 16, height: 16, borderRadius: '50%', background: 'var(--asosiy)', color: '#fff', fontSize: 10, fontWeight: 900, marginLeft: 5, verticalAlign: 'middle' },
   hMashina: { fontSize: 12, color: 'var(--kulrang)' },
   yollarMini: { marginBottom: 12 },
   narxQator: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', fontSize: 14, color: 'var(--kulrang)' },

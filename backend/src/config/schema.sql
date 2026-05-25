@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS drivers (
   mashina_modeli VARCHAR(100),
   mashina_raqami VARCHAR(20),
   mashina_rangi VARCHAR(50),
+  tasdiqlangan BOOLEAN DEFAULT FALSE, -- админ тасдиқлаган ишончли ҳайдовчи
   holati VARCHAR(20) DEFAULT 'bosh', -- bosh, band, offline
   -- Жонли жойлашув (харита учун)
   lat NUMERIC(10,7),

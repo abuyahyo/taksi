@@ -45,7 +45,7 @@ const koʻr = async (req, res) => {
               r.kelishilgan_narx, r.taklif_narx, r.masofa_km,
               m.ism AS mijoz_ism,
               h.ism AS haydovchi_ism, h.reyting AS haydovchi_reyting,
-              d.mashina_modeli, d.mashina_raqami, d.mashina_rangi
+              d.mashina_modeli, d.mashina_raqami, d.mashina_rangi, d.tasdiqlangan
        FROM ride_shares s
        JOIN rides r ON r.id = s.ride_id
        LEFT JOIN users m ON r.mijoz_id = m.id

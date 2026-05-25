@@ -99,8 +99,13 @@ module.exports = (io) => {
       // Фақат онлайн (обунаси текширилган) ҳайдовчи таклиф бера олади.
       // haydovchi_online'да 'haydovchilar' хонасига қўшилган — шуни талаб қиламиз.
       if (!socket.data.userId || !socket.rooms.has('haydovchilar')) return;
-      // haydovchi_id'ни клиентдан эмас, токендан оламиз — сохталаштириб бўлмайди
-      const enriched = { ...taklif, haydovchi_id: socket.data.userId };
+      // haydovchi_id ва тасдиқ белгисини серверда аниқлаймиз — сохталаштириб бўлмайди
+      let tasdiqlangan = false;
+      try {
+        const d = await query(`SELECT tasdiqlangan FROM drivers WHERE user_id = $1`, [socket.data.userId]);
+        tasdiqlangan = !!d.rows[0]?.tasdiqlangan;
+      } catch (err) { console.error('tasdiq tekshir xato:', err.message); }
+      const enriched = { ...taklif, haydovchi_id: socket.data.userId, tasdiqlangan };
       // Танлансак сафар хонасига қўшилишимиз учун — ҳозироқ қўшилиб қўямиз
       socket.join(`ride_${taklif.rideId}`);
       io.to(`ride_${taklif.rideId}`).emit('yangi_taklif', enriched);
