@@ -160,6 +160,31 @@ button {
 button:active:not(:disabled) { transform: scale(0.96); }
 button:disabled { cursor: not-allowed; }
 
+/* ===== Микро-интерактив утилитлар =====
+   Кўтариладиган карта/тугма: hover'да юқорига сурилади ва соя чуқурлашади,
+   press'да бироз пастга. Тач қурилмаларда hover ишламайди — :active қолади.
+*/
+.kotariladi {
+  transition: transform var(--t-med), box-shadow var(--t-med), filter var(--t-med);
+  will-change: transform;
+}
+@media (hover: hover) {
+  .kotariladi:hover { transform: translateY(-3px); box-shadow: var(--shadow-3); }
+  .kotariladi:hover .strelka-anim { transform: translateX(4px); }
+}
+.kotariladi:active:not(:disabled) { transform: translateY(-1px) scale(0.99); }
+.strelka-anim { transition: transform var(--t-med); display: inline-flex; }
+
+/* Босилганда тактил ҳис — иконка тугмалар учун майин фон */
+@media (hover: hover) {
+  .bosiladi:hover:not(:disabled) { background: var(--neutral-100); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kotariladi, .strelka-anim { transition: none; }
+  .kotariladi:hover { transform: none; }
+}
+
 /* ===== Инпутлар ===== */
 input, textarea {
   font-family: inherit;
