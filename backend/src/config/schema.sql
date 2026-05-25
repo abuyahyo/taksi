@@ -120,6 +120,20 @@ CREATE TABLE IF NOT EXISTS transactions (
 CREATE INDEX IF NOT EXISTS idx_tx_ride ON transactions(ride_id);
 CREATE INDEX IF NOT EXISTS idx_tx_tashqi ON transactions(tashqi_id);
 
+-- 💳 Обуналар — биз ҳайдовчидан комиссия эмас, обуна билан ишлаймиз
+CREATE TABLE IF NOT EXISTS obunalar (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  turi VARCHAR(20) NOT NULL,           -- trial, kunlik, haftalik, oylik, yillik
+  summa INTEGER NOT NULL DEFAULT 0,
+  boshlanish_sana TIMESTAMP DEFAULT NOW(),
+  tugash_sana TIMESTAMP NOT NULL,
+  holat VARCHAR(20) DEFAULT 'faol',    -- faol, tugagan, bekor
+  yaratilgan TIMESTAMP DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_obunalar_user ON obunalar(user_id);
+CREATE INDEX IF NOT EXISTS idx_obunalar_tugash ON obunalar(tugash_sana);
+
 -- 🆘 SOS шошилинч сигналлар — фойдаланувчи қизил тугмани босганида
 CREATE TABLE IF NOT EXISTS sos_signals (
   id SERIAL PRIMARY KEY,

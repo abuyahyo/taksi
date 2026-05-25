@@ -8,8 +8,10 @@ import Chat from '../components/Chat';
 import Baholash from '../components/Baholash';
 import MashinaProfili, { mashinaMatn } from '../components/MashinaProfili';
 import HaritaPreview, { parseLatLng } from '../components/HaritaPreview';
+import { useToast } from '../components/Toast';
 import IssiqXarita from '../components/IssiqXarita';
 import SOS from '../components/SOS';
+import Obuna from '../components/Obuna';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
 import { useT, TilTanlovchi } from '../i18n';
 
@@ -33,6 +35,7 @@ export default function HaydovchiSahifa() {
 function Ichki({ user, onChiqish }) {
   const navigate = useNavigate();
   const { t } = useT();
+  const toast = useToast();
   const [onlayn, setOnlayn] = useState(false);
   const [buyurtmalar, setBuyurtmalar] = useState([]);
   const [tanlangan, setTanlangan] = useState(null);
@@ -45,6 +48,8 @@ function Ichki({ user, onChiqish }) {
   const [mashina, setMashina] = useState(null); // {mashina_modeli, mashina_raqami, mashina_rangi}
   const [profilOchiq, setProfilOchiq] = useState(false);
   const [issiqOchiq, setIssiqOchiq] = useState(false);
+  const [obunaOchiq, setObunaOchiq] = useState(false);
+  const [obuna, setObuna] = useState(null); // faol subscription
   const [joylashuvOchiqmi, setJoylashuvOchiqmi] = useState(false); // GPS таклиф қилинганми
 
   const statsYukla = async () => {
@@ -59,7 +64,17 @@ function Ichki({ user, onChiqish }) {
       setMashina(data);
     } catch {}
   };
-  useEffect(() => { statsYukla(); profilYukla(); ruxsatSora(); }, []);
+  const obunaYukla = async () => {
+    try {
+      const { data } = await api.get('/driver/subscription');
+      setObuna(data.faol);
+    } catch {}
+  };
+  useEffect(() => { statsYukla(); profilYukla(); obunaYukla(); ruxsatSora(); }, []);
+
+  // Обуна қолган кунлар
+  const obunaKun = obuna?.tugash_sana ? Math.max(0, Math.ceil((new Date(obuna.tugash_sana) - new Date()) / 86400000)) : 0;
+  const obunaBormi = !!obuna && obunaKun > 0;
 
   const mashinaToldirilganmi = !!(mashina?.mashina_modeli && mashina?.mashina_raqami);
   const mashinaJamiMatn = mashinaMatn(mashina);
@@ -81,9 +96,14 @@ function Ichki({ user, onChiqish }) {
   }, [faolSafar]);
 
   const { yubor } = useSocket({
+    obuna_kerak: () => {
+      toast.error(t('sub.requiredToOnline'));
+      setObunaOchiq(true);
+      setOnlayn(false);
+    },
     buyurtma_keldi: (b) => {
       setBuyurtmalar((oldin) => [...oldin, b]);
-      bildir('🚖 Янги буюртма', `${Number(b.narx).toLocaleString()} сўм · ${b.boshlanish} → ${b.tugash}`, { tag: `buyurtma-${b.id}` });
+      bildir(t('notif.newOrder'), `${Number(b.narx).toLocaleString()} · ${b.boshlanish} → ${b.tugash}`, { tag: `buyurtma-${b.id}` });
     },
     mavjud_buyurtmalar: (royxat) => setBuyurtmalar(royxat),
     buyurtma_yopildi: ({ rideId }) => {
@@ -188,6 +208,14 @@ function Ichki({ user, onChiqish }) {
         <div style={st.logo}>🚕 {user.ism}</div>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <TilTanlovchi />
+          <button
+            style={{ ...st.tarixTugma, background: obunaBormi ? 'var(--asosiy-surface)' : '#FEE2E2', position: 'relative' }}
+            onClick={() => setObunaOchiq(true)}
+            title={t('sub.title')}
+          >
+            💳
+            {obunaBormi && obunaKun < 5 && <span style={st.obunaBadge}>{obunaKun}</span>}
+          </button>
           <button style={st.tarixTugma} onClick={() => setIssiqOchiq(true)} title={t('heat.title')}>🔥</button>
           <button style={st.tarixTugma} onClick={() => setProfilOchiq(true)} title={t('car.title')}>🚗</button>
           <button style={st.tarixTugma} onClick={() => navigate('/tarix')} title={t('hist.title')}>🕒</button>
@@ -286,6 +314,13 @@ function Ichki({ user, onChiqish }) {
         <IssiqXarita onYopish={() => setIssiqOchiq(false)} />
       )}
 
+      {obunaOchiq && (
+        <Obuna
+          onYopish={() => setObunaOchiq(false)}
+          onYangilandi={(o) => setObuna(o)}
+        />
+      )}
+
       <div style={st.royxat}>
         {!onlayn ? (
           <div style={st.bosh}>
@@ -361,6 +396,7 @@ const st = {
   logo: { fontWeight: 800, fontSize: 14, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   chiqish: { background: 'var(--och-kulrang)', padding: '8px 12px', borderRadius: 16, fontWeight: 600, fontSize: 12 },
   tarixTugma: { background: 'var(--och-kulrang)', width: 36, height: 36, borderRadius: '50%', fontSize: 16 },
+  obunaBadge: { position: 'absolute', top: -4, right: -4, background: '#DC2626', color: '#fff', minWidth: 18, height: 18, borderRadius: 9, fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' },
   ogohlantirish: { margin: '0 16px 12px', padding: 12, background: '#FEF3C7', color: '#92400E', borderRadius: 12, fontSize: 13, cursor: 'pointer', borderLeft: '4px solid #F59E0B' },
   statusTugma: { color: 'var(--oq)', padding: '8px 16px', borderRadius: 20, fontWeight: 700, fontSize: 13 },
   daromad: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 16, padding: 20, background: 'var(--qora)', borderRadius: 18, color: 'var(--oq)' },

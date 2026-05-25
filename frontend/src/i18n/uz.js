@@ -242,6 +242,23 @@ export default {
   'pwa.newVersion':      'Янги версия мавжуд',
   'pwa.update':          'Янгилаш',
 
+  // 💳 Обуна
+  'sub.title':             'Обунам',
+  'sub.current':           'Жорий',
+  'sub.expired':           'Обунангиз тугаган. Янги обуна сотиб олинг.',
+  'sub.daysLeft':          'кун қолди',
+  'sub.days':              'кун',
+  'sub.trial':             'Бепул синов',
+  'sub.daily':             'Кунлик',
+  'sub.weekly':            'Ҳафталик',
+  'sub.monthly':           'Ойлик',
+  'sub.yearly':            'Йиллик',
+  'sub.recommended':       'ТАВСИЯ',
+  'sub.bought':            '✅ Обуна сотиб олинди',
+  'sub.requiredToOnline':  '⚠️ Онлайн бўлиш учун фаол обуна керак',
+  'sub.whyTitle':          'Нима учун обуна?',
+  'sub.whyHint':           'Биз сафар нархидан ҳеч қандай фоиз олмаймиз. Сиз ҳамма даромадингизни тўлиқ оласиз — фақат обуна тўлайсиз.',
+
   // 🆘 SOS шошилинч
   'sos.button':          'Шошилинч',
   'sos.confirmTitle':    'Шошилинч ёрдам сўрайсизми?',

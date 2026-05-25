@@ -242,6 +242,23 @@ export default {
   'pwa.newVersion':      'Yangi versiya mavjud',
   'pwa.update':          'Yangilash',
 
+  // 💳 Obuna
+  'sub.title':             'Obunam',
+  'sub.current':           'Joriy',
+  'sub.expired':           'Obunangiz tugagan. Yangi obuna sotib oling.',
+  'sub.daysLeft':          'kun qoldi',
+  'sub.days':              'kun',
+  'sub.trial':             'Bepul sinov',
+  'sub.daily':             'Kunlik',
+  'sub.weekly':            'Haftalik',
+  'sub.monthly':           'Oylik',
+  'sub.yearly':            'Yillik',
+  'sub.recommended':       'TAVSIYA',
+  'sub.bought':            '✅ Obuna sotib olindi',
+  'sub.requiredToOnline':  '⚠️ Onlayn boʻlish uchun faol obuna kerak',
+  'sub.whyTitle':          'Nima uchun obuna?',
+  'sub.whyHint':           'Biz safar narxidan hech qanday foiz olmaymiz. Siz hamma daromadingizni toʻliq olasiz — faqat obuna toʻlaysiz.',
+
   // 🆘 SOS shoshilinch
   'sos.button':          'Shoshilinch',
   'sos.confirmTitle':    'Shoshilinch yordam soʻraysizmi?',

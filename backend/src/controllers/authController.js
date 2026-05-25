@@ -41,9 +41,14 @@ const register = async (req, res) => {
 
     const user = natija.rows[0];
 
-    // Агар ҳайдовчи бўлса, drivers жадвалига ҳам ёзамиз
+    // Агар ҳайдовчи бўлса, drivers жадвалига ҳам ёзамиз + 7 кунлик trial обуна
     if (foydalanuvchiRol === 'haydovchi') {
       await query('INSERT INTO drivers (user_id) VALUES ($1)', [user.id]);
+      await query(
+        `INSERT INTO obunalar (user_id, turi, summa, tugash_sana)
+         VALUES ($1, 'trial', 0, NOW() + INTERVAL '7 days')`,
+        [user.id]
+      );
     }
 
     const token = tokenYaratish(user);

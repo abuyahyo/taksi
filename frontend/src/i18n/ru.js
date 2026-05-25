@@ -242,6 +242,23 @@ export default {
   'pwa.newVersion':      'Доступна новая версия',
   'pwa.update':          'Обновить',
 
+  // 💳 Подписка
+  'sub.title':             'Подписка',
+  'sub.current':           'Текущая',
+  'sub.expired':           'Подписка закончилась. Купите новую.',
+  'sub.daysLeft':          'дн. осталось',
+  'sub.days':              'дн.',
+  'sub.trial':             'Пробный период',
+  'sub.daily':             'Дневная',
+  'sub.weekly':            'Недельная',
+  'sub.monthly':           'Месячная',
+  'sub.yearly':            'Годовая',
+  'sub.recommended':       'РЕК.',
+  'sub.bought':            '✅ Подписка оформлена',
+  'sub.requiredToOnline':  '⚠️ Для онлайна нужна активная подписка',
+  'sub.whyTitle':          'Почему подписка?',
+  'sub.whyHint':           'Мы НЕ берём процент от поездок. Вы получаете всю прибыль — платите только подписку.',
+
   // 🆘 SOS экстренный
   'sos.button':          'SOS',
   'sos.confirmTitle':    'Вызвать экстренную помощь?',

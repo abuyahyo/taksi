@@ -1,6 +1,7 @@
 // Socket.io реал вақт мантиғи — буюртма ва нарх алмашуви (inDrive услуби)
 const jwt = require('jsonwebtoken');
 const { query } = require('../config/db');
+const { obunaFaolmi } = require('../controllers/subscriptionController');
 
 // Кутиш ҳақи параметрлари
 const KUTISH_TEKIN_DAQ = 3;      // 3 дақиқа бепул кутиш
@@ -28,8 +29,16 @@ module.exports = (io) => {
   io.on('connection', (socket) => {
     console.log('🔌 Уланди:', socket.id, socket.data.userId ? `(user ${socket.data.userId})` : '(meҳмon)');
 
-    // ҲАЙДОВЧИ онлайн бўлади
-    socket.on('haydovchi_online', (data) => {
+    // ҲАЙДОВЧИ онлайн бўлади — обуна текширилади
+    socket.on('haydovchi_online', async (data) => {
+      // Фаол обунасиз онлайн бўлолмайди
+      if (socket.data.userId) {
+        const obunaBor = await obunaFaolmi(socket.data.userId);
+        if (!obunaBor) {
+          socket.emit('obuna_kerak', { sabab: 'Обунангиз тугаган. Янги обуна сотиб олинг.' });
+          return;
+        }
+      }
       socket.data.haydovchi_ism = data.ism;
       socket.join('haydovchilar');
       console.log(`🚗 Ҳайдовчи онлайн: ${data.ism}`);
