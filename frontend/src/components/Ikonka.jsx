@@ -70,6 +70,14 @@ export default function Ikonka({ nom, size = 20 }) {
       return <svg {...p}><path d="M5 12h14" /></svg>;
     case 'logout':
       return <svg {...p}><path d="M14 4h-4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4" /><path d="M16 12H9M16 12l-3-3M16 12l-3 3" /></svg>;
+    case 'info':
+      return <svg {...p}><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></svg>;
+    case 'sos':
+      return <svg {...p}><circle cx="12" cy="12" r="9" /><path d="M12 7v5M12 16h.01" /></svg>;
+    case 'home':
+      return <svg {...p}><path d="M4 11l8-6 8 6" /><path d="M6 10v9h12v-9" /></svg>;
+    case 'work':
+      return <svg {...p}><rect x="3" y="7" width="18" height="13" rx="2" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>;
     default:
       return null;
   }

@@ -1,5 +1,6 @@
-// Глобал toast системa — alert() ўрнига
+// Глобал toast системa — alert() ўрнига (iOS banner услуби)
 import { createContext, useCallback, useContext, useState } from 'react';
+import Ikonka from './Ikonka';
 
 const ToastCtx = createContext(null);
 
@@ -41,13 +42,13 @@ export function ToastProvider({ children }) {
         {toastlar.map((t) => (
           <div
             key={t.id}
-            style={{ ...st.toast, ...st[t.tur] }}
+            style={st.toast}
+            className="glass"
             onClick={() => yopish(t.id)}
             role="status"
           >
-            <span style={st.ikon}>{ikonkasi(t.tur)}</span>
+            <span style={{ ...st.ikon, color: rangi(t.tur) }}><Ikonka nom={ikonkasi(t.tur)} size={20} /></span>
             <span style={st.matn}>{t.matn}</span>
-            <span style={st.yopishX}>✕</span>
           </div>
         ))}
       </div>
@@ -56,10 +57,16 @@ export function ToastProvider({ children }) {
 }
 
 function ikonkasi(tur) {
-  if (tur === 'success') return '✅';
-  if (tur === 'error')   return '⚠️';
-  if (tur === 'warning') return '⏱';
-  return 'ℹ️';
+  if (tur === 'success') return 'check';
+  if (tur === 'error')   return 'alert';
+  if (tur === 'warning') return 'clock';
+  return 'info';
+}
+function rangi(tur) {
+  if (tur === 'success') return 'var(--yashil)';
+  if (tur === 'error')   return 'var(--qizil)';
+  if (tur === 'warning') return 'var(--amber)';
+  return 'var(--kok)';
 }
 
 export function useToast() {
@@ -78,18 +85,13 @@ const st = {
   toast: {
     pointerEvents: 'auto',
     display: 'flex', alignItems: 'center', gap: 10,
-    padding: '12px 14px', borderRadius: 'var(--r-lg)',
+    padding: '13px 16px', borderRadius: 'var(--r-xl)',
     boxShadow: 'var(--shadow-3)',
-    fontSize: 14, fontWeight: 600,
-    animation: 'slideUp 220ms cubic-bezier(0.4,0,0.2,1)',
+    fontSize: 15, fontWeight: 500,
+    color: 'var(--label)',
+    animation: 'slideUp 280ms var(--easing)',
     cursor: 'pointer',
-    border: '1px solid rgba(0,0,0,0.06)',
   },
-  ikon: { fontSize: 16, flexShrink: 0 },
+  ikon: { display: 'inline-flex', flexShrink: 0 },
   matn:  { flex: 1, lineHeight: 1.35 },
-  yopishX: { fontSize: 11, opacity: 0.55, marginLeft: 6 },
-  success: { background: '#DCFCE7', color: '#14532D' },
-  error:   { background: '#FEE2E2', color: '#7F1D1D' },
-  warning: { background: '#FEF3C7', color: '#7C2D12' },
-  info:    { background: '#DBEAFE', color: '#1E3A8A' },
 };

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from '../services/api';
 import { useT } from '../i18n';
+import Ikonka from './Ikonka';
 
 export default function ManzilQidirish({ onTanlandi, placeholder, rejimMatn }) {
   const { t, til } = useT();
@@ -53,7 +54,7 @@ export default function ManzilQidirish({ onTanlandi, placeholder, rejimMatn }) {
   return (
     <div ref={refWrap} style={st.wrap}>
       <div style={st.qator}>
-        <span style={st.ikon}>🔍</span>
+        <span style={st.ikon}><Ikonka nom="search" size={17} /></span>
         <input
           style={st.input}
           value={matn}
@@ -61,7 +62,7 @@ export default function ManzilQidirish({ onTanlandi, placeholder, rejimMatn }) {
           onFocus={() => setOchiq(natijalar.length > 0)}
           placeholder={placeholder || t('geo.searchPlaceholder')}
         />
-        {yuklanmoqda && <span style={st.spin}>⏳</span>}
+        {yuklanmoqda && <span className="spinner" style={st.spin} />}
       </div>
 
       {rejimMatn && <div style={st.rejim}>{rejimMatn}</div>}
@@ -69,8 +70,8 @@ export default function ManzilQidirish({ onTanlandi, placeholder, rejimMatn }) {
       {ochiq && natijalar.length > 0 && (
         <div style={st.dropdown}>
           {natijalar.map((n, i) => (
-            <button key={i} style={st.kandidat} onClick={() => tanla(n)}>
-              <span style={st.kIkon}>📍</span>
+            <button key={i} style={st.kandidat} className="bosiladi" onClick={() => tanla(n)}>
+              <span style={st.kIkon}><Ikonka nom="pin" size={16} /></span>
               <span style={st.kMatn}>{qisqaManzil(n.manzil)}</span>
             </button>
           ))}
@@ -88,14 +89,14 @@ export default function ManzilQidirish({ onTanlandi, placeholder, rejimMatn }) {
 
 const st = {
   wrap: { position: 'relative', marginBottom: 10 },
-  qator: { display: 'flex', alignItems: 'center', gap: 8, background: 'var(--och-kulrang)', padding: '10px 12px', borderRadius: 12 },
-  ikon: { fontSize: 16, opacity: 0.6 },
-  input: { flex: 1, background: 'transparent', border: 'none', fontSize: 14, outline: 'none', padding: 4 },
-  spin: { fontSize: 14 },
-  rejim: { fontSize: 11, color: 'var(--kulrang)', marginTop: 4, paddingLeft: 4 },
-  dropdown: { position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4, background: 'var(--oq)', borderRadius: 12, boxShadow: '0 4px 16px rgba(0,0,0,.15)', zIndex: 1500, maxHeight: 260, overflowY: 'auto' },
-  kandidat: { width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', background: 'transparent', border: 'none', borderBottom: '1px solid var(--neutral-200)', textAlign: 'left', cursor: 'pointer', fontSize: 13 },
-  kIkon: { fontSize: 14, flexShrink: 0 },
-  kMatn: { color: 'var(--qora)', lineHeight: 1.3 },
-  bosh: { padding: 14, textAlign: 'center', color: 'var(--kulrang)', fontSize: 13 },
+  qator: { display: 'flex', alignItems: 'center', gap: 8, background: 'var(--fill)', padding: '9px 12px', borderRadius: 'var(--r-md)', color: 'var(--secondary-label)' },
+  ikon: { display: 'inline-flex', color: 'var(--secondary-label)' },
+  input: { flex: 1, background: 'transparent', border: 'none', fontSize: 17, outline: 'none', color: 'var(--label)' },
+  spin: { width: 18, height: 18, borderWidth: 2 },
+  rejim: { fontSize: 12, color: 'var(--secondary-label)', marginTop: 5, paddingLeft: 4 },
+  dropdown: { position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 6, background: 'var(--surface-elevated)', borderRadius: 'var(--r-md)', boxShadow: 'var(--shadow-3)', border: '0.5px solid var(--separator)', zIndex: 1500, maxHeight: 260, overflowY: 'auto', overflow: 'hidden' },
+  kandidat: { width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', background: 'transparent', border: 'none', borderBottom: '0.5px solid var(--separator)', textAlign: 'left', cursor: 'pointer', fontSize: 15, color: 'var(--tint)' },
+  kIkon: { display: 'inline-flex', color: 'var(--tint)', flexShrink: 0 },
+  kMatn: { color: 'var(--label)', lineHeight: 1.3 },
+  bosh: { padding: 16, textAlign: 'center', color: 'var(--secondary-label)', fontSize: 15 },
 };
