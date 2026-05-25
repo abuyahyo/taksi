@@ -226,6 +226,7 @@ export default {
   'wait.feeAccruing':    '⏱ Начисляется плата',
   'wait.sum':            'сум',
   'wait.driverComing':   'Водитель в пути',
+  'wait.etaMin':         '≈ {min} мин',
   'wait.driverHere':     '🚗 Водитель приехал!',
   'wait.driverArrived':  '🚗 Водитель приехал',
   'wait.comeOut':        'Пожалуйста, выходите — через 3 мин начнётся плата за ожидание',
