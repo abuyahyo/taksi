@@ -27,6 +27,8 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // Web Push хандлерлари — генерация қилинган SW ичига importScripts билан қўшилади
+        importScripts: ['push-sw.js'],
         // Эски кешларни автоматик ўчиради — фойдаланувчи бирор нарса қилмайди
         cleanupOutdatedCaches: true,
         clientsClaim: true,
