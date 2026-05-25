@@ -72,6 +72,10 @@ export default function Ikonka({ nom, size = 20 }) {
       return <svg {...p}><path d="M14 4h-4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4" /><path d="M16 12H9M16 12l-3-3M16 12l-3 3" /></svg>;
     case 'info':
       return <svg {...p}><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></svg>;
+    case 'send':
+      return <svg {...p} fill="currentColor" stroke="none"><path d="M4 11.5l15.5-7-7 15.5-2.2-6.3L4 11.5z" /></svg>;
+    case 'chevron-right':
+      return <svg {...p}><path d="M9 6l6 6-6 6" /></svg>;
     case 'sos':
       return <svg {...p}><circle cx="12" cy="12" r="9" /><path d="M12 7v5M12 16h.01" /></svg>;
     case 'home':
