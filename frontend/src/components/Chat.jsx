@@ -121,7 +121,7 @@ export default function Chat({ rideId, meId, hamrohIsm, onClose }) {
 const st = {
   fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 3000 },
   panel: { width: '100%', maxWidth: 480, height: '85vh', borderRadius: '24px 24px 0 0', display: 'flex', flexDirection: 'column' },
-  header: { padding: 16, borderBottom: '1px solid #E5E7EB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  header: { padding: 16, borderBottom: '1px solid var(--neutral-200)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   sarlavha: { fontSize: 17, fontWeight: 800 },
   izoh: { fontSize: 12, color: 'var(--kulrang)', marginTop: 2 },
   yopish: { width: 36, height: 36, borderRadius: '50%', background: 'var(--och-kulrang)', fontSize: 18, fontWeight: 700 },
@@ -134,9 +134,9 @@ const st = {
   yuboruvchi: { fontSize: 11, fontWeight: 700, color: 'var(--kulrang)', marginBottom: 2 },
   matn: { fontSize: 14, lineHeight: 1.4, whiteSpace: 'pre-wrap', wordBreak: 'break-word' },
   vaqt: { fontSize: 10, color: 'var(--kulrang)', textAlign: 'right', marginTop: 2 },
-  shablonlar: { display: 'flex', gap: 6, padding: '8px 12px', overflowX: 'auto', borderTop: '1px solid #E5E7EB' },
+  shablonlar: { display: 'flex', gap: 6, padding: '8px 12px', overflowX: 'auto', borderTop: '1px solid var(--neutral-200)' },
   shablonTugma: { background: 'var(--neutral-100)', padding: '6px 12px', borderRadius: 'var(--r-full)', fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0, color: 'var(--qora-soft)' },
-  kiritish: { display: 'flex', gap: 8, padding: 12, borderTop: '1px solid #E5E7EB' },
-  input: { flex: 1, padding: 12, borderRadius: 22, border: '1px solid #E5E7EB', fontSize: 15 },
+  kiritish: { display: 'flex', gap: 8, padding: 12, borderTop: '1px solid var(--neutral-200)' },
+  input: { flex: 1, padding: 12, borderRadius: 22, border: '1px solid var(--neutral-200)', fontSize: 15 },
   yuborTugma: { width: 44, height: 44, borderRadius: '50%', background: 'var(--sariq)', fontSize: 18, fontWeight: 800, color: 'var(--qora)' },
 };

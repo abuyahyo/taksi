@@ -85,7 +85,7 @@ const st = {
   bosh: { textAlign: 'center', padding: 30, color: 'var(--kulrang)' },
   xato: { color: 'var(--qizil)', padding: 14, textAlign: 'center' },
   linkQator: { display: 'flex', gap: 8, marginBottom: 14 },
-  linkInput: { flex: 1, padding: 12, borderRadius: 10, border: '1px solid #E5E7EB', fontSize: 13, fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis' },
+  linkInput: { flex: 1, padding: 12, borderRadius: 10, border: '1px solid var(--neutral-200)', fontSize: 13, fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis' },
   koʻchirTugma: { background: 'var(--qora)', color: 'var(--oq)', padding: '10px 16px', borderRadius: 10, fontWeight: 800, fontSize: 13, minWidth: 84 },
   deepLinks: { display: 'flex', gap: 10, marginBottom: 14 },
   tashqi: { flex: 1, color: 'var(--oq)', padding: 12, borderRadius: 12, fontWeight: 700, fontSize: 14, textAlign: 'center', textDecoration: 'none' },

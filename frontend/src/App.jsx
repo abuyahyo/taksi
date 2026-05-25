@@ -2,6 +2,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { I18nProvider } from './i18n';
+import { TemaProvider } from './theme';
 import { ToastProvider } from './components/Toast';
 import YangilanishBanner from './components/YangilanishBanner';
 
@@ -25,6 +26,7 @@ function Yuklanmoqda() {
 export default function App() {
   return (
     <I18nProvider>
+      <TemaProvider>
       <ToastProvider>
       <BrowserRouter>
         <Suspense fallback={<Yuklanmoqda />}>
@@ -40,6 +42,7 @@ export default function App() {
         <YangilanishBanner />
       </BrowserRouter>
       </ToastProvider>
+      </TemaProvider>
     </I18nProvider>
   );
 }

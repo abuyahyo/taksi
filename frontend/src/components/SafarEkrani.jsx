@@ -104,7 +104,7 @@ const st = {
   bahoMatn: { textAlign: 'center', fontSize: 15, fontWeight: 600, marginBottom: 12 },
   yulduzlar: { display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 16 },
   yulduz: { background: 'transparent', fontSize: 36 },
-  input: { width: '100%', padding: 14, borderRadius: 12, border: '1px solid #E5E7EB', fontSize: 15, marginBottom: 16 },
+  input: { width: '100%', padding: 14, borderRadius: 12, border: '1px solid var(--neutral-200)', fontSize: 15, marginBottom: 16 },
   tugma: { width: '100%', background: 'var(--sariq)', padding: 16, borderRadius: 14, fontSize: 16, fontWeight: 700 },
   orqaga: { width: '100%', background: 'transparent', padding: 12, color: 'var(--kulrang)', fontSize: 14, marginTop: 4 },
 };

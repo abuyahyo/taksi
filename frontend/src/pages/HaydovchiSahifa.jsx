@@ -14,6 +14,7 @@ import SOS from '../components/SOS';
 import Obuna from '../components/Obuna';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
 import { useT, TilTanlovchi } from '../i18n';
+import { TemaTanlovchi } from '../theme';
 
 export default function HaydovchiSahifa() {
   const [user, setUser] = useState(() => {
@@ -207,6 +208,7 @@ function Ichki({ user, onChiqish }) {
       <div style={st.header}>
         <div style={st.logo}>🚕 {user.ism}</div>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <TemaTanlovchi />
           <TilTanlovchi />
           <button
             style={{ ...st.tarixTugma, background: obunaBormi ? 'var(--asosiy-surface)' : '#FEE2E2', position: 'relative' }}
@@ -426,7 +428,7 @@ const st = {
   yollar: { marginBottom: 16 },
   yol: { display: 'flex', alignItems: 'center', gap: 10 },
   nuqta: { width: 10, height: 10, borderRadius: '50%', flexShrink: 0 },
-  chiziq: { width: 2, height: 16, background: '#E5E7EB', marginLeft: 4 },
+  chiziq: { width: 2, height: 16, background: 'var(--neutral-200)', marginLeft: 4 },
   yolMatn: { fontSize: 14, fontWeight: 500 },
   tugmalar: { display: 'flex', gap: 10 },
   oznarxTugma: { flex: 1, background: 'var(--och-kulrang)', padding: 14, borderRadius: 12, fontWeight: 700, fontSize: 14 },

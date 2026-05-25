@@ -102,7 +102,7 @@ const st = {
   karta: { width: '100%', maxWidth: 400, padding: 32, borderRadius: 20, display: 'flex', flexDirection: 'column', gap: 14 },
   logo: { fontSize: 48, textAlign: 'center' },
   sarlavha: { fontSize: 22, fontWeight: 800, textAlign: 'center', marginBottom: 8 },
-  input: { padding: 14, borderRadius: 12, border: '1px solid #E5E7EB', fontSize: 15 },
+  input: { padding: 14, borderRadius: 12, border: '1px solid var(--neutral-200)', fontSize: 15 },
   xato: { color: 'var(--qizil)', fontSize: 13, textAlign: 'center' },
   tugma: { background: 'var(--sariq)', padding: 14, borderRadius: 12, fontWeight: 800, fontSize: 16 },
   almashtir: { background: 'transparent', padding: 8, color: 'var(--kulrang)', fontSize: 13, marginTop: 4 },

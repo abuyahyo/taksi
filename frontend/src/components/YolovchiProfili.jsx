@@ -151,7 +151,7 @@ const st = {
   yopish: { width: 36, height: 36, borderRadius: '50%', background: 'var(--och-kulrang)', fontSize: 16 },
   avatar: { width: 72, height: 72, borderRadius: '50%', background: 'var(--sariq)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, fontWeight: 800, margin: '0 auto 12px' },
   ismQator: { display: 'flex', gap: 8, marginBottom: 6 },
-  input: { flex: 1, padding: 12, borderRadius: 10, border: '1px solid #E5E7EB', fontSize: 15 },
+  input: { flex: 1, padding: 12, borderRadius: 10, border: '1px solid var(--neutral-200)', fontSize: 15 },
   kichikTugma: { background: 'var(--qora)', color: 'var(--oq)', padding: '8px 14px', borderRadius: 10, fontWeight: 700, fontSize: 12 },
   metaQator: { textAlign: 'center', fontSize: 13, color: 'var(--kulrang)', marginBottom: 18 },
   statGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 },

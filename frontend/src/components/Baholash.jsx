@@ -53,7 +53,7 @@ export default function Baholash({ rideId, kimni, ism, narx, onYopish }) {
               {[1, 2, 3, 4, 5].map((n) => (
                 <button
                   key={n}
-                  style={{ ...st.yulduz, color: n <= ball ? '#FACC15' : '#E5E7EB' }}
+                  style={{ ...st.yulduz, color: n <= ball ? '#FACC15' : 'var(--neutral-200)' }}
                   onClick={() => setBall(n)}
                   aria-label={`${n}`}
                 >★</button>
@@ -120,7 +120,7 @@ const st = {
   chayovoyTugma: { flex: 1, padding: '8px 0', borderRadius: 10, background: 'var(--oq)', fontWeight: 700, fontSize: 13, color: 'var(--qora-soft)' },
   chayovoyFaol: { background: 'var(--sariq)', color: 'var(--oq)' },
   chayovoySum: { marginTop: 8, fontSize: 13, fontWeight: 700, color: 'var(--sariq-dark)', textAlign: 'center' },
-  izoh: { width: '100%', padding: 12, borderRadius: 12, border: '1px solid #E5E7EB', fontSize: 14, fontFamily: 'inherit', minHeight: 70, resize: 'vertical', marginBottom: 14, background: 'rgba(255,255,255,0.7)' },
+  izoh: { width: '100%', padding: 12, borderRadius: 12, border: '1px solid var(--neutral-200)', fontSize: 14, fontFamily: 'inherit', minHeight: 70, resize: 'vertical', marginBottom: 14, background: 'rgba(255,255,255,0.7)' },
   tugma: { width: '100%', background: 'var(--sariq)', padding: 14, borderRadius: 12, fontWeight: 800, fontSize: 15, color: 'var(--oq)' },
   otkaz: { width: '100%', background: 'transparent', padding: 12, color: 'var(--kulrang)', fontSize: 14, marginTop: 4 },
   tugadi: { padding: 30 },
