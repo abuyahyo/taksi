@@ -29,6 +29,11 @@ export default {
   'home.uniqueTitle':    'Шаффоф адолат',
   'home.uniqueHint':     'Блоклашда сабаб мажбурий — фойдаланувчи буни кўради. Yandex/Uber/Bolt\'да йўқ функция.',
 
+  'home.city':           'Тошкент',
+  'home.featPrice':      'Нархни ўзингиз белгилайсиз',
+  'home.featSafe':       'SOS ва сафарни реал вақтда улашиш',
+  'home.featFair':       'Шаффоф нарх — яширин тўлов йўқ',
+
   // Логин
   'login.title':         'Кириш',
   'login.register':      'Рўйхатдан ўтиш',
