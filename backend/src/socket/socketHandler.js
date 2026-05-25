@@ -283,6 +283,9 @@ module.exports = (io) => {
     });
 
     socket.on('joylashuv', (data) => {
+      // Фақат шу сафар хонасидаги ҳайдовчи жонли GPS юбора олади —
+      // акс ҳолда исталган киши ҳайдовчи жойини сохталаштириши мумкин эди.
+      if (socket.data.rol !== 'haydovchi' || !socket.rooms.has(`ride_${data.rideId}`)) return;
       io.to(`ride_${data.rideId}`).emit('haydovchi_joylashuvi', data);
     });
 
@@ -342,6 +345,9 @@ module.exports = (io) => {
     // ЧАТ — йўловчи ↔ ҳайдовчи хабар алмашуви (меҳмон ҳам юбора олади)
     socket.on('xabar_yuborish', async (data) => {
       // data = { rideId, matn }
+      // Фақат шу сафар иштирокчиси (хонадаги) хабар юбора олади.
+      // Кузатувчи (улашилган линк) ёки бошқа сафар одами хабар юбора олмайди.
+      if (!socket.rooms.has(`ride_${data.rideId}`) || socket.data.kuzatuvchi) return;
       try {
         const userId = socket.data.userId || null;
         const matn = typeof data.matn === 'string' ? data.matn.trim().slice(0, 1000) : '';
