@@ -180,6 +180,8 @@ button:focus-visible {
 
 /* ===== Карта контейнер ===== */
 .leaflet-container { width: 100%; height: 100%; background: var(--neutral-200); }
+/* divIcon маркерлари ўз HTML'и билан — стандарт оқ қутини олиб ташлаймиз */
+.leaflet-div-icon { background: transparent; border: none; }
 
 /* ===== Анимациялар ===== */
 @keyframes aylanish { to { transform: rotate(360deg); } }

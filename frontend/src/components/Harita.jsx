@@ -14,13 +14,13 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-// Бошланиш нуқтаси учун яшил иконка
-const yashilIcon = new L.Icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  className: 'marker-boshlanish',
-});
+// Брендланган пин (SVG teardrop) — бирюза бошланиш, қизил борар манзил
+const pinSvg = (rang) => `<svg width="30" height="40" viewBox="0 0 24 32" xmlns="http://www.w3.org/2000/svg">
+  <path d="M12 0C5.37 0 0 5.37 0 12c0 8.4 12 20 12 20s12-11.6 12-20C24 5.37 18.63 0 12 0z" fill="${rang}" stroke="#fff" stroke-width="2"/>
+  <circle cx="12" cy="12" r="4.5" fill="#fff"/>
+</svg>`;
+const boshlanishIcon = L.divIcon({ className: 'brand-pin', html: pinSvg('#0E9384'), iconSize: [30, 40], iconAnchor: [15, 40] });
+const tugashIcon = L.divIcon({ className: 'brand-pin', html: pinSvg('#EF4444'), iconSize: [30, 40], iconAnchor: [15, 40] });
 
 // Ҳайдовчи учун машина иконкаси (emoji + бирюза доира)
 const haydovchiIcon = L.divIcon({
@@ -103,8 +103,8 @@ export default function Harita({
         {haydovchi && boshlanish && (
           <Polyline positions={[haydovchi, boshlanish]} pathOptions={{ color: '#0E9384', weight: 3, opacity: 0.55, dashArray: '6 8' }} />
         )}
-        {boshlanish && <Marker position={boshlanish} icon={yashilIcon} />}
-        {tugash && <Marker position={tugash} />}
+        {boshlanish && <Marker position={boshlanish} icon={boshlanishIcon} />}
+        {tugash && <Marker position={tugash} icon={tugashIcon} />}
         {haydovchi && <Marker position={haydovchi} icon={haydovchiIcon} />}
       </MapContainer>
 
