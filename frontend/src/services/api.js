@@ -9,6 +9,9 @@ const BASE_URL = import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? '' : 'h
 // Axios — HTTP сўровлар учун
 export const api = axios.create({
   baseURL: BASE_URL ? `${BASE_URL}/api` : '/api',
+  // ngrok бепул план браузер огоҳлантириш саҳифасини сўровларга қўяди —
+  // бу header уни ўтказиб юборади (бошқа хостларга зарарсиз).
+  headers: { 'ngrok-skip-browser-warning': 'true' },
 });
 
 // Ҳар сўровга токенни автоматик қўшиш
@@ -25,4 +28,5 @@ api.interceptors.request.use((config) => {
 export const socket = io(BASE_URL || undefined, {
   autoConnect: false,
   auth: (cb) => cb({ token: localStorage.getItem('token') || null }),
+  extraHeaders: { 'ngrok-skip-browser-warning': 'true' },
 });
