@@ -2,6 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useT, TilTanlovchi } from '../i18n';
 import { TemaTanlovchi } from '../theme';
+import Ikonka from '../components/Ikonka';
 
 export default function KirishSahifa() {
   const navigate = useNavigate();
@@ -14,50 +15,52 @@ export default function KirishSahifa() {
 
       {/* Hero */}
       <div style={st.hero} className="fade-in">
-        <div style={st.logoBadge}>🚕</div>
+        <div style={st.logoBadge}><Ikonka nom="taxi" size={44} /></div>
         <h1 style={st.appName}>{t('common.app')}</h1>
         <p style={st.tagline}>{t('home.tagline')}</p>
-        <div style={st.cityChip} className="glass">📍 {t('home.city')}</div>
+        <div style={st.cityChip} className="glass">
+          <Ikonka nom="pin" size={14} /> {t('home.city')}
+        </div>
       </div>
 
       {/* Икки рол картаси */}
       <div style={st.kartalar} className="slide-up">
-        <button style={st.passengerCard} onClick={() => navigate('/yolovchi')}>
-          <span style={st.ikonOq}>🧍</span>
+        <button style={st.passengerCard} className="kotariladi" onClick={() => navigate('/yolovchi')}>
+          <span style={st.ikonOq}><Ikonka nom="passenger" size={26} /></span>
           <div style={st.kartaIchi}>
             <div style={st.kartaSarlavha}>{t('home.passenger')}</div>
             <div style={st.kartaIzohOq}>{t('home.passengerSub')}</div>
           </div>
-          <span style={st.strelkaOq}>→</span>
+          <span style={st.strelkaOq} className="strelka-anim"><Ikonka nom="arrow-right" size={20} /></span>
         </button>
 
-        <button style={st.driverCard} onClick={() => navigate('/haydovchi')}>
-          <span style={st.ikonTint}>🚗</span>
+        <button style={st.driverCard} className="kotariladi" onClick={() => navigate('/haydovchi')}>
+          <span style={st.ikonTint}><Ikonka nom="car" size={26} /></span>
           <div style={st.kartaIchi}>
             <div style={st.kartaSarlavhaQora}>{t('home.driver')}</div>
             <div style={st.kartaIzoh}>{t('home.driverSub')}</div>
           </div>
-          <span style={st.strelka}>→</span>
+          <span style={st.strelka} className="strelka-anim"><Ikonka nom="arrow-right" size={20} /></span>
         </button>
       </div>
 
       {/* Бизнинг устунликлар */}
       <div style={st.featKarta} className="glass fade-in">
         <div style={st.featRow}>
-          <span style={st.featIkon}>💸</span>
+          <span style={st.featIkon}><Ikonka nom="money" size={17} /></span>
           <span style={st.featMatn}>{t('home.featPrice')}</span>
         </div>
         <div style={st.featRow}>
-          <span style={st.featIkon}>🛡️</span>
+          <span style={st.featIkon}><Ikonka nom="shield" size={17} /></span>
           <span style={st.featMatn}>{t('home.featSafe')}</span>
         </div>
         <div style={st.featRow}>
-          <span style={st.featIkon}>🧾</span>
+          <span style={st.featIkon}><Ikonka nom="receipt" size={17} /></span>
           <span style={st.featMatn}>{t('home.featFair')}</span>
         </div>
       </div>
 
-      <div style={st.footer}>made with 🚕 in Toshkent</div>
+      <div style={st.footer}>{t('common.app')} · Toshkent</div>
     </div>
   );
 }
@@ -99,17 +102,18 @@ const st = {
   },
   logoBadge: {
     width: 84, height: 84, borderRadius: 'var(--r-2xl)',
-    background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))',
-    boxShadow: 'var(--shadow-sariq)',
+    background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq) 70%, var(--sariq-dark))',
+    boxShadow: 'var(--shadow-sariq), inset 0 1px 0 rgba(255,255,255,0.4)',
+    color: '#fff',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontSize: 46, marginBottom: 'var(--space-3)',
+    marginBottom: 'var(--space-3)',
   },
   appName: { fontSize: 38, fontWeight: 900, letterSpacing: '-0.03em', color: 'var(--qora)' },
   tagline: { fontSize: 15.5, fontWeight: 600, color: 'var(--qora-faint)', maxWidth: 280 },
   cityChip: {
-    display: 'inline-flex', alignItems: 'center', gap: 6,
+    display: 'inline-flex', alignItems: 'center', gap: 5,
     fontSize: 12.5, fontWeight: 700, color: 'var(--qora-soft)',
-    padding: '5px 12px', borderRadius: 'var(--r-full)', marginTop: 'var(--space-2)',
+    padding: '5px 12px 5px 10px', borderRadius: 'var(--r-full)', marginTop: 'var(--space-2)',
   },
 
   kartalar: { display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' },
@@ -124,16 +128,16 @@ const st = {
     background: 'var(--oq)', color: 'var(--qora)',
     border: '1px solid var(--neutral-200)', boxShadow: 'var(--shadow-2)',
   },
-  ikonOq:   { ...IKON, background: 'rgba(255,255,255,0.22)' },
-  ikonTint: { ...IKON, background: 'rgba(14,147,132,0.12)' },
+  ikonOq:   { ...IKON, background: 'rgba(255,255,255,0.22)', color: '#fff' },
+  ikonTint: { ...IKON, background: 'rgba(14,147,132,0.12)', color: 'var(--asosiy)' },
 
   kartaIchi: { flex: 1, minWidth: 0 },
   kartaSarlavha:     { fontSize: 18.5, fontWeight: 800, letterSpacing: '-0.01em' },
   kartaSarlavhaQora: { fontSize: 18.5, fontWeight: 800, letterSpacing: '-0.01em', color: 'var(--qora)' },
   kartaIzohOq: { fontSize: 13, marginTop: 2, fontWeight: 500, color: 'rgba(255,255,255,0.85)' },
   kartaIzoh:   { fontSize: 13, marginTop: 2, fontWeight: 500, color: 'var(--kulrang)' },
-  strelkaOq: { fontSize: 20, fontWeight: 700, color: '#fff', opacity: 0.7 },
-  strelka:   { fontSize: 20, fontWeight: 700, color: 'var(--kulrang)', opacity: 0.8 },
+  strelkaOq: { color: '#fff', opacity: 0.75 },
+  strelka:   { color: 'var(--kulrang)', opacity: 0.85 },
 
   featKarta: {
     marginTop: 'var(--space-5)',
@@ -143,9 +147,9 @@ const st = {
   featRow: { display: 'flex', alignItems: 'center', gap: 'var(--space-3)' },
   featIkon: {
     width: 34, height: 34, borderRadius: 'var(--r-md)',
-    background: 'rgba(14,147,132,0.12)',
+    background: 'rgba(14,147,132,0.12)', color: 'var(--asosiy)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontSize: 17, flexShrink: 0,
+    flexShrink: 0,
   },
   featMatn: { fontSize: 13.5, fontWeight: 600, color: 'var(--qora-soft)', lineHeight: 1.35 },
 
