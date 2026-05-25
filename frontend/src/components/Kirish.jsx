@@ -51,7 +51,7 @@ export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
       <div style={st.topbar}><TemaTanlovchi /><TilTanlovchi /></div>
 
       <form style={st.karta} className="slide-up" onSubmit={yubor}>
-        <div style={st.logoBadge}><Ikonka nom="taxi" size={36} /></div>
+        <img src="/logo.png" alt="Safar Taksi" style={st.logoBadge} />
         <h2 style={st.sarlavha}>{sarlavha}</h2>
 
         <div style={st.group}>
@@ -132,10 +132,8 @@ const st = {
   },
   logoBadge: {
     width: 76, height: 76, borderRadius: 18,
-    background: 'linear-gradient(160deg, var(--sariq-light), var(--tint) 70%, var(--sariq-dark))',
-    boxShadow: 'var(--shadow-sariq), inset 0 1px 0 rgba(255,255,255,0.4)',
-    color: '#fff',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    boxShadow: 'var(--shadow-sariq)',
+    objectFit: 'cover', display: 'block',
     margin: '0 auto var(--space-2)',
   },
   sarlavha: { fontSize: 26, fontWeight: 700, textAlign: 'center', marginBottom: 'var(--space-3)', letterSpacing: '0.36px' },
