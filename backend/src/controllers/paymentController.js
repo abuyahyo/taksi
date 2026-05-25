@@ -35,6 +35,11 @@ const checkoutUrl = async (req, res) => {
 // Сафарни 'tolandi' ҳолатига ўтказади ва транзакция ёзади
 const testPay = async (req, res) => {
   try {
+    // Тест тўлови — фақат аниқ тест режимда. Акс ҳолда фойдаланувчи ўз
+    // сафарини реал тўловсиз "тўланган" қилиб қўйиши мумкин эди (fail-closed).
+    if (process.env.PAYMENT_TEST_MODE !== '1') {
+      return res.status(403).json({ xato: 'Тест тўлови ўчирилган' });
+    }
     const { rideId } = req.body;
     const ride = await query(`SELECT id, mijoz_id, kelishilgan_narx FROM rides WHERE id = $1`, [rideId]);
     if (ride.rows.length === 0) return res.status(404).json({ xato: 'Сафар топилмади' });
