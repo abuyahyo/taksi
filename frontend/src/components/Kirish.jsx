@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { api } from '../services/api';
 import { useT, TilTanlovchi } from '../i18n';
+import { TemaTanlovchi } from '../theme';
 
 export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
   const { t } = useT();
@@ -46,39 +47,51 @@ export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
 
   return (
     <div style={st.fon} className="fon-blobs">
-      <div style={st.til}><TilTanlovchi /></div>
+      <div style={st.topbar}><TemaTanlovchi /><TilTanlovchi /></div>
+
       <form style={st.karta} className="glass slide-up" onSubmit={yubor}>
-        <div style={st.logo}>🚕</div>
+        <div style={st.logoBadge}>🚕</div>
         <h2 style={st.sarlavha}>{sarlavha}</h2>
 
         {ozRegister && (
+          <div style={st.maydon}>
+            <span style={st.ikon}>👤</span>
+            <input
+              style={st.input}
+              type="text"
+              placeholder={t('login.name')}
+              value={ism}
+              onChange={(e) => setIsm(e.target.value)}
+              required
+            />
+          </div>
+        )}
+        <div style={st.maydon}>
+          <span style={st.ikon}>📞</span>
           <input
             style={st.input}
-            type="text"
-            placeholder={t('login.name')}
-            value={ism}
-            onChange={(e) => setIsm(e.target.value)}
+            type="tel"
+            placeholder={t('login.phone')}
+            value={telefon}
+            onChange={(e) => setTelefon(e.target.value)}
             required
           />
-        )}
-        <input
-          style={st.input}
-          type="tel"
-          placeholder={t('login.phone')}
-          value={telefon}
-          onChange={(e) => setTelefon(e.target.value)}
-          required
-        />
-        <input
-          style={st.input}
-          type="password"
-          placeholder={t('login.password')}
-          value={parol}
-          onChange={(e) => setParol(e.target.value)}
-          required
-        />
+        </div>
+        <div style={st.maydon}>
+          <span style={st.ikon}>🔒</span>
+          <input
+            style={st.input}
+            type="password"
+            placeholder={t('login.password')}
+            value={parol}
+            onChange={(e) => setParol(e.target.value)}
+            required
+          />
+        </div>
+
         {xato && <div style={st.xato}>{xato}</div>}
-        <button style={{ ...st.tugma, opacity: yuklanmoqda ? 0.5 : 1 }} type="submit" disabled={yuklanmoqda}>
+
+        <button style={{ ...st.tugma, opacity: yuklanmoqda ? 0.6 : 1 }} type="submit" disabled={yuklanmoqda}>
           {yuklanmoqda ? t('common.wait') : (ozRegister ? t('login.registerSubmit') : t('login.submit'))}
         </button>
 
@@ -97,13 +110,56 @@ export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
 }
 
 const st = {
-  fon: { position: 'relative', width: '100vw', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, background: 'var(--och-kulrang)' },
-  til: { position: 'absolute', top: 16, right: 16 },
-  karta: { width: '100%', maxWidth: 400, padding: 32, borderRadius: 20, display: 'flex', flexDirection: 'column', gap: 14 },
-  logo: { fontSize: 48, textAlign: 'center' },
-  sarlavha: { fontSize: 22, fontWeight: 800, textAlign: 'center', marginBottom: 8 },
-  input: { padding: 14, borderRadius: 12, border: '1px solid var(--neutral-200)', fontSize: 15 },
-  xato: { color: 'var(--qizil)', fontSize: 13, textAlign: 'center' },
-  tugma: { background: 'var(--sariq)', padding: 14, borderRadius: 12, fontWeight: 800, fontSize: 16 },
-  almashtir: { background: 'transparent', padding: 8, color: 'var(--kulrang)', fontSize: 13, marginTop: 4 },
+  fon: {
+    position: 'relative', width: '100%', minHeight: '100dvh',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    padding: 'calc(var(--space-6) + env(safe-area-inset-top)) var(--space-5) calc(var(--space-6) + env(safe-area-inset-bottom))',
+    overflow: 'hidden',
+  },
+  topbar: {
+    position: 'absolute',
+    top: 'calc(var(--space-4) + env(safe-area-inset-top))', right: 'var(--space-5)',
+    zIndex: 10, display: 'flex', alignItems: 'center', gap: 6,
+  },
+
+  karta: {
+    width: '100%', maxWidth: 400,
+    padding: 'var(--space-7)', borderRadius: 'var(--r-xl)',
+    display: 'flex', flexDirection: 'column', gap: 'var(--space-3)',
+  },
+  logoBadge: {
+    width: 64, height: 64, borderRadius: 'var(--r-lg)',
+    background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))',
+    boxShadow: 'var(--shadow-sariq)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    fontSize: 34, margin: '0 auto',
+  },
+  sarlavha: { fontSize: 22, fontWeight: 800, textAlign: 'center', marginBottom: 'var(--space-2)' },
+
+  maydon: { position: 'relative', display: 'flex', alignItems: 'center' },
+  ikon: {
+    position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)',
+    fontSize: 16, opacity: 0.6, pointerEvents: 'none',
+  },
+  input: {
+    width: '100%', padding: '14px 14px 14px 42px',
+    borderRadius: 'var(--r-md)', border: '1px solid var(--neutral-200)',
+    background: 'var(--oq)', color: 'var(--qora)', fontSize: 15,
+  },
+
+  xato: {
+    color: 'var(--qizil-dark)', fontSize: 13, textAlign: 'center',
+    background: 'rgba(239,68,68,0.1)', padding: '10px 12px', borderRadius: 'var(--r-md)',
+  },
+
+  tugma: {
+    background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))',
+    color: '#fff', padding: 14, borderRadius: 'var(--r-lg)',
+    fontWeight: 800, fontSize: 16, boxShadow: 'var(--shadow-sariq)',
+    marginTop: 'var(--space-2)',
+  },
+  almashtir: {
+    background: 'transparent', padding: 8,
+    color: 'var(--asosiy)', fontSize: 13, fontWeight: 600, marginTop: 2,
+  },
 };
