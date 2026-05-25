@@ -55,24 +55,18 @@ export function useT() {
   return ctx;
 }
 
-// "Кир / Lat / Рус" свитчер
+// "Кир / Lat / Рус" свитчер — iOS segmented control
 export function TilTanlovchi({ style }) {
   const { til, setTil } = useT();
-  const ulanish = (k) => ({
-    background: til === k ? 'var(--qora)' : 'transparent',
-    color: til === k ? 'var(--oq)' : 'var(--qora)',
-    padding: '4px 8px', borderRadius: 8, fontSize: 11, fontWeight: 700,
-    border: '1px solid var(--neutral-200)',
-  });
   const tugmalar = [
     ['uz',      'Кир'],
     ['uz-latn', 'Lat'],
     ['ru',      'Рус'],
   ];
   return (
-    <div style={{ display: 'inline-flex', gap: 3, background: 'var(--oq)', padding: 3, borderRadius: 10, ...style }}>
+    <div className="ios-segmented" style={{ width: 132, ...style }}>
       {tugmalar.map(([k, label]) => (
-        <button key={k} style={ulanish(k)} onClick={() => setTil(k)}>{label}</button>
+        <button key={k} className="ios-seg" data-on={til === k} onClick={() => setTil(k)}>{label}</button>
       ))}
     </div>
   );
