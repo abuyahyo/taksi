@@ -51,6 +51,10 @@ export default {
 
   // Пассажир
   'pass.whereTo':        'Куда едем?',
+  'pass.fromWhere':      'Откуда?',
+  'pass.toWhere':        'Куда?',
+  'pass.movePin':        'Двигайте карту — наведите пин на адрес',
+  'pass.confirmStart':   'Отсюда',
   'pass.markStart':      'Отметьте точку отправления на карте',
   'pass.startPicked':    'Отправление выбрано ✓',
   'pass.markEnd':        'Отметьте пункт назначения на карте',

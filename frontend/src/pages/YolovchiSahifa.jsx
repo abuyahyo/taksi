@@ -1,5 +1,5 @@
 // Йўловчи саҳифаси — socket билан реал вақтда уланган
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Harita from '../components/Harita';
 import Chat from '../components/Chat';
@@ -26,10 +26,18 @@ const TOSHKENT = [41.2995, 69.2401];
 
 export default function YolovchiSahifa() {
   const navigate = useNavigate();
-  const { t } = useT();
+  const { t, til } = useT();
   const [boshlanish, setBoshlanish] = useState(null);
   const [tugash, setTugash] = useState(null);
+  const [boshlanishManzil, setBoshlanishManzil] = useState('');
+  const [tugashManzil, setTugashManzil] = useState('');
   const [tanlovRejimi, setTanlovRejimi] = useState('boshlanish');
+  // Yandex услуби — харита маркази (пин остидаги нуқта ва манзил)
+  const [markazNuqta, setMarkazNuqta] = useState(null);
+  const [markazManzil, setMarkazManzil] = useState('');
+  const [markazManzilYuk, setMarkazManzilYuk] = useState(false);
+  const [uchish, setUchish] = useState(null); // харитани кўчириш мақсади
+  const reverseTimerRef = useRef(null);
   const [narx, setNarx] = useState(15000);
   const [bosqich, setBosqich] = useState('manzil');
   const [takliflar, setTakliflar] = useState([]);
@@ -104,7 +112,10 @@ export default function YolovchiSahifa() {
     setBosqich('manzil');
     setBoshlanish(null);
     setTugash(null);
+    setBoshlanishManzil('');
+    setTugashManzil('');
     setTanlovRejimi('boshlanish');
+    setMarkazManzil('');
     setTakliflar([]);
     setRideId(null);
     setHaydovchiInfo(null);
@@ -112,25 +123,38 @@ export default function YolovchiSahifa() {
     setChatOchiq(false);
   };
 
-  const haritaBosildi = (nuqta) => {
+  // Yandex услуби — харита маркази ўзгарганда пин остидаги манзилни (debounce) оламиз
+  const markazKuzat = (nuqta) => {
+    setMarkazNuqta(nuqta);
+    setMarkazManzilYuk(true);
+    clearTimeout(reverseTimerRef.current);
+    reverseTimerRef.current = setTimeout(async () => {
+      try {
+        const { data } = await api.get(`/geocode/reverse?lat=${nuqta[0]}&lng=${nuqta[1]}&til=${til}`);
+        setMarkazManzil(data.manzil || '');
+      } catch { setMarkazManzil(''); }
+      setMarkazManzilYuk(false);
+    }, 450);
+  };
+
+  // Пин остидаги нуқтани тасдиқлаш (тап билан қўйиш ўрнига)
+  const markaznidanTanla = () => {
+    if (!markazNuqta) return;
     if (tanlovRejimi === 'boshlanish') {
-      setBoshlanish(nuqta);
+      setBoshlanish(markazNuqta);
+      setBoshlanishManzil(markazManzil);
       setTanlovRejimi('tugash');
     } else {
-      setTugash(nuqta);
+      setTugash(markazNuqta);
+      setTugashManzil(markazManzil);
+      setNarx(tavsiyaHisobi(masofaKm(boshlanish, markazNuqta)));
+      setBosqich('narx');
     }
   };
 
   const masofa = () => masofaKm(boshlanish, tugash);
 
   const tavsiyaNarx = tavsiyaHisobi(masofa());
-
-  const davomEtish = () => {
-    if (boshlanish && tugash) {
-      setNarx(tavsiyaNarx);
-      setBosqich('narx');
-    }
-  };
 
   // Буюртма бериш — socket орқали ҳайдовчиларга юборилади
   const buyurtmaBerish = () => {
@@ -142,8 +166,8 @@ export default function YolovchiSahifa() {
       id: taklifId,
       mijoz: 'Сиз',
       reyting: 5.0,
-      boshlanish: `${boshlanish[0].toFixed(4)}, ${boshlanish[1].toFixed(4)}`,
-      tugash: `${tugash[0].toFixed(4)}, ${tugash[1].toFixed(4)}`,
+      boshlanish: boshlanishManzil || `${boshlanish[0].toFixed(4)}, ${boshlanish[1].toFixed(4)}`,
+      tugash: tugashManzil || `${tugash[0].toFixed(4)}, ${tugash[1].toFixed(4)}`,
       masofa: masofa(),
       narx,
       vaqt: 'ҳозиргина',
@@ -170,7 +194,16 @@ export default function YolovchiSahifa() {
   return (
     <div style={st.sahifa}>
       <div style={st.harita}>
-        <Harita markaz={TOSHKENT} boshlanish={boshlanish} tugash={tugash} haydovchi={haydovchiNuqta} onBosish={haritaBosildi} />
+        <Harita
+          markaz={TOSHKENT}
+          boshlanish={boshlanish}
+          tugash={tugash}
+          haydovchi={haydovchiNuqta}
+          markazRejim={bosqich === 'manzil'}
+          markazRang={tanlovRejimi === 'boshlanish' ? '#0E9384' : '#EF4444'}
+          onMarkaz={markazKuzat}
+          uchish={uchish}
+        />
       </div>
       <div style={st.logo}>🚕 Safar Taksi</div>
       <div style={st.tilWrap}><TemaTanlovchi /><TilTanlovchi /></div>
@@ -186,58 +219,48 @@ export default function YolovchiSahifa() {
       <div style={st.panel} className="glass slide-up">
         {bosqich === 'manzil' && (
           <>
-            <h2 style={st.sarlavha}>{t('pass.whereTo')}</h2>
+            <h2 style={st.sarlavha}>{tanlovRejimi === 'boshlanish' ? t('pass.fromWhere') : t('pass.toWhere')}</h2>
 
-            {/* Манзил қидириш — топилган нуқтани харитага қўяди */}
+            {/* Манзил қидириш — топилган нуқтага харитани кўчиради */}
             <ManzilQidirish
               rejimMatn={tanlovRejimi === 'boshlanish' ? t('geo.modeStart') : t('geo.modeEnd')}
-              onTanlandi={(nuqta) => {
-                if (tanlovRejimi === 'boshlanish') { setBoshlanish(nuqta); setTanlovRejimi('tugash'); }
-                else setTugash(nuqta);
-              }}
+              onTanlandi={(nuqta) => setUchish([nuqta[0], nuqta[1]])}
             />
 
-            <div style={st.maydon} onClick={() => setTanlovRejimi('boshlanish')}>
-              <span style={{ ...st.nuqta, background: 'var(--yashil)' }} />
-              <div style={st.maydonMatn}>{boshlanish ? t('pass.startPicked') : t('pass.markStart')}</div>
+            {/* Пин остидаги жонли манзил */}
+            <div style={st.markazManzilQator}>
+              <span style={{ ...st.nuqta, background: tanlovRejimi === 'boshlanish' ? 'var(--yashil)' : 'var(--qizil)' }} />
+              <div style={st.markazManzilMatn}>
+                {markazManzilYuk ? t('common.loading') : (markazManzil || t('pass.movePin'))}
+              </div>
             </div>
-            <div style={st.maydon} onClick={() => setTanlovRejimi('tugash')}>
-              <span style={{ ...st.nuqta, background: 'var(--qizil)' }} />
-              <div style={st.maydonMatn}>{tugash ? t('pass.endPicked') : t('pass.markEnd')}</div>
-            </div>
-            {/* Сақланган манзиллар — Уй/Иш + сўнгги манзиллар */}
+
+            {/* Сақланган манзиллар — харитани ўша жойга кўчиради */}
             {(profil?.home_lat || profil?.ish_lat || songgiManzillar.length > 0) && (
               <div style={st.tezManzillar}>
                 {profil?.home_lat && (
-                  <button style={st.tezTugma} onClick={() => {
-                    const p = [Number(profil.home_lat), Number(profil.home_lng)];
-                    if (tanlovRejimi === 'boshlanish') { setBoshlanish(p); setTanlovRejimi('tugash'); }
-                    else setTugash(p);
-                  }}>{t('prof.useHome')}</button>
+                  <button style={st.tezTugma} onClick={() => setUchish([Number(profil.home_lat), Number(profil.home_lng)])}>{t('prof.useHome')}</button>
                 )}
                 {profil?.ish_lat && (
-                  <button style={st.tezTugma} onClick={() => {
-                    const p = [Number(profil.ish_lat), Number(profil.ish_lng)];
-                    if (tanlovRejimi === 'boshlanish') { setBoshlanish(p); setTanlovRejimi('tugash'); }
-                    else setTugash(p);
-                  }}>{t('prof.useWork')}</button>
+                  <button style={st.tezTugma} onClick={() => setUchish([Number(profil.ish_lat), Number(profil.ish_lng)])}>{t('prof.useWork')}</button>
                 )}
                 {songgiManzillar.slice(0, 3).map((m, i) => {
                   const parse = (s) => { const x = s.match(/(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/); return x ? [parseFloat(x[1]), parseFloat(x[2])] : null; };
                   const p = parse(m.manzil);
                   if (!p) return null;
                   return (
-                    <button key={i} style={st.tezTugma} onClick={() => {
-                      if (tanlovRejimi === 'boshlanish') { setBoshlanish(p); setTanlovRejimi('tugash'); }
-                      else setTugash(p);
-                    }}>🕒 {p[0].toFixed(2)}, {p[1].toFixed(2)}</button>
+                    <button key={i} style={st.tezTugma} onClick={() => setUchish([p[0], p[1]])}>🕒 {p[0].toFixed(2)}, {p[1].toFixed(2)}</button>
                   );
                 })}
               </div>
             )}
-            <button style={{ ...st.tugma, opacity: boshlanish && tugash ? 1 : 0.5 }} onClick={davomEtish} disabled={!boshlanish || !tugash}>
-              {t('common.continue')}
+
+            <button style={{ ...st.tugma, opacity: markazNuqta ? 1 : 0.5 }} onClick={markaznidanTanla} disabled={!markazNuqta}>
+              {tanlovRejimi === 'boshlanish' ? t('pass.confirmStart') : t('common.continue')}
             </button>
+            {tanlovRejimi === 'tugash' && (
+              <button style={st.orqaga} onClick={() => setTanlovRejimi('boshlanish')}>← {t('common.back')}</button>
+            )}
           </>
         )}
 
@@ -429,6 +452,8 @@ const st = {
   maydon: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--och-kulrang)', padding: 14, borderRadius: 14, marginBottom: 10, cursor: 'pointer' },
   nuqta: { width: 12, height: 12, borderRadius: '50%', flexShrink: 0 },
   maydonMatn: { fontSize: 14 },
+  markazManzilQator: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--och-kulrang)', padding: 14, borderRadius: 14, marginBottom: 10, minHeight: 48 },
+  markazManzilMatn: { fontSize: 14, fontWeight: 600, lineHeight: 1.3, color: 'var(--qora)' },
   tugma: { width: '100%', background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', padding: 16, borderRadius: 14, fontSize: 16, fontWeight: 800, marginTop: 8, boxShadow: 'var(--shadow-sariq)' },
   orqaga: { width: '100%', background: 'transparent', padding: 12, color: 'var(--kulrang)', fontSize: 14, marginTop: 4 },
   narxBox: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--och-kulrang)', padding: 16, borderRadius: 16, marginBottom: 16 },

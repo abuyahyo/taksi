@@ -51,6 +51,10 @@ export default {
 
   // Yoʻlovchi
   'pass.whereTo':        'Qayerga borasiz?',
+  'pass.fromWhere':      'Qayerdan?',
+  'pass.toWhere':        'Qayoqqa?',
+  'pass.movePin':        'Xaritani suring — pinni manzilga qoʻying',
+  'pass.confirmStart':   'Bu yerdan',
   'pass.markStart':      'Xaritadan boshlanishni belgilang',
   'pass.startPicked':    'Boshlanish tanlandi ✓',
   'pass.markEnd':        'Xaritadan manzilni belgilang',
