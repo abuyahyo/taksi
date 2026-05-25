@@ -19,6 +19,7 @@ import { bildir, ruxsatSora } from '../services/bildirishnoma';
 import { pushObunaBol } from '../services/push';
 import { useT, TilTanlovchi } from '../i18n';
 import { TemaTanlovchi } from '../theme';
+import Ikonka from '../components/Ikonka';
 
 if (typeof window !== 'undefined') ruxsatSora();
 
@@ -224,8 +225,8 @@ export default function YolovchiSahifa() {
         className="glass-tugma"
         onClick={() => user ? setProfilOchiq(true) : setKirishOchiq(true)}
         title={user ? t('prof.title') : t('login.title')}
-      >{user ? '👤' : '🔑'}</button>
-      <button style={st.tarixTugma} className="glass-tugma" onClick={() => navigate('/tarix')} title={t('hist.title')}>🕒</button>
+      ><Ikonka nom={user ? 'user' : 'key'} /></button>
+      <button style={st.tarixTugma} className="glass-tugma" onClick={() => navigate('/tarix')} title={t('hist.title')}><Ikonka nom="clock" /></button>
       <div style={st.yordam} className="glass-tugma">{t('common.help')}</div>
 
       <div style={st.panel} className="glass slide-up">
@@ -461,8 +462,8 @@ const st = {
   harita: { position: 'absolute', inset: 0 },
   logo: { position: 'absolute', top: 'calc(16px + env(safe-area-inset-top))', left: 16, zIndex: 1000, background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', padding: '8px 16px', borderRadius: 'var(--r-md)', fontWeight: 800, fontSize: 18, boxShadow: 'var(--shadow-sariq)' },
   yordam: { position: 'absolute', top: 'calc(16px + env(safe-area-inset-top))', right: 16, zIndex: 1000, padding: '8px 14px', borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 13, color: 'var(--qora-faint)' },
-  tarixTugma: { position: 'absolute', top: 'calc(16px + env(safe-area-inset-top))', right: 116, zIndex: 1000, width: 38, height: 38, borderRadius: '50%', fontSize: 16, color: 'var(--qora)' },
-  profilTugma: { position: 'absolute', top: 'calc(16px + env(safe-area-inset-top))', right: 162, zIndex: 1000, width: 38, height: 38, borderRadius: '50%', fontSize: 16, color: 'var(--qora)' },
+  tarixTugma: { position: 'absolute', top: 'calc(16px + env(safe-area-inset-top))', right: 116, zIndex: 1000, width: 38, height: 38, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--qora)' },
+  profilTugma: { position: 'absolute', top: 'calc(16px + env(safe-area-inset-top))', right: 162, zIndex: 1000, width: 38, height: 38, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--qora)' },
   tilWrap: { position: 'absolute', top: 'calc(64px + env(safe-area-inset-top))', right: 16, zIndex: 1000, display: 'flex', alignItems: 'center', gap: 6 },
   tolovTugma: { background: 'var(--qora)', color: 'var(--oq)', padding: 16, borderRadius: 14, fontSize: 14, fontWeight: 800, whiteSpace: 'nowrap' },
   ulashishTugma: { width: '100%', background: 'var(--och-kulrang)', padding: 12, borderRadius: 12, fontSize: 14, fontWeight: 700, marginTop: 8 },
