@@ -361,6 +361,7 @@ function Ichki({ user, onChiqish }) {
             <div key={b.id} style={st.karta}>
               <div style={st.kartaYuqori}>
                 <div>
+                  <span style={st.tarifChip}>{t(`tarif.${b.tarif || 'ekonom'}`)}</span>
                   <div style={st.narx}>{Number(b.narx).toLocaleString()}</div>
                   <div style={st.masofa}>{b.masofa} км · {b.mijoz} <Ikonka nom="star" size={12} /> {b.reyting}</div>
                 </div>
@@ -468,6 +469,7 @@ const st = {
   boshMatn: { fontSize: 15 },
   karta: { background: 'var(--surface)', borderRadius: 'var(--r-lg)', padding: 16, marginBottom: 12, boxShadow: 'var(--shadow-1)' },
   kartaYuqori: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 },
+  tarifChip: { display: 'inline-block', fontSize: 11, fontWeight: 600, color: 'var(--tint)', background: 'var(--tint-fill)', padding: '2px 8px', borderRadius: 'var(--r-full)', marginBottom: 6 },
   narx: { fontSize: 24, fontWeight: 700, letterSpacing: '0.3px' },
   masofa: { display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 13, color: 'var(--secondary-label)', marginTop: 2 },
   vaqt: { fontSize: 13, color: 'var(--secondary-label)' },
