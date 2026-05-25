@@ -29,6 +29,29 @@ npm install
 npm run dev            # http://localhost:5173
 ```
 
+## Барқарор публик URL (картасиз)
+
+**Муҳим:** backend frontend build'ни **бир origin**'да беради (`frontend/dist` → static + SPA fallback),
+api.js ҳам production'да same-origin ишлатади. Шунинг учун тоннел URL ўзгарса ҳам
+**илова синмайди** — фақат публик ҳавола янги бўлади. Илова тўлиқ ишлаши учун:
+аввал `cd frontend && npm run build`, кейин backend'ни ишга туширинг (у dist'ни беради),
+сўнг тоннелни **5000-портга** қаратинг (5173 эмас).
+
+Тоннел вариантлари:
+- **Cloudflare quick tunnel** — `cloudflared tunnel --url http://localhost:5000`.
+  Бепул, картасиз, лекин URL **ҳар сафар ўзгаради**.
+- **ngrok бепул статик домен** — URL **барқарор** (ҳар рестартда бир хил), карта **керак эмас**.
+  1. https://dashboard.ngrok.com/domains — 1 та текин домен олинг (масалан `sizniki.ngrok-free.app`).
+  2. `ngrok http 5000 --domain sizniki.ngrok-free.app`
+  3. Шу ҳаволани ҳайдовчи/йўловчиларга тарқатинг — у ўзгармайди.
+
+### Битта буйруқ билан (start.ps1)
+Repo илдизида `start.ps1` бор — frontend build + backend + тоннелни кетма-кет ишга туширади:
+```powershell
+.\start.ps1                                          # cloudflared (ўзгарувчан URL)
+$env:NGROK_DOMAIN="sizniki.ngrok-free.app"; .\start.ps1   # ngrok (барқарор URL)
+```
+
 ## Саҳифалар
 
 | Йўл | Саҳифа |
