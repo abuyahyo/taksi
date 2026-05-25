@@ -12,9 +12,9 @@ export default function KirishSahifa() {
     <div style={st.sahifa}>
       <div style={st.topbar}><TemaTanlovchi /><TilTanlovchi /></div>
 
-      {/* Hero — iOS app icon услуби */}
+      {/* Hero — app icon */}
       <div style={st.hero} className="fade-in">
-        <div style={st.appIcon}><Ikonka nom="taxi" size={52} /></div>
+        <img src="/logo.png" alt="Safar Taksi" style={st.appIcon} />
         <h1 style={st.appName}>{t('common.app')}</h1>
         <p style={st.tagline}>{t('home.tagline')}</p>
       </div>
@@ -83,10 +83,8 @@ const st = {
   },
   appIcon: {
     width: 96, height: 96, borderRadius: 22,
-    background: 'linear-gradient(160deg, var(--sariq-light), var(--tint) 70%, var(--sariq-dark))',
-    boxShadow: 'var(--shadow-sariq), inset 0 1px 0 rgba(255,255,255,0.4)',
-    color: '#fff',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    boxShadow: 'var(--shadow-sariq)',
+    objectFit: 'cover', display: 'block',
     marginBottom: 'var(--space-4)',
   },
   appName: { fontSize: 34, fontWeight: 700, letterSpacing: '0.37px', color: 'var(--label)' },
