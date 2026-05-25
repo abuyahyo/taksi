@@ -32,6 +32,56 @@ export default function Ikonka({ nom, size = 20 }) {
       return <svg {...p}><path d="M12 21s7-5.5 7-11a7 7 0 0 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>;
     case 'arrow-right':
       return <svg {...p}><path d="M5 12h14M13 6l6 6-6 6" /></svg>;
+    case 'arrow-left':
+      return <svg {...p}><path d="M19 12H5M11 6l-6 6 6 6" /></svg>;
+    case 'star':
+      return <svg {...p} fill="currentColor" stroke="none"><path d="M12 3.5l2.6 5.27 5.82.85-4.21 4.1.99 5.79L12 16.77l-5.2 2.74.99-5.79-4.21-4.1 5.82-.85L12 3.5z" /></svg>;
+    case 'lock':
+      return <svg {...p}><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>;
+    case 'chat':
+      return <svg {...p}><path d="M21 12a8 8 0 0 1-11.5 7.2L4 20l.9-4.4A8 8 0 1 1 21 12z" /><path d="M8.5 11h7M8.5 14h4" /></svg>;
+    case 'search':
+      return <svg {...p}><circle cx="11" cy="11" r="7" /><path d="M21 21l-4-4" /></svg>;
+    case 'road':
+      return <svg {...p}><path d="M7 21L9 3M17 21l-2-18M12 6v2M12 12v2M12 18v1" /></svg>;
+    case 'moon':
+      return <svg {...p}><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" /></svg>;
+    case 'alert':
+      return <svg {...p}><path d="M10.3 3.9l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3.1l-8-14a2 2 0 0 0-3.4 0z" /><path d="M12 9v4M12 17h.01" /></svg>;
+    case 'sun':
+      return <svg {...p}><circle cx="12" cy="12" r="4.5" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>;
+    case 'globe':
+      return <svg {...p}><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18" /></svg>;
+    case 'x':
+      return <svg {...p}><path d="M6 6l12 12M18 6L6 18" /></svg>;
+    case 'check':
+      return <svg {...p}><path d="M5 12l5 5L20 6" /></svg>;
+    case 'phone':
+      return <svg {...p}><path d="M5 4h3l2 5-2 1.5a11 11 0 0 0 5 5L18 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" /></svg>;
+    case 'share':
+      return <svg {...p}><path d="M12 3v13M12 3L8 7M12 3l4 4" /><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7" /></svg>;
+    case 'shield-alert':
+      return <svg {...p}><path d="M12 3l7 3v5c0 4.2-2.9 7.5-7 9-4.1-1.5-7-4.8-7-9V6l7-3z" /><path d="M12 8v4M12 15h.01" /></svg>;
+    case 'pencil':
+      return <svg {...p}><path d="M4 20h4L18.5 9.5a2 2 0 0 0-2.8-2.8L5 17.2V20z" /><path d="M14 7l3 3" /></svg>;
+    case 'plus':
+      return <svg {...p}><path d="M12 5v14M5 12h14" /></svg>;
+    case 'minus':
+      return <svg {...p}><path d="M5 12h14" /></svg>;
+    case 'logout':
+      return <svg {...p}><path d="M14 4h-4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4" /><path d="M16 12H9M16 12l-3-3M16 12l-3 3" /></svg>;
+    case 'info':
+      return <svg {...p}><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></svg>;
+    case 'send':
+      return <svg {...p} fill="currentColor" stroke="none"><path d="M4 11.5l15.5-7-7 15.5-2.2-6.3L4 11.5z" /></svg>;
+    case 'chevron-right':
+      return <svg {...p}><path d="M9 6l6 6-6 6" /></svg>;
+    case 'sos':
+      return <svg {...p}><circle cx="12" cy="12" r="9" /><path d="M12 7v5M12 16h.01" /></svg>;
+    case 'home':
+      return <svg {...p}><path d="M4 11l8-6 8 6" /><path d="M6 10v9h12v-9" /></svg>;
+    case 'work':
+      return <svg {...p}><rect x="3" y="7" width="18" height="13" rx="2" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>;
     default:
       return null;
   }

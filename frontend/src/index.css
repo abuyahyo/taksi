@@ -1,127 +1,169 @@
-/* Safar Taksi — дизайн тизими */
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap');
+/* Safar Taksi — iOS дизайн тизими (Apple HIG)
+   Тизим шрифти SF Pro (iOS'да автомат), iOS ранглар, материаллар,
+   inset-grouped рўйхатлар, grabber'ли sheet'лар, iOS тугма/свич/segmented.
+   Эски токен номлари (--sariq, --oq, --qora, --kulrang, --och-kulrang...)
+   сақланган — қийматлари iOS аестетикасига мосланган. */
 
 :root {
-  /* ===== Брэнд ранглари (бирюза + қора) =====
-     Эслатма: `--sariq` номи қолдирилди (бой кодга мос),
-     лекин қиймати энди бирюза — рақобатчилардан фарқлантириш учун.
-     Янги код учун `--asosiy` синонимини ишлатиш мумкин.
-  */
-  --sariq:           #0E9384;  /* primary teal */
+  /* ===== Бренд tint (бирюза — Apple услубида апп tint ранги) ===== */
+  --tint:            #0E9384;
+  --tint-pressed:    #0B7B6E;
+  --tint-fill:       rgba(14, 147, 132, 0.12);
+
+  --sariq:           var(--tint);   /* эски ном — бой кодга мос */
   --sariq-light:     #2DD4BF;
-  --sariq-dark:      #134E48;
-  --sariq-surface:   #F0FDFA;  /* жуда оч бирюза — таг ранг */
+  --sariq-dark:      #0B7B6E;
+  --sariq-surface:   #F0FDFA;
+  --asosiy:          var(--tint);
+  --asosiy-light:    #2DD4BF;
+  --asosiy-dark:     #0B7B6E;
+  --asosiy-surface:  #F0FDFA;
 
-  /* Семантик синонимлар (янги код учун) */
-  --asosiy:          var(--sariq);
-  --asosiy-light:    var(--sariq-light);
-  --asosiy-dark:     var(--sariq-dark);
-  --asosiy-surface:  var(--sariq-surface);
+  /* ===== iOS система ранглари (light) ===== */
+  --label:            #000000;
+  --secondary-label:  rgba(60, 60, 67, 0.60);
+  --tertiary-label:   rgba(60, 60, 67, 0.30);
+  --quaternary-label: rgba(60, 60, 67, 0.18);
 
-  --qora:            #1A1A1A;
-  --qora-soft:       #374151;  /* асосий матн */
-  --qora-faint:      #6B7280;  /* иккиламчи матн */
+  --separator:        rgba(60, 60, 67, 0.29);
+  --separator-opaque: #C6C6C8;
 
-  /* ===== Нейтрал шкала ===== */
-  --neutral-50:      #FAFAFA;
-  --neutral-100:     #F4F4F5;
-  --neutral-200:     #E5E7EB;
-  --neutral-300:     #D1D5DB;
-  --neutral-400:     #9CA3AF;
-  --neutral-500:     #6B7280;
-  --neutral-600:     #4B5563;
-  --neutral-700:     #374151;
-  --neutral-800:     #1F2937;
-  --neutral-900:     #111827;
+  /* Фонлар */
+  --bg:                    #F2F2F7;  /* systemGroupedBackground */
+  --surface:               #FFFFFF;  /* secondarySystemGroupedBackground (қаторлар) */
+  --surface-elevated:      #FFFFFF;  /* sheet/модал */
+  --surface-grouped:       #F2F2F7;
 
-  /* ===== Семантик ранглар ===== */
-  --yashil:          #16A34A;
-  --yashil-light:    #DCFCE7;
-  --qizil:           #EF4444;
-  --qizil-light:     #FEE2E2;
-  --qizil-dark:      #B91C1C;
-  --amber:           #F59E0B;
-  --amber-light:     #FEF3C7;
-  --amber-dark:      #92400E;
-  --kok:             #1D4ED8;
-  --kok-light:       #DBEAFE;
+  /* Fill (қидирув, segmented, свич изи) */
+  --fill:         rgba(120, 120, 128, 0.12);
+  --fill-strong:  rgba(120, 120, 128, 0.20);
 
-  /* Эски номлар — бой кодга мос */
-  --kulrang:         var(--qora-faint);
-  --och-kulrang:     var(--neutral-100);
-  --oq:              #FFFFFF;
+  /* Материаллар (blur панеллар) */
+  --material-bar:   rgba(249, 249, 249, 0.82);
+  --material-thick: rgba(255, 255, 255, 0.80);
+
+  /* ===== Эски семантик номлар → iOS қийматлар ===== */
+  --qora:            var(--label);
+  --qora-soft:       #1C1C1E;
+  --qora-faint:      var(--secondary-label);
+  --kulrang:         var(--secondary-label);
+  --och-kulrang:     #EFEFF4;        /* fill устида юза */
+  --oq:              var(--surface);
+
+  /* ===== Нейтрал шкала (iOS grays) ===== */
+  --neutral-50:   #FAFAFA;
+  --neutral-100:  #F2F2F7;
+  --neutral-200:  #E5E5EA;
+  --neutral-300:  #D1D1D6;
+  --neutral-400:  #C7C7CC;
+  --neutral-500:  #AEAEB2;
+  --neutral-600:  #8E8E93;
+  --neutral-700:  #636366;
+  --neutral-800:  #48484A;
+  --neutral-900:  #1C1C1E;
+
+  /* ===== Семантик ранглар (iOS system colors) ===== */
+  --yashil:       #34C759;
+  --yashil-light: #DCFCE7;
+  --qizil:        #FF3B30;
+  --qizil-light:  #FEE2E2;
+  --qizil-dark:   #D70015;
+  --amber:        #FF9500;
+  --amber-light:  #FEF3C7;
+  --amber-dark:   #92400E;
+  --kok:          #007AFF;
+  --kok-light:    #DBEAFE;
+
+  --border:       var(--separator);
 
   /* ===== Spacing шкаласи (4px база) ===== */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-7: 32px;
-  --space-8: 40px;
-  --space-9: 56px;
-  --space-10: 72px;
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 20px; --space-6: 24px; --space-7: 32px; --space-8: 40px;
+  --space-9: 56px; --space-10: 72px;
 
-  /* ===== Border radius шкаласи ===== */
-  --r-sm: 8px;
-  --r-md: 12px;
-  --r-lg: 16px;
-  --r-xl: 20px;
-  --r-2xl: 24px;
-  --r-full: 9999px;
+  /* ===== Радиуслар (iOS continuous-ишора) ===== */
+  --r-sm: 8px; --r-md: 10px; --r-lg: 13px; --r-xl: 16px; --r-2xl: 20px; --r-full: 9999px;
 
-  /* ===== Elevation (shadow) шкаласи ===== */
-  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
-  --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
-  --shadow-4: 0 24px 48px rgba(0, 0, 0, 0.18), 0 8px 16px rgba(0, 0, 0, 0.10);
-  --shadow-sariq: 0 8px 24px rgba(14, 147, 132, 0.32);
-
-  /* Эски ном — бой кодга мос */
+  /* ===== Соялар — iOS жуда нозик ===== */
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-2: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-3: 0 8px 24px rgba(0,0,0,0.12);
+  --shadow-4: 0 16px 40px rgba(0,0,0,0.18);
+  --shadow-sariq: 0 4px 16px rgba(14, 147, 132, 0.24);
   --soya: var(--shadow-2);
 
-  /* ===== Transitionлар ===== */
-  --easing: cubic-bezier(0.4, 0, 0.2, 1);
-  --t-fast: 120ms var(--easing);
-  --t-med:  220ms var(--easing);
-  --t-slow: 360ms var(--easing);
+  /* ===== Transitionлар (iOS spring-ишора) ===== */
+  --easing: cubic-bezier(0.32, 0.72, 0, 1);
+  --t-fast: 150ms var(--easing);
+  --t-med:  280ms var(--easing);
+  --t-slow: 400ms var(--easing);
 
   color-scheme: light;
 }
 
-/* ===== Тунги режим =====
-   Нейтрал шкалани инверсия қиламиз — бренд бирюзаси (--sariq) ўзгармайди.
-   Код асосан семантик ўзгарувчиларга (--oq юза, --qora матн, --kulrang
-   иккиламчи матн, --och-kulrang фон) таянгани учун кўп қисми автомат мослашади.
-*/
+/* ===== Тунги режим (iOS dark) ===== */
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --oq:            #1B2027;  /* юза (эди оқ) */
-  --qora:          #F1F5F9;  /* сарлавҳа/матн (эди қора) */
-  --qora-soft:     #E2E8F0;
-  --qora-faint:    #94A3B8;  /* иккиламчи матн (--kulrang шунга боғлиқ) */
+  --tint:            #2DD4BF;
+  --tint-pressed:    #5EEAD4;
+  --tint-fill:       rgba(45, 212, 191, 0.16);
+  --sariq:           var(--tint);
+  --sariq-light:     #5EEAD4;
+  --sariq-dark:      #5EEAD4;
+  --asosiy:          var(--tint);
+  --asosiy-light:    #5EEAD4;
+  --asosiy-dark:     #5EEAD4;
 
-  --neutral-50:    #0E1216;
-  --neutral-100:   #12161C;  /* апп фони (--och-kulrang шунга боғлиқ) */
-  --neutral-200:   #2A313C;  /* чегаралар — қоронғида кўринади */
-  --neutral-300:   #3A434F;
-  --neutral-400:   #6B7480;  /* сўник матн */
-  --neutral-500:   #94A3B8;
-  --neutral-600:   #CBD5E1;
-  --neutral-700:   #E2E8F0;
-  --neutral-800:   #F1F5F9;
-  --neutral-900:   #F8FAFC;
+  --label:            #FFFFFF;
+  --secondary-label:  rgba(235, 235, 245, 0.60);
+  --tertiary-label:   rgba(235, 235, 245, 0.30);
+  --quaternary-label: rgba(235, 235, 245, 0.18);
 
-  --sariq-surface: #0C1517;  /* саҳифа фони (енгил бирюза тинкти) */
+  --separator:        rgba(84, 84, 88, 0.65);
+  --separator-opaque: #38383A;
+
+  --bg:               #000000;
+  --surface:          #1C1C1E;
+  --surface-elevated: #1C1C1E;
+  --surface-grouped:  #000000;
+
+  --fill:        rgba(120, 120, 128, 0.24);
+  --fill-strong: rgba(120, 120, 128, 0.36);
+
+  --material-bar:   rgba(30, 30, 32, 0.74);
+  --material-thick: rgba(40, 40, 42, 0.80);
+
+  --qora:        var(--label);
+  --qora-soft:   #EBEBF5;
+  --qora-faint:  var(--secondary-label);
+  --kulrang:     var(--secondary-label);
+  --och-kulrang: #2C2C2E;
+  --oq:          var(--surface);
+
+  --neutral-50:  #0E0E10;
+  --neutral-100: #1C1C1E;
+  --neutral-200: #38383A;
+  --neutral-300: #48484A;
+  --neutral-400: #636366;
+  --neutral-500: #8E8E93;
+  --neutral-600: #AEAEB2;
+  --neutral-700: #C7C7CC;
+  --neutral-800: #E5E5EA;
+  --neutral-900: #F2F2F7;
+
+  --yashil:      #30D158;
+  --qizil:       #FF453A;
+  --amber:       #FF9F0A;
+  --kok:         #0A84FF;
+
+  --sariq-surface:  #0C1517;
   --asosiy-surface: #0C1517;
-  --sariq-dark:    #5EEAD4;  /* тунги режимда матн учун ёрқин бирюза (тўқ фонда кўринсин) */
 
-  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.3);
-  --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.55), 0 4px 8px rgba(0, 0, 0, 0.35);
-  --shadow-4: 0 24px 48px rgba(0, 0, 0, 0.6), 0 8px 16px rgba(0, 0, 0, 0.4);
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.5);
+  --shadow-2: 0 1px 3px rgba(0,0,0,0.6);
+  --shadow-3: 0 8px 24px rgba(0,0,0,0.7);
+  --shadow-4: 0 16px 40px rgba(0,0,0,0.8);
 }
 
 /* ===== Глобал ===== */
@@ -130,258 +172,330 @@
 html { -webkit-tap-highlight-color: transparent; }
 
 body {
-  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-weight: 500;
-  background: var(--neutral-100);
-  color: var(--qora-soft);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
+               'Helvetica Neue', system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 400;
+  background: var(--bg);
+  color: var(--label);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  transition: background-color var(--t-med), color var(--t-med);
 }
 
-h1, h2, h3, h4 { color: var(--qora); font-weight: 800; letter-spacing: -0.02em; }
-h1 { font-size: 32px; line-height: 1.1; }
-h2 { font-size: 22px; line-height: 1.2; }
-h3 { font-size: 18px; line-height: 1.3; }
-p  { line-height: 1.5; }
+/* iOS типографик масштаб (San Francisco) */
+h1, h2, h3, h4 { color: var(--label); letter-spacing: -0.02em; }
+h1 { font-size: 34px; font-weight: 700; line-height: 1.12; letter-spacing: 0.37px; }  /* Large Title */
+h2 { font-size: 22px; font-weight: 700; line-height: 1.2; letter-spacing: 0.35px; }     /* Title 2 */
+h3 { font-size: 20px; font-weight: 600; line-height: 1.25; }                            /* Title 3 */
+h4 { font-size: 17px; font-weight: 600; line-height: 1.3; }                             /* Headline */
+p  { line-height: 1.4; font-size: 17px; }
 
-a { color: inherit; text-decoration: none; }
+a { color: var(--tint); text-decoration: none; }
 
 /* ===== Тугмалар ===== */
 button {
   font-family: inherit;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   border: none;
   background: transparent;
-  transition: transform var(--t-fast), background-color var(--t-fast), box-shadow var(--t-fast), opacity var(--t-fast);
+  color: var(--tint);
+  transition: opacity var(--t-fast), background-color var(--t-fast), transform var(--t-fast);
   user-select: none;
 }
-button:active:not(:disabled) { transform: scale(0.96); }
-button:disabled { cursor: not-allowed; }
-
-/* ===== Микро-интерактив утилитлар =====
-   Кўтариладиган карта/тугма: hover'да юқорига сурилади ва соя чуқурлашади,
-   press'да бироз пастга. Тач қурилмаларда hover ишламайди — :active қолади.
-*/
-.kotariladi {
-  transition: transform var(--t-med), box-shadow var(--t-med), filter var(--t-med);
-  will-change: transform;
-}
-@media (hover: hover) {
-  .kotariladi:hover { transform: translateY(-3px); box-shadow: var(--shadow-3); }
-  .kotariladi:hover .strelka-anim { transform: translateX(4px); }
-}
-.kotariladi:active:not(:disabled) { transform: translateY(-1px) scale(0.99); }
-.strelka-anim { transition: transform var(--t-med); display: inline-flex; }
-
-/* Босилганда тактил ҳис — иконка тугмалар учун майин фон */
-@media (hover: hover) {
-  .bosiladi:hover:not(:disabled) { background: var(--neutral-100); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .kotariladi, .strelka-anim { transition: none; }
-  .kotariladi:hover { transform: none; }
-}
+button:active:not(:disabled) { opacity: 0.55; }
+button:disabled { opacity: 0.35; cursor: not-allowed; }
 
 /* ===== Инпутлар ===== */
 input, textarea {
   font-family: inherit;
-  font-weight: 500;
+  font-weight: 400;
+  font-size: 17px;
+  color: var(--label);
   outline: none;
-  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  background: transparent;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast), background-color var(--t-fast);
 }
-input:focus, textarea:focus {
-  border-color: var(--sariq) !important;
-  box-shadow: 0 0 0 3px rgba(14, 147, 132, 0.22);
-}
+input::placeholder, textarea::placeholder { color: var(--tertiary-label); }
 
-/* ===== Focus ring (accessibility) ===== */
-button:focus-visible {
-  outline: 3px solid rgba(14, 147, 132, 0.5);
+button:focus-visible, a:focus-visible {
+  outline: 3px solid var(--tint-fill);
   outline-offset: 2px;
 }
 
 /* ===== Карта контейнер ===== */
 .leaflet-container { width: 100%; height: 100%; background: var(--neutral-200); }
-/* divIcon маркерлари ўз HTML'и билан — стандарт оқ қутини олиб ташлаймиз */
 .leaflet-div-icon { background: transparent; border: none; }
+
+/* =========================================================
+   iOS КОМПОНЕНТ ҚАТЛАМИ
+   ========================================================= */
+
+/* ---- Навигация (катта сарлавҳа + blur bar) ---- */
+.ios-nav {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--material-bar);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+          backdrop-filter: saturate(180%) blur(20px);
+  padding-top: env(safe-area-inset-top);
+}
+.ios-nav--bordered { border-bottom: 0.5px solid var(--separator); }
+.ios-nav-bar {
+  height: 44px; display: flex; align-items: center; justify-content: center;
+  position: relative; padding: 0 8px;
+}
+.ios-nav-title { font-size: 17px; font-weight: 600; color: var(--label); }
+.ios-nav-leading, .ios-nav-trailing {
+  position: absolute; top: 0; height: 44px; display: flex; align-items: center; gap: 4px;
+}
+.ios-nav-leading { left: 8px; }
+.ios-nav-trailing { right: 8px; }
+.ios-nav-btn {
+  color: var(--tint); font-size: 17px; font-weight: 400;
+  display: inline-flex; align-items: center; gap: 2px; padding: 4px 6px;
+}
+.ios-large-title {
+  font-size: 34px; font-weight: 700; letter-spacing: 0.37px;
+  color: var(--label); padding: 4px 16px 8px;
+}
+
+/* ---- Inset grouped рўйхат ---- */
+.ios-section {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  margin: 0 16px 22px;
+  overflow: hidden;
+}
+.ios-section--inset { margin-left: 16px; margin-right: 16px; }
+.ios-group-header {
+  font-size: 13px; font-weight: 400; color: var(--secondary-label);
+  text-transform: uppercase; letter-spacing: -0.08px;
+  padding: 0 16px 7px; margin: 26px 0 0;
+}
+.ios-group-footer {
+  font-size: 13px; color: var(--secondary-label);
+  padding: 7px 16px 0; margin-bottom: 22px;
+}
+.ios-row {
+  display: flex; align-items: center; gap: 12px;
+  min-height: 44px; padding: 11px 16px;
+  position: relative; background: var(--surface);
+  color: var(--label); font-size: 17px; width: 100%; text-align: left;
+}
+button.ios-row:active:not(:disabled) { opacity: 1; background: var(--fill); }
+.ios-row:not(:last-child)::after {
+  content: ''; position: absolute; left: 16px; right: 0; bottom: 0;
+  height: 0.5px; background: var(--separator);
+  transform: scaleY(0.5); transform-origin: bottom;
+}
+.ios-row--inset-full:not(:last-child)::after { left: 0; }
+.ios-row-icon {
+  width: 29px; height: 29px; border-radius: 7px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; color: #fff;
+}
+.ios-row-label { flex: 1; min-width: 0; font-size: 17px; }
+.ios-row-sub { font-size: 13px; color: var(--secondary-label); margin-top: 1px; }
+.ios-row-value { color: var(--secondary-label); font-size: 17px; }
+.ios-chevron { color: var(--tertiary-label); flex-shrink: 0; }
+
+/* ---- Тугмалар (iOS) ---- */
+.ios-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-size: 17px; font-weight: 600; border-radius: var(--r-lg);
+  padding: 14px 20px; line-height: 1.1;
+}
+.ios-btn:active:not(:disabled) { opacity: 0.8; transform: scale(0.985); }
+.ios-btn--filled { background: var(--tint); color: #fff; }
+.ios-btn--tinted { background: var(--tint-fill); color: var(--tint); }
+.ios-btn--gray   { background: var(--fill); color: var(--label); }
+.ios-btn--destructive { background: var(--qizil); color: #fff; }
+.ios-btn--plain  { color: var(--tint); background: transparent; padding: 12px; }
+.ios-btn--block  { width: 100%; }
+.ios-btn--large  { padding: 16px 20px; font-size: 17px; border-radius: var(--r-xl); }
+
+/* ---- Свич (toggle) ---- */
+.ios-switch {
+  width: 51px; height: 31px; border-radius: 31px; flex-shrink: 0;
+  background: var(--fill-strong); position: relative;
+  transition: background-color var(--t-med);
+}
+.ios-switch[data-on="true"] { background: var(--yashil); }
+.ios-switch::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 27px; height: 27px; border-radius: 50%; background: #fff;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15), 0 1px 1px rgba(0,0,0,0.16);
+  transition: transform var(--t-med);
+}
+.ios-switch[data-on="true"]::after { transform: translateX(20px); }
+
+/* ---- Segmented control ---- */
+.ios-segmented {
+  display: flex; background: var(--fill); border-radius: 9px; padding: 2px; gap: 2px;
+}
+.ios-seg {
+  flex: 1; text-align: center; padding: 6px 10px; border-radius: 7px;
+  font-size: 13px; font-weight: 600; color: var(--label); background: transparent;
+  transition: background-color var(--t-fast);
+}
+.ios-seg[data-on="true"] {
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 0 0 0.5px rgba(0,0,0,0.04);
+}
+
+/* ---- Қидирув майдони ---- */
+.ios-search {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--fill); border-radius: var(--r-md);
+  padding: 8px 10px; color: var(--secondary-label);
+}
+.ios-search input {
+  flex: 1; background: transparent; border: none; font-size: 17px; color: var(--label);
+}
+
+/* ---- Майдон (filled input) ---- */
+.ios-field {
+  width: 100%; background: var(--fill); border: none;
+  border-radius: var(--r-md); padding: 14px 16px; font-size: 17px; color: var(--label);
+}
+.ios-field:focus { box-shadow: 0 0 0 3px var(--tint-fill); }
+
+/* ---- Sheet / модал (grabber билан) ---- */
+.ios-sheet-fon {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.4);
+  display: flex; align-items: flex-end; justify-content: center;
+  animation: fadeIn 0.25s var(--easing);
+  -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+}
+.ios-sheet {
+  width: 100%; max-width: 480px;
+  background: var(--surface-elevated);
+  border-radius: 14px 14px 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+  max-height: 92vh; overflow-y: auto;
+  animation: sheetUp 0.42s var(--easing);
+  box-shadow: 0 -1px 0 var(--separator);
+}
+.ios-grabber {
+  width: 36px; height: 5px; border-radius: 3px;
+  background: var(--fill-strong); margin: 6px auto 4px;
+}
+/* Марказий alert (iOS UIAlertController) */
+.ios-alert-fon {
+  position: fixed; inset: 0; z-index: 1100;
+  background: rgba(0,0,0,0.2);
+  display: flex; align-items: center; justify-content: center; padding: 40px;
+  animation: fadeIn 0.2s var(--easing);
+}
+.ios-alert {
+  width: 100%; max-width: 270px; border-radius: 14px;
+  background: var(--material-thick);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+          backdrop-filter: blur(30px) saturate(180%);
+  text-align: center; overflow: hidden;
+  animation: alertPop 0.25s var(--easing);
+}
 
 /* ===== Анимациялар ===== */
 @keyframes aylanish { to { transform: rotate(360deg); } }
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { transform: translateY(16px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
-}
-
-@keyframes slideUpModal {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: 0.5; }
-}
-
-@keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-/* ===== Хёрдамчи класслар ===== */
-.fade-in       { animation: fadeIn var(--t-med); }
-.slide-up      { animation: slideUp var(--t-med); }
-.slide-up-modal { animation: slideUpModal var(--t-slow); }
-
-/* Рўйхат элементлари кетма-кет (staggered) кириб келади */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes slideUpModal { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes alertPop { from { transform: scale(1.15); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+.fade-in        { animation: fadeIn var(--t-med); }
+.slide-up       { animation: slideUp var(--t-med); }
+.slide-up-modal { animation: sheetUp var(--t-slow); }
+
 .royxat-anim > * { animation: fadeInUp var(--t-med) both; }
 .royxat-anim > *:nth-child(2) { animation-delay: 40ms; }
 .royxat-anim > *:nth-child(3) { animation-delay: 80ms; }
 .royxat-anim > *:nth-child(4) { animation-delay: 120ms; }
 .royxat-anim > *:nth-child(5) { animation-delay: 160ms; }
 .royxat-anim > *:nth-child(6) { animation-delay: 200ms; }
+
 @media (prefers-reduced-motion: reduce) {
-  .royxat-anim > * { animation: none; }
+  .royxat-anim > *, .fade-in, .slide-up, .slide-up-modal { animation: none; }
 }
 
+/* ---- Skeleton ---- */
 .skelet {
-  background: linear-gradient(90deg, var(--neutral-200) 0%, var(--neutral-100) 50%, var(--neutral-200) 100%);
+  background: linear-gradient(90deg, var(--fill) 0%, var(--fill-strong) 50%, var(--fill) 100%);
   background-size: 200% 100%;
   animation: shimmer 1.6s infinite linear;
   border-radius: var(--r-sm);
 }
 
-/* Прогресс — спинер */
+/* ---- Spinner ---- */
 .spinner {
   width: 32px; height: 32px;
-  border: 3px solid var(--neutral-200);
-  border-top-color: var(--sariq);
+  border: 3px solid var(--fill);
+  border-top-color: var(--tint);
   border-radius: 50%;
   animation: aylanish 0.8s linear infinite;
 }
 
-/* Scroll'ни ниозни кўриниши */
+/* ---- Микро-интерактив (тач + hover) ---- */
+.kotariladi { transition: transform var(--t-med), box-shadow var(--t-med); }
+@media (hover: hover) {
+  .kotariladi:hover { transform: translateY(-2px); box-shadow: var(--shadow-3); }
+  .kotariladi:hover .strelka-anim { transform: translateX(3px); }
+  .bosiladi:hover:not(:disabled) { background: var(--fill); }
+}
+.kotariladi:active:not(:disabled) { transform: scale(0.99); }
+.strelka-anim { transition: transform var(--t-med); display: inline-flex; }
+@media (prefers-reduced-motion: reduce) {
+  .kotariladi, .strelka-anim { transition: none; }
+  .kotariladi:hover { transform: none; }
+}
+
+/* ---- Scrollbar ---- */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--neutral-300); border-radius: var(--r-full); }
 ::-webkit-scrollbar-thumb:hover { background: var(--neutral-400); }
 
-/* ===== Liquid Glass — Apple iOS 26 услубида ===== */
-
-/* Glass юза — фон ортидан кўриниб турувчи қатлам */
+/* =========================================================
+   Материаллар (эски glass класслари → iOS material)
+   ========================================================= */
 .glass {
-  background: rgba(255, 255, 255, 0.65);
+  background: var(--material-thick);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
           backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow:
-    0 8px 32px rgba(15, 23, 42, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  border: 0.5px solid var(--separator);
+  box-shadow: var(--shadow-2);
 }
-
-/* Қора glass — қора фондаги панеллар учун */
 .glass-dark {
-  background: rgba(26, 26, 26, 0.55);
+  background: rgba(28, 28, 30, 0.7);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
           backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: var(--oq);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.32);
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  box-shadow: var(--shadow-3);
 }
-
-/* Бирюза тинктли glass — бренд rangida */
 .glass-asosiy {
-  background: rgba(14, 147, 132, 0.18);
+  background: var(--tint-fill);
   -webkit-backdrop-filter: blur(18px) saturate(180%);
           backdrop-filter: blur(18px) saturate(180%);
-  border: 1px solid rgba(14, 147, 132, 0.32);
-  box-shadow: 0 8px 24px rgba(14, 147, 132, 0.18);
+  border: 0.5px solid rgba(14, 147, 132, 0.30);
 }
-
-/* Кичик glass — тугмалар учун */
 .glass-tugma {
-  background: rgba(255, 255, 255, 0.7);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
-          backdrop-filter: blur(12px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-/* Фалбэк: backdrop-filter ёппа эмас (eski Firefox) — фон қуюқроқ */
-@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
-  .glass { background: rgba(255, 255, 255, 0.94); }
-  .glass-dark { background: rgba(26, 26, 26, 0.92); }
-  .glass-asosiy { background: rgba(207, 250, 244, 0.95); }
-  .glass-tugma { background: rgba(255, 255, 255, 0.94); }
-}
-
-/* Тунги режимда glass — оч эмас, қоронғи фрост */
-[data-theme="dark"] .glass {
-  background: rgba(30, 37, 46, 0.6);
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-}
-[data-theme="dark"] .glass-tugma {
-  background: rgba(40, 47, 58, 0.7);
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-[data-theme="dark"] .glass-asosiy {
-  background: rgba(14, 147, 132, 0.22);
-  border-color: rgba(45, 212, 191, 0.3);
+  background: var(--material-thick);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+          backdrop-filter: blur(16px) saturate(180%);
+  border: 0.5px solid var(--separator);
+  box-shadow: var(--shadow-1);
 }
 @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
-  [data-theme="dark"] .glass { background: rgba(27, 32, 39, 0.96); }
-  [data-theme="dark"] .glass-tugma { background: rgba(40, 47, 58, 0.96); }
-  [data-theme="dark"] .glass-asosiy { background: rgba(16, 41, 38, 0.96); }
+  .glass, .glass-tugma { background: var(--surface); }
+  .glass-asosiy { background: var(--tint-fill); }
+  .glass-dark { background: rgba(28,28,30,0.95); }
 }
 
-/* Фон ранги ўзгарганда силлиқ ўтиш (мавзу алмашганда) */
-body { transition: background-color var(--t-med), color var(--t-med); }
-
-/* ===== Декоратив фон (флэт саҳифаларга glass учун маъно беради) =====
-   Blob'лар — катта, шаффоф рангли доиралар. Фондан кам ҳаракатсиз, лекин
-   glass панеллар орқали кўринади.
-*/
-.fon-blobs {
-  position: relative;
-  isolation: isolate;
-  background: var(--sariq-surface);
-}
-.fon-blobs::before, .fon-blobs::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.55;
-  z-index: -1;
-  pointer-events: none;
-}
-.fon-blobs::before {
-  width: 380px; height: 380px;
-  background: var(--sariq);
-  top: -80px; left: -120px;
-  animation: floatBlob 18s ease-in-out infinite alternate;
-}
-.fon-blobs::after {
-  width: 320px; height: 320px;
-  background: #F472B6; /* coral accent — glass'дa чироқли кўринади */
-  bottom: -100px; right: -100px;
-  animation: floatBlob 22s ease-in-out infinite alternate-reverse;
-  opacity: 0.35;
-}
-
-@keyframes floatBlob {
-  0%   { transform: translate(0, 0)     scale(1);    }
-  50%  { transform: translate(40px, 30px) scale(1.08); }
-  100% { transform: translate(-30px, 50px) scale(0.95); }
-}
+/* ===== Декоратив фон (kerak бўлганда) ===== */
+.fon-blobs { position: relative; isolation: isolate; background: var(--bg); }

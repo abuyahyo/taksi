@@ -1,8 +1,9 @@
-// 💳 Ҳайдовчи обуна модали — пакетлар + жорий ҳолат
+// Ҳайдовчи обуна модали — пакетлар + жорий ҳолат
 import { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import { useT } from '../i18n';
 import { useToast } from './Toast';
+import Ikonka from './Ikonka';
 
 export default function Obuna({ onYopish, onYangilandi }) {
   const { t } = useT();
@@ -53,9 +54,10 @@ export default function Obuna({ onYopish, onYangilandi }) {
   return (
     <div style={st.fon} onClick={onYopish}>
       <div style={st.modal} className="glass slide-up-modal" onClick={(e) => e.stopPropagation()}>
+        <div style={st.grabber} />
         <div style={st.header}>
-          <div style={st.sarlavha}>💳 {t('sub.title')}</div>
-          <button style={st.yopish} onClick={onYopish}>✕</button>
+          <div style={st.sarlavha}>{t('sub.title')}</div>
+          <button style={st.yopish} onClick={onYopish}><Ikonka nom="x" size={16} /></button>
         </div>
 
         {yuklanmoqda ? (
@@ -70,13 +72,13 @@ export default function Obuna({ onYopish, onYangilandi }) {
               </div>
             ) : (
               <div style={st.tugagan}>
-                ⚠️ {t('sub.expired')}
+                <Ikonka nom="alert" size={16} /> {t('sub.expired')}
               </div>
             )}
 
             {/* Бизнинг афзаллик */}
             <div style={st.afzallik}>
-              <div style={st.afzSarlavha}>🌟 {t('sub.whyTitle')}</div>
+              <div style={st.afzSarlavha}>{t('sub.whyTitle')}</div>
               <div style={st.afzIzoh}>{t('sub.whyHint')}</div>
             </div>
 
@@ -111,26 +113,27 @@ export default function Obuna({ onYopish, onYangilandi }) {
 }
 
 const st = {
-  fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 3700 },
-  modal: { width: '100%', maxWidth: 480, maxHeight: '92vh', overflowY: 'auto', borderRadius: '24px 24px 0 0', padding: 24 },
+  fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 3700, backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)' },
+  modal: { width: '100%', maxWidth: 480, maxHeight: '92vh', overflowY: 'auto', borderRadius: '14px 14px 0 0', padding: '8px 20px 20px' },
+  grabber: { width: 36, height: 5, borderRadius: 3, background: 'var(--fill-strong)', margin: '0 auto 12px' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  sarlavha: { fontSize: 19, fontWeight: 800 },
-  yopish: { width: 36, height: 36, borderRadius: '50%', background: 'var(--neutral-100)', fontSize: 16 },
-  bosh: { textAlign: 'center', padding: 40, color: 'var(--kulrang)' },
-  joriy: { background: 'var(--asosiy-surface)', borderLeft: '4px solid var(--asosiy)', padding: 14, borderRadius: 12, marginBottom: 14 },
-  joriyLabel: { fontSize: 13, color: 'var(--qora-faint)', fontWeight: 600 },
-  joriyKun: { fontSize: 24, fontWeight: 800, color: 'var(--asosiy-dark)', marginTop: 4 },
-  tugagan: { background: '#FEE2E2', borderLeft: '4px solid #DC2626', padding: 14, borderRadius: 12, marginBottom: 14, color: '#7F1D1D', fontWeight: 700, fontSize: 14 },
-  afzallik: { background: 'var(--amber-light)', padding: 12, borderRadius: 12, marginBottom: 16, borderLeft: '4px solid var(--amber)' },
-  afzSarlavha: { fontSize: 13, fontWeight: 800, color: 'var(--amber-dark)' },
-  afzIzoh: { fontSize: 12, color: 'var(--amber-dark)', opacity: 0.85, marginTop: 4, lineHeight: 1.45 },
+  sarlavha: { fontSize: 20, fontWeight: 600 },
+  yopish: { width: 30, height: 30, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  bosh: { textAlign: 'center', padding: 40, color: 'var(--secondary-label)' },
+  joriy: { background: 'var(--tint-fill)', padding: 14, borderRadius: 'var(--r-md)', marginBottom: 14 },
+  joriyLabel: { fontSize: 13, color: 'var(--secondary-label)', fontWeight: 500 },
+  joriyKun: { fontSize: 24, fontWeight: 700, color: 'var(--tint)', marginTop: 4 },
+  tugagan: { display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,59,48,0.12)', padding: 14, borderRadius: 'var(--r-md)', marginBottom: 14, color: 'var(--qizil)', fontWeight: 500, fontSize: 15 },
+  afzallik: { background: 'rgba(255,149,0,0.12)', padding: 14, borderRadius: 'var(--r-md)', marginBottom: 16 },
+  afzSarlavha: { fontSize: 15, fontWeight: 600, color: 'var(--amber)' },
+  afzIzoh: { fontSize: 13, color: 'var(--amber)', opacity: 0.9, marginTop: 4, lineHeight: 1.4 },
   paketlar: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 },
-  paket: { background: 'var(--oq)', padding: 14, borderRadius: 14, textAlign: 'left', border: '1px solid var(--neutral-200)', boxShadow: 'var(--shadow-1)' },
-  paketTavsiya: { borderColor: 'var(--asosiy)', boxShadow: 'var(--shadow-sariq)' },
+  paket: { background: 'var(--surface)', padding: 14, borderRadius: 'var(--r-md)', textAlign: 'left', border: '0.5px solid var(--separator)' },
+  paketTavsiya: { border: '2px solid var(--tint)' },
   paketYuqori: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-  paketIsm: { fontSize: 13, fontWeight: 700, color: 'var(--qora)' },
-  tavsiyaBelgi: { background: 'var(--sariq)', color: 'var(--oq)', padding: '2px 6px', borderRadius: 6, fontSize: 9, fontWeight: 800 },
-  paketNarx: { fontSize: 19, fontWeight: 800, color: 'var(--qora)' },
-  paketSom: { fontSize: 11, fontWeight: 600, color: 'var(--kulrang)' },
-  paketKun: { fontSize: 12, color: 'var(--kulrang)', marginTop: 2 },
+  paketIsm: { fontSize: 14, fontWeight: 600, color: 'var(--label)' },
+  tavsiyaBelgi: { background: 'var(--tint)', color: '#fff', padding: '2px 7px', borderRadius: 'var(--r-full)', fontSize: 9, fontWeight: 600 },
+  paketNarx: { fontSize: 20, fontWeight: 700, color: 'var(--label)' },
+  paketSom: { fontSize: 12, fontWeight: 400, color: 'var(--secondary-label)' },
+  paketKun: { fontSize: 13, color: 'var(--secondary-label)', marginTop: 2 },
 };

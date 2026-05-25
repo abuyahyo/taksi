@@ -28,7 +28,7 @@ function FitBounds({ nuqtalar }) {
 export default function HaritaPreview({ boshlanish, tugash, height = 110 }) {
   if (!boshlanish || !tugash) return null;
   return (
-    <div style={{ height, borderRadius: 12, overflow: 'hidden', border: '1px solid var(--neutral-200)' }}>
+    <div style={{ height, borderRadius: 'var(--r-md)', overflow: 'hidden', border: '0.5px solid var(--separator)' }}>
       <MapContainer
         center={boshlanish}
         zoom={13}

@@ -17,8 +17,8 @@ const UlashilganSahifa = lazy(() => import('./pages/UlashilganSahifa'));
 
 function Yuklanmoqda() {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', color: '#9CA3AF', fontSize: 14 }}>
-      ⏳
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg)' }}>
+      <div className="spinner" />
     </div>
   );
 }

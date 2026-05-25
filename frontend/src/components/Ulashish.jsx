@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import { useT } from '../i18n';
+import Ikonka from './Ikonka';
 
 export default function Ulashish({ rideId, onYopish }) {
   const { t } = useT();
@@ -36,9 +37,10 @@ export default function Ulashish({ rideId, onYopish }) {
   return (
     <div style={st.fon} onClick={onYopish}>
       <div style={st.modal} className="glass slide-up-modal" onClick={(e) => e.stopPropagation()}>
+        <div style={st.grabber} />
         <div style={st.header}>
-          <div style={st.sarlavha}>🆘 {t('share.title')}</div>
-          <button style={st.yopish} onClick={onYopish}>✕</button>
+          <div style={st.sarlavha}>{t('share.title')}</div>
+          <button style={st.yopish} onClick={onYopish}><Ikonka nom="x" size={16} /></button>
         </div>
 
         <div style={st.izoh}>{t('share.description')}</div>
@@ -52,16 +54,16 @@ export default function Ulashish({ rideId, onYopish }) {
             <div style={st.linkQator}>
               <input style={st.linkInput} readOnly value={link} onClick={(e) => e.target.select()} />
               <button style={st.koʻchirTugma} onClick={koʻchir}>
-                {koʻchirildi ? '✓' : t('share.copy')}
+                {koʻchirildi ? <Ikonka nom="check" size={16} /> : t('share.copy')}
               </button>
             </div>
 
             <div style={st.deepLinks}>
               <a href={tgUrl} target="_blank" rel="noreferrer" style={{ ...st.tashqi, background: '#229ED9' }}>
-                📨 Telegram
+                Telegram
               </a>
               <a href={waUrl} target="_blank" rel="noreferrer" style={{ ...st.tashqi, background: '#25D366' }}>
-                💬 WhatsApp
+                WhatsApp
               </a>
             </div>
 
@@ -76,19 +78,20 @@ export default function Ulashish({ rideId, onYopish }) {
 }
 
 const st = {
-  fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 3700, padding: 0 },
-  modal: { width: '100%', maxWidth: 480, borderRadius: '24px 24px 0 0', padding: 24 },
+  fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 3700, padding: 0, backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)' },
+  modal: { width: '100%', maxWidth: 480, borderRadius: '14px 14px 0 0', padding: '8px 20px 20px' },
+  grabber: { width: 36, height: 5, borderRadius: 3, background: 'var(--fill-strong)', margin: '0 auto 12px' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  sarlavha: { fontSize: 19, fontWeight: 800 },
-  yopish: { width: 36, height: 36, borderRadius: '50%', background: 'var(--och-kulrang)', fontSize: 16 },
-  izoh: { fontSize: 14, color: 'var(--kulrang)', marginBottom: 16 },
-  bosh: { textAlign: 'center', padding: 30, color: 'var(--kulrang)' },
+  sarlavha: { fontSize: 20, fontWeight: 600 },
+  yopish: { width: 30, height: 30, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  izoh: { fontSize: 15, color: 'var(--secondary-label)', marginBottom: 16, lineHeight: 1.4 },
+  bosh: { textAlign: 'center', padding: 30, color: 'var(--secondary-label)' },
   xato: { color: 'var(--qizil)', padding: 14, textAlign: 'center' },
   linkQator: { display: 'flex', gap: 8, marginBottom: 14 },
-  linkInput: { flex: 1, padding: 12, borderRadius: 10, border: '1px solid var(--neutral-200)', fontSize: 13, fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis' },
-  koʻchirTugma: { background: 'var(--qora)', color: 'var(--oq)', padding: '10px 16px', borderRadius: 10, fontWeight: 800, fontSize: 13, minWidth: 84 },
+  linkInput: { flex: 1, padding: 12, borderRadius: 'var(--r-md)', border: 'none', background: 'var(--fill)', color: 'var(--label)', fontSize: 13, fontFamily: 'ui-monospace, monospace', overflow: 'hidden', textOverflow: 'ellipsis' },
+  koʻchirTugma: { background: 'var(--tint)', color: '#fff', padding: '10px 16px', borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 15, minWidth: 84, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' },
   deepLinks: { display: 'flex', gap: 10, marginBottom: 14 },
-  tashqi: { flex: 1, color: 'var(--oq)', padding: 12, borderRadius: 12, fontWeight: 700, fontSize: 14, textAlign: 'center', textDecoration: 'none' },
-  muddat: { fontSize: 12, color: 'var(--kulrang)', textAlign: 'center' },
-  bekor: { width: '100%', background: 'transparent', padding: 12, color: 'var(--kulrang)', fontSize: 14, marginTop: 8 },
+  tashqi: { flex: 1, color: '#fff', padding: 13, borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 15, textAlign: 'center', textDecoration: 'none' },
+  muddat: { fontSize: 13, color: 'var(--secondary-label)', textAlign: 'center' },
+  bekor: { width: '100%', background: 'transparent', padding: 12, color: 'var(--tint)', fontSize: 17, fontWeight: 400, marginTop: 8 },
 };

@@ -1,5 +1,6 @@
 // Мавзу (ёруғ/тунги) — localStorage 'tema' + тизим афзаллигини ҳурмат қилади
 import { createContext, useContext, useEffect, useState } from 'react';
+import Ikonka from './components/Ikonka';
 
 const TemaCtx = createContext(null);
 
@@ -54,16 +55,14 @@ export function TemaTanlovchi({ style }) {
       aria-label={tungi ? 'Ёруғ режим' : 'Тунги режим'}
       title={tungi ? 'Ёруғ режим' : 'Тунги режим'}
       style={{
-        width: 36, height: 36,
+        width: 34, height: 34,
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-        borderRadius: 10, fontSize: 16,
-        background: 'var(--oq)', color: 'var(--qora)',
-        border: '1px solid var(--neutral-200)',
-        boxShadow: 'var(--shadow-1)',
+        borderRadius: 'var(--r-full)',
+        background: 'var(--fill)', color: 'var(--label)',
         ...style,
       }}
     >
-      {tungi ? '☀️' : '🌙'}
+      <Ikonka nom={tungi ? 'sun' : 'moon'} size={18} />
     </button>
   );
 }

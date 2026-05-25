@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import { useT } from '../i18n';
+import Ikonka from './Ikonka';
 
 export default function YolovchiProfili({ onYopish, onYangilandi, mapNuqta }) {
   const { t } = useT();
@@ -79,8 +80,8 @@ export default function YolovchiProfili({ onYopish, onYangilandi, mapNuqta }) {
     <div style={st.fon} onClick={onYopish}>
       <div style={st.modal} className="glass slide-up-modal" onClick={(e) => e.stopPropagation()}>
         <div style={st.header}>
-          <div style={st.sarlavha}>👤 {t('prof.title')}</div>
-          <button style={st.yopish} onClick={onYopish}>✕</button>
+          <div style={st.sarlavha}>{t('prof.title')}</div>
+          <button style={st.yopish} onClick={onYopish}><Ikonka nom="x" size={16} /></button>
         </div>
 
         <div style={st.avatar}>{(profil.ism || '?')[0]}</div>
@@ -97,7 +98,7 @@ export default function YolovchiProfili({ onYopish, onYangilandi, mapNuqta }) {
           </button>
         </div>
         <div style={st.metaQator}>
-          📞 {profil.telefon} · ⭐ {profil.reyting}
+          <Ikonka nom="phone" size={13} /> {profil.telefon} · <Ikonka nom="star" size={13} /> {profil.reyting}
         </div>
 
         <div style={st.statGrid}>
@@ -108,7 +109,7 @@ export default function YolovchiProfili({ onYopish, onYangilandi, mapNuqta }) {
 
         <div style={st.manzilSarlavha}>{t('prof.savedAddresses')}</div>
         <div style={st.manzilQator}>
-          <div style={st.manzilBelgi}>🏠</div>
+          <div style={{ ...st.manzilBelgi, background: 'var(--tint)' }}><Ikonka nom="home" size={16} /></div>
           <div style={{ flex: 1 }}>
             <div style={st.manzilLabel}>{t('prof.home')}</div>
             <div style={st.manzilQiymat}>{homeManzil || t('prof.noAddress')}</div>
@@ -118,7 +119,7 @@ export default function YolovchiProfili({ onYopish, onYangilandi, mapNuqta }) {
           </button>
         </div>
         <div style={st.manzilQator}>
-          <div style={st.manzilBelgi}>🏢</div>
+          <div style={{ ...st.manzilBelgi, background: 'var(--kok)' }}><Ikonka nom="work" size={16} /></div>
           <div style={{ flex: 1 }}>
             <div style={st.manzilLabel}>{t('prof.work')}</div>
             <div style={st.manzilQiymat}>{ishManzil || t('prof.noAddress')}</div>
@@ -144,27 +145,27 @@ function Stat({ raqam, matn, keng }) {
 }
 
 const st = {
-  fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 3500, padding: 0 },
-  modal: { width: '100%', maxWidth: 480, maxHeight: '90vh', overflowY: 'auto', borderRadius: '24px 24px 0 0', padding: 24 },
+  fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 3500, padding: 0, backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)' },
+  modal: { width: '100%', maxWidth: 480, maxHeight: '90vh', overflowY: 'auto', borderRadius: '14px 14px 0 0', padding: '8px 20px 20px' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  sarlavha: { fontSize: 19, fontWeight: 800 },
-  yopish: { width: 36, height: 36, borderRadius: '50%', background: 'var(--och-kulrang)', fontSize: 16 },
-  avatar: { width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, fontWeight: 800, margin: '0 auto 12px' },
-  ismQator: { display: 'flex', gap: 8, marginBottom: 6 },
-  input: { flex: 1, padding: 12, borderRadius: 10, border: '1px solid var(--neutral-200)', fontSize: 15 },
-  kichikTugma: { background: 'var(--qora)', color: 'var(--oq)', padding: '8px 14px', borderRadius: 10, fontWeight: 700, fontSize: 12 },
-  metaQator: { textAlign: 'center', fontSize: 13, color: 'var(--kulrang)', marginBottom: 18 },
+  sarlavha: { fontSize: 20, fontWeight: 600 },
+  yopish: { width: 30, height: 30, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  avatar: { width: 76, height: 76, borderRadius: '50%', background: 'var(--tint)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, fontWeight: 600, margin: '0 auto 12px' },
+  ismQator: { display: 'flex', gap: 8, marginBottom: 8 },
+  input: { flex: 1, padding: 12, borderRadius: 'var(--r-md)', border: 'none', background: 'var(--fill)', color: 'var(--label)', fontSize: 17 },
+  kichikTugma: { background: 'var(--tint-fill)', color: 'var(--tint)', padding: '8px 14px', borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 13, whiteSpace: 'nowrap' },
+  metaQator: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, fontSize: 14, color: 'var(--secondary-label)', marginBottom: 18 },
   statGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 },
-  manzilSarlavha: { fontSize: 14, fontWeight: 700, color: 'var(--kulrang)', marginBottom: 8 },
-  manzilQator: { display: 'flex', alignItems: 'center', gap: 10, background: 'var(--och-kulrang)', padding: 12, borderRadius: 12, marginBottom: 8 },
-  manzilBelgi: { fontSize: 22 },
-  manzilLabel: { fontSize: 11, color: 'var(--kulrang)', fontWeight: 600 },
-  manzilQiymat: { fontSize: 14, fontWeight: 600 },
-  xato: { color: 'var(--qizil)', fontSize: 13, textAlign: 'center', marginTop: 10 },
+  manzilSarlavha: { fontSize: 13, fontWeight: 400, color: 'var(--secondary-label)', textTransform: 'uppercase', letterSpacing: '-0.08px', marginBottom: 8 },
+  manzilQator: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--fill)', padding: 12, borderRadius: 'var(--r-md)', marginBottom: 8 },
+  manzilBelgi: { width: 30, height: 30, borderRadius: 7, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  manzilLabel: { fontSize: 12, color: 'var(--secondary-label)', fontWeight: 400 },
+  manzilQiymat: { fontSize: 15, fontWeight: 500 },
+  xato: { color: 'var(--qizil)', fontSize: 14, textAlign: 'center', marginTop: 10 },
 };
 
 const stStat = {
-  karta: { background: 'var(--och-kulrang)', padding: 14, borderRadius: 12, textAlign: 'center' },
-  raqam: { fontSize: 22, fontWeight: 800 },
-  matn: { fontSize: 11, color: 'var(--kulrang)', marginTop: 2 },
+  karta: { background: 'var(--fill)', padding: 14, borderRadius: 'var(--r-md)', textAlign: 'center' },
+  raqam: { fontSize: 22, fontWeight: 700 },
+  matn: { fontSize: 12, color: 'var(--secondary-label)', marginTop: 2 },
 };

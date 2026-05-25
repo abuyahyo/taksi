@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { useT } from '../i18n';
+import Ikonka from './Ikonka';
 
 export default function YangilanishBanner() {
   const { t } = useT();
@@ -26,8 +27,8 @@ export default function YangilanishBanner() {
   if (!koʻrinmoqda) return null;
 
   return (
-    <div style={st.banner}>
-      <span style={st.matn}>🆕 {t('pwa.newVersion')}</span>
+    <div style={st.banner} className="glass">
+      <span style={st.matn}>{t('pwa.newVersion')}</span>
       <button
         style={st.tugma}
         onClick={() => updateServiceWorker(true)}
@@ -36,7 +37,7 @@ export default function YangilanishBanner() {
         style={st.yopish}
         onClick={() => { setKoʻrinmoqda(false); setYangilanishKerak(false); }}
         aria-label="close"
-      >✕</button>
+      ><Ikonka nom="x" size={15} /></button>
     </div>
   );
 }
@@ -44,13 +45,13 @@ export default function YangilanishBanner() {
 const st = {
   banner: {
     position: 'fixed', bottom: 16, left: 16, right: 16,
-    background: 'var(--qora)', color: 'var(--oq)',
-    padding: '12px 14px', borderRadius: 14,
+    color: 'var(--label)',
+    padding: '12px 12px 12px 16px', borderRadius: 'var(--r-xl)',
     display: 'flex', alignItems: 'center', gap: 10,
-    zIndex: 5000, boxShadow: '0 4px 16px rgba(0,0,0,.3)',
+    zIndex: 5000, boxShadow: 'var(--shadow-3)',
     maxWidth: 460, margin: '0 auto',
   },
-  matn: { flex: 1, fontSize: 14 },
-  tugma: { background: 'var(--sariq)', color: 'var(--qora)', padding: '8px 14px', borderRadius: 10, fontWeight: 800, fontSize: 13 },
-  yopish: { background: 'transparent', color: 'var(--oq)', width: 28, height: 28, borderRadius: '50%', opacity: 0.7, fontSize: 14 },
+  matn: { flex: 1, fontSize: 15, fontWeight: 500 },
+  tugma: { background: 'var(--tint)', color: '#fff', padding: '8px 16px', borderRadius: 'var(--r-full)', fontWeight: 600, fontSize: 14 },
+  yopish: { background: 'var(--fill)', color: 'var(--secondary-label)', width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' },
 };
