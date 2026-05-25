@@ -70,7 +70,7 @@ function Ichki({ user, onOrqaga, onChiqish }) {
             <div style={{ fontSize: 13, color: 'var(--kulrang)', marginTop: 6 }}>{t('hist.emptyHint')}</div>
           </div>
         ) : (
-          <div style={st.royxat}>
+          <div style={st.royxat} className="royxat-anim">
             {rides.map((r) => {
               const menMijoz = Number(r.mijoz_id) === Number(user.id);
               const hamroh = menMijoz ? (r.haydovchi_ism || '—') : (r.mijoz_ism || t('hist.guest'));
