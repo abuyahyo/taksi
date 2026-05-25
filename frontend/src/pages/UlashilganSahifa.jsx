@@ -4,7 +4,8 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { socket } from '../services/api';
 import Harita from '../components/Harita';
-import HaritaPreview, { parseLatLng } from '../components/HaritaPreview';
+import HaritaPreview from '../components/HaritaPreview';
+import { parseLatLng } from '../utils/geo';
 import { useT, TilTanlovchi } from '../i18n';
 import { TemaTanlovchi } from '../theme';
 

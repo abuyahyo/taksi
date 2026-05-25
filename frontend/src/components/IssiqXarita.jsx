@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Circle, useMap } from 'react-leaflet';
 import { api } from '../services/api';
 import { useT } from '../i18n';
-import { parseLatLng } from './HaritaPreview';
+import { parseLatLng } from '../utils/geo';
 import 'leaflet/dist/leaflet.css';
 
 const TOSHKENT = [41.2995, 69.2401];
