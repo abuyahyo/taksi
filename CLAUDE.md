@@ -1,0 +1,165 @@
+# Safar Taksi — Claude учун ёдгорчик
+
+inDrive услубидаги такси веб-дастур. Тошкент учун. PWA билан — телефонга ўрнатилади.
+
+## Тил ва мулоқот
+
+- **Фойдаланувчи билан фақат ўзбек тилида гаплашинг** (кирилл алифбоси, инглизча ёки русча эмас).
+- Қисқа ва аниқ жавоблар. Кодни айтиб ўтирманг — фойдаланувчи кўрмайди.
+- Эмодзилар ўрнига ёзишда мақсадга етиб боринг.
+- Фойдаланувчи бошқа AI'нинг хабарларини кўчириб юбориши мумкин (бошқа сурурдан). Бундай ҳолатда **сиз — ҳақиқий машинадаги Claude Code** — реал ишни қила оласиз. Бошқа AI веб'да, машинага улaнмаган.
+
+## Стратегик қарорлар (ўзгартирманг)
+
+1. **Биз ҳайдовчидан фоиз олмаймиз.** Бизнинг даромад — **обуна** (subscription).
+   - Trial 7 кун бепул, кейин кунлик/ҳафталик/ойлик/йиллик пакетлар.
+   - Файл: `backend/src/controllers/subscriptionController.js` — нархлар шу ерда.
+2. **Бренд ранги — бирюза (#0E9384), сариқ эмас.** Сариқ = Yandex Go ассоциацияси. CSS'да `--sariq` номи қолдирилди (эски кодга мос), қиймати **бирюза**. Янги код учун `--asosiy`.
+3. **Шаффоф блоклаш** — биздан ўйлаб топилди. Admin блок қилмоқчи бўлса сабаб **мажбурий** (backend `400` қайтаради), фойдаланувчи login қилганда сабабни кўради. Бу архитектурада маҳкам, шунчаки UI эмас. Янги функция қўшганда **шу тамойилни сақланг**: фойдаланувчи учун шаффофлик.
+4. **Карта (банк карти) талаб қилмаймиз.** Render/Koyeb/Fly карта талаб қилади → улар йўқолди. Cloudflare Tunnel + Supabase бепул план + Nominatim бепул. **Google Maps мумкин эмас** (Billing талаб қилади). MapBox/OSM мумкин.
+5. **inDrive услуби.** Йўловчи нархни ўзи белгилайди, ҳайдовчи рози бўлади ёки **ўз нархи**ни таклиф қилади. Surge pricing йўқ.
+6. **Бошқа иловалардаги муаммоларни тузатишга стратегиямиз.** "Келди" алдаш → GPS текширув (200м). Манзил кўринмайди → йўловчи юлдузли превью. Хавфсизлик йўқ → SOS тугмаси, сафарни улашиш линки. Қўнғироқ кераксиз → чат.
+
+## Тех стек
+
+- **Backend:** Node.js + Express 5, Socket.io 4, PostgreSQL (Supabase), JWT, bcryptjs. Native `fetch` (Node 22).
+- **Frontend:** React 18 + Vite 8 (rolldown), React Router, Leaflet, Axios, socket.io-client, vite-plugin-pwa.
+- **i18n:** Кутубхонасиз ўз қурилмаси — `src/i18n/index.jsx` + `uz.js`/`uz-latn.js`/`ru.js`.
+- **PWA:** vite-plugin-pwa билан, `registerType: 'autoUpdate'` + `cleanupOutdatedCaches`. Янги версия → автомат янгиланиш, кеш муаммоси йўқ.
+- **Дизайн:** Liquid Glass (`backdrop-filter`), `.glass` / `.glass-dark` / `.glass-asosiy` / `.glass-tugma` утилитлари. Декоратив `.fon-blobs` блоблар билан фон. Index.css ичида.
+
+## Лойиҳа тузилиши
+
+```
+C:\taxi-app\
+├── backend\
+│   ├── src\
+│   │   ├── server.js              # роутларни yиғади
+│   │   ├── config\db.js           # PG pool, DATABASE_URL ёки DB_*
+│   │   ├── config\schema.sql      # барча жадваллар + индекслар
+│   │   ├── controllers\           # auth, admin, driver, passenger, ride, share, payment, payme, click, message, geocode, heatmap, sos, subscription
+│   │   ├── routes\                # мос routes
+│   │   ├── middleware\auth.js     # JWT + role middleware
+│   │   └── socket\socketHandler.js # барча real-time мантиқ шу ерда
+│   ├── .env                       # GIT'га YOQ — DATABASE_URL, JWT_SECRET
+│   └── package.json
+├── frontend\
+│   ├── src\
+│   │   ├── App.jsx                # роутер, ToastProvider, I18nProvider, Suspense lazy
+│   │   ├── main.jsx
+│   │   ├── index.css              # БАРЧА дизайн tokens, glass, blobs шу ерда
+│   │   ├── i18n\                  # uz.js, uz-latn.js, ru.js, index.jsx
+│   │   ├── services\              # api.js (axios + socket), useSocket.js, bildirishnoma.js
+│   │   ├── components\            # Kirish, Chat, Tolov, Ulashish, Baholash, MashinaProfili, YolovchiProfili, Obuna, SOS, NarxTarkibi, HaritaPreview, IssiqXarita, ManzilQidirish, Toast, Skelet, YangilanishBanner
+│   │   └── pages\                 # KirishSahifa (бош), YolovchiSahifa, HaydovchiSahifa, AdminSahifa, SafarTarixi, UlashilganSahifa
+│   ├── public\                    # icon-192/512/маскали, manifest автомат vite'дан
+│   ├── vite.config.js             # PWA конфиг шу ерда
+│   └── package.json
+├── CLAUDE.md                      # бу файл
+├── README.md
+└── REJA.md
+```
+
+## Базани миграция қилиш
+
+Барча миграциялар Supabase'да аллақачон қилинган. Янги ўзгариш керак бўлса:
+
+1. SQL'ни `$env:TEMP\add_X.sql` каби вақтинча файлга ёзинг.
+2. Бажариш:
+   ```powershell
+   $dbPass = Get-Content "$env:TEMP\supa_db_pass.txt" -Raw
+   $env:PGPASSWORD = $dbPass; $env:PGSSLMODE = "require"
+   & "C:\Program Files\PostgreSQL\17\bin\psql.exe" `
+     -h "aws-1-eu-central-1.pooler.supabase.com" -p 5432 `
+     -U "postgres.zzucnvzoruidqjgrwzdi" -d postgres `
+     -f "$env:TEMP\add_X.sql"
+   ```
+3. `backend/src/config/schema.sql`'га ҳам қўшинг (мос келиш учун).
+4. **Direct host (`db.zzucnvzoruidqjgrwzdi.supabase.co`) IPv6-only — DNS resolve бўлмайди.** Pooler (`aws-1-eu-central-1.pooler.supabase.com:5432`) сессион режимда ишлатинг.
+
+## Қандай ишга тушириш (компьютер ёқилгач)
+
+Бизда **қайтариладиган скрипт йўқ** — қўлда. Лекин қадамлар содда:
+
+```powershell
+# 1. Backend
+cd C:\taxi-app\backend
+npm run dev        # http://localhost:5000
+
+# 2. Cloudflare Tunnel (бошқа ойнада)
+cloudflared tunnel --url http://localhost:5000
+# URL чиқади — масалан https://abc-def.trycloudflare.com
+# Уни $env:TEMP\tunnel_url.txt'га сақланг (визуал тест скриптлари шу ердан ўқийди)
+```
+
+URL **ҳар сафар ўзгаради** (бепул quick tunnel). Барқарор URL керак бўлса Cloudflare аккаунти + домен (карта мажбурий) — биз қилмаймиз.
+
+## Синов аккаунтлари
+
+| Рол | Телефон | Парол | Изоҳ |
+|---|---|---|---|
+| Админ (мижоз ҳам) | `+998901234567` | `test123` | id=1, "Админ Каримов" |
+| Ҳайдовчи | `+998905555555` | `test123` | id=2, "Бахтиёр Алиев", машина: Chevrolet Cobalt оқ, рақам 01 A 777 BA |
+
+Supabase DB пароли: `$env:TEMP\supa_db_pass.txt` (фойдаланувчининг машинасида).
+
+## Текширишлар (smoke test)
+
+Тўлиқ синов учун:
+
+```powershell
+# Backend ҳаёти
+Invoke-RestMethod http://localhost:5000
+
+# Тоннел
+Invoke-RestMethod (Get-Content "$env:TEMP\tunnel_url.txt" -Raw)
+
+# Login API
+$h = @{'Content-Type'='application/json'}
+Invoke-RestMethod "http://localhost:5000/api/auth/login" -Method POST -Headers $h -Body '{"telefon":"+998901234567","parol":"test123"}'
+```
+
+Визуал/socket тест бўлса — `backend/`га вақтинча `*.js` файл ёзиб (playwright-core + socket.io-client + axios `--no-save` ўрнатиб), кейин файлни ўчириб юборинг (commit'га киритманг).
+
+**Эслатма:** `--no-save` орқали ўрнатилган пакетлар (playwright-core, socket.io-client, axios) **бир-бирини алмаштиради**. Иккаласи керак бўлса битта `npm install` буйруғида бирга ёзинг:
+```powershell
+npm install playwright-core socket.io-client axios --no-save
+```
+
+## Дизайн тамойиллари
+
+- **Тил**: фронтенда фойдаланувчи матн ҳамма жойда `t('kalit')` орқали. 3 тилда (uz/uz-latn/ru).
+- **Ўзбекча кодлар**: ўзгарувчи номлари ўзбекча (`yuborildi`, `tugash`, `narx`, `safar`). Барча янги код шу услубда.
+- **Glass**: фон ортида **маъноли контент** бўлса glass (харита, blob). Солид — фойдаланувчи **ўқиётганда** (форма, жадвал).
+- **Бирюза асосий, қора иккиламчи**. Семантик ранглар — амбер огоҳлантиришлар, қизил хатолар, яшил муваффақиятлар (тегмаслик керак).
+- **slideUp анимация** — модаллар очилишида. `.slide-up-modal` тагидан.
+- **Yandex'дан ўргандик** — кутиш ҳақи (3 дақ. бепул кейин 500 сўм/мин), чат шаблонлари, чаёвой, сўнгги манзиллар. Лекин **бизнинг шартда** — комиссия эмас, обуна.
+
+## Кодлаш услуби
+
+- Toast'ни alert/confirm ўрнига: `const toast = useToast(); toast.success('Сақланди');`
+- Backend хатолар: `{ xato: 'Хабар' }` формати. Фронтенд `err.response?.data?.xato`'ни тутади.
+- Socket events ўзбекча номлар: `buyurtma_keldi`, `yangi_taklif`, `safar_holati`, `sos_yuborildi`.
+- DB колонналар: `boshlanish_manzil`, `kelishilgan_narx`, `kutish_haqi`, `chayovoy`. Кириллча матнлар колоннада сақланиши OK.
+- React.lazy() route'лар (Suspense'ни ёдда тутинг).
+- `localStorage`: `token`, `user`, `til`. ҳаммаси шу учта.
+
+## Билиш керак бўлганлар
+
+- **Boshqa AI** хабарларини юборганда — у машинага улaнмаган, ZIP ярата олмайди, файлларни кўра олмайди. Сиз эса машинада ишлашингиз мумкин. Унинг хабарини контекст сифатида ўқинг, лекин сиз ҳақиқий ишни қилинг.
+- **Тоннел URL ҳар сафар ўзгаради** — Cloudflare quick tunnel шундай. Қайта ишга туширилса янги URL чиқади.
+- **`node --watch` .env'ни тингламайди.** `.env` ўзгарганда қўлда `npm run dev`'ни қайта ишга тушуринг.
+- **PowerShell ва Cyrillic**: `Invoke-RestMethod`'нинг `-Body` ишлатганда UTF-8 яхши ишламайди — кириллча текст `?????`'га айланиши мумкин. SQL орқали ишланиши керак бўлса, файлга UTF-8'да ёзинг ва `psql -f`'нинг ишлатинг.
+- **GitHub repo**: `abuyahyo/tez-taxi` (исм Tez Taxi'дан Safar Taksi'га ўзгарди, лекин repo номи ўзгармаган — атайлаб).
+
+## Reja.md ва README.md
+
+Дастур аввалги ҳолатидан кўп ўзгарди. **README.md янгиланган** (шу пайтгача функциялар, шаффоф блоклаш ҳақида алоҳида бўлим). `REJA.md` эса аввалги режа — янгиланмаган.
+
+## Сўнгги commit
+
+```
+git log --oneline -10
+```
+
+буйруғи билан охирги ҳаракатларни кўришингиз мумкин.
