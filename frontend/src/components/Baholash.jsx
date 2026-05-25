@@ -20,7 +20,7 @@ export default function Baholash({ rideId, kimni, ism, onYopish }) {
 
   return (
     <div style={st.fon}>
-      <div style={st.modal} className="slide-up">
+      <div style={st.modal} className="glass slide-up">
         {yuborildi ? (
           <div style={st.tugadi}>
             <div style={{ fontSize: 56 }}>🎉</div>
@@ -69,7 +69,7 @@ export default function Baholash({ rideId, kimni, ism, onYopish }) {
 
 const st = {
   fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 4000, padding: 16 },
-  modal: { background: 'var(--oq)', width: '100%', maxWidth: 380, borderRadius: 20, padding: 28, textAlign: 'center' },
+  modal: { width: '100%', maxWidth: 380, borderRadius: 20, padding: 28, textAlign: 'center' },
   avatar: { width: 64, height: 64, borderRadius: '50%', background: 'var(--sariq)', margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 800 },
   sarlavha: { fontSize: 18, fontWeight: 700, color: 'var(--kulrang)' },
   ism: { fontSize: 22, fontWeight: 800, marginTop: 4, marginBottom: 20 },

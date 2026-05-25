@@ -41,7 +41,7 @@ export default function MashinaProfili({ onYopish, onSaqlandi }) {
 
   return (
     <div style={st.fon} onClick={onYopish}>
-      <div style={st.modal} className="slide-up" onClick={(e) => e.stopPropagation()}>
+      <div style={st.modal} className="glass slide-up" onClick={(e) => e.stopPropagation()}>
         <div style={st.header}>
           <div style={st.sarlavha}>{t('car.title')}</div>
           <button style={st.yopish} onClick={onYopish}>✕</button>
@@ -109,7 +109,7 @@ export function mashinaMatn(profil) {
 
 const st = {
   fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3500, padding: 16 },
-  modal: { background: 'var(--oq)', width: '100%', maxWidth: 420, borderRadius: 20, padding: 24 },
+  modal: { width: '100%', maxWidth: 420, borderRadius: 20, padding: 24 },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 },
   sarlavha: { fontSize: 19, fontWeight: 800 },
   yopish: { width: 36, height: 36, borderRadius: '50%', background: 'var(--och-kulrang)', fontSize: 16, fontWeight: 700 },

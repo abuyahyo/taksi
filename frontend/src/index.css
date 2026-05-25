@@ -199,3 +199,90 @@ button:focus-visible {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--neutral-300); border-radius: var(--r-full); }
 ::-webkit-scrollbar-thumb:hover { background: var(--neutral-400); }
+
+/* ===== Liquid Glass — Apple iOS 26 услубида ===== */
+
+/* Glass юза — фон ортидан кўриниб турувчи қатлам */
+.glass {
+  background: rgba(255, 255, 255, 0.65);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+          backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 8px 32px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Қора glass — қора фондаги панеллар учун */
+.glass-dark {
+  background: rgba(26, 26, 26, 0.55);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+          backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--oq);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.32);
+}
+
+/* Бирюза тинктли glass — бренд rangida */
+.glass-asosiy {
+  background: rgba(14, 147, 132, 0.18);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+          backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid rgba(14, 147, 132, 0.32);
+  box-shadow: 0 8px 24px rgba(14, 147, 132, 0.18);
+}
+
+/* Кичик glass — тугмалар учун */
+.glass-tugma {
+  background: rgba(255, 255, 255, 0.7);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+          backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Фалбэк: backdrop-filter ёппа эмас (eski Firefox) — фон қуюқроқ */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .glass { background: rgba(255, 255, 255, 0.94); }
+  .glass-dark { background: rgba(26, 26, 26, 0.92); }
+  .glass-asosiy { background: rgba(207, 250, 244, 0.95); }
+  .glass-tugma { background: rgba(255, 255, 255, 0.94); }
+}
+
+/* ===== Декоратив фон (флэт саҳифаларга glass учун маъно беради) =====
+   Blob'лар — катта, шаффоф рангли доиралар. Фондан кам ҳаракатсиз, лекин
+   glass панеллар орқали кўринади.
+*/
+.fon-blobs {
+  position: relative;
+  isolation: isolate;
+  background: var(--sariq-surface);
+}
+.fon-blobs::before, .fon-blobs::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.55;
+  z-index: -1;
+  pointer-events: none;
+}
+.fon-blobs::before {
+  width: 380px; height: 380px;
+  background: var(--sariq);
+  top: -80px; left: -120px;
+  animation: floatBlob 18s ease-in-out infinite alternate;
+}
+.fon-blobs::after {
+  width: 320px; height: 320px;
+  background: #F472B6; /* coral accent — glass'дa чироқли кўринади */
+  bottom: -100px; right: -100px;
+  animation: floatBlob 22s ease-in-out infinite alternate-reverse;
+  opacity: 0.35;
+}
+
+@keyframes floatBlob {
+  0%   { transform: translate(0, 0)     scale(1);    }
+  50%  { transform: translate(40px, 30px) scale(1.08); }
+  100% { transform: translate(-30px, 50px) scale(0.95); }
+}

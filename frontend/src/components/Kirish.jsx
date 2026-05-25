@@ -45,9 +45,9 @@ export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
   };
 
   return (
-    <div style={st.fon}>
+    <div style={st.fon} className="fon-blobs">
       <div style={st.til}><TilTanlovchi /></div>
-      <form style={st.karta} className="slide-up" onSubmit={yubor}>
+      <form style={st.karta} className="glass slide-up" onSubmit={yubor}>
         <div style={st.logo}>🚕</div>
         <h2 style={st.sarlavha}>{sarlavha}</h2>
 
@@ -99,7 +99,7 @@ export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
 const st = {
   fon: { position: 'relative', width: '100vw', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, background: 'var(--och-kulrang)' },
   til: { position: 'absolute', top: 16, right: 16 },
-  karta: { background: 'var(--oq)', width: '100%', maxWidth: 400, padding: 32, borderRadius: 20, display: 'flex', flexDirection: 'column', gap: 14, boxShadow: 'var(--soya)' },
+  karta: { width: '100%', maxWidth: 400, padding: 32, borderRadius: 20, display: 'flex', flexDirection: 'column', gap: 14 },
   logo: { fontSize: 48, textAlign: 'center' },
   sarlavha: { fontSize: 22, fontWeight: 800, textAlign: 'center', marginBottom: 8 },
   input: { padding: 14, borderRadius: 12, border: '1px solid #E5E7EB', fontSize: 15 },

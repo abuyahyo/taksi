@@ -77,7 +77,7 @@ export default function YolovchiProfili({ onYopish, onYangilandi, mapNuqta }) {
 
   return (
     <div style={st.fon} onClick={onYopish}>
-      <div style={st.modal} className="slide-up-modal" onClick={(e) => e.stopPropagation()}>
+      <div style={st.modal} className="glass slide-up-modal" onClick={(e) => e.stopPropagation()}>
         <div style={st.header}>
           <div style={st.sarlavha}>👤 {t('prof.title')}</div>
           <button style={st.yopish} onClick={onYopish}>✕</button>
@@ -145,7 +145,7 @@ function Stat({ raqam, matn, keng }) {
 
 const st = {
   fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 3500, padding: 0 },
-  modal: { background: 'var(--oq)', width: '100%', maxWidth: 480, maxHeight: '90vh', overflowY: 'auto', borderRadius: '24px 24px 0 0', padding: 24 },
+  modal: { width: '100%', maxWidth: 480, maxHeight: '90vh', overflowY: 'auto', borderRadius: '24px 24px 0 0', padding: 24 },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
   sarlavha: { fontSize: 19, fontWeight: 800 },
   yopish: { width: 36, height: 36, borderRadius: '50%', background: 'var(--och-kulrang)', fontSize: 16 },

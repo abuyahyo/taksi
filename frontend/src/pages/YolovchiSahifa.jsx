@@ -403,7 +403,7 @@ const st = {
   tezTugma: { flex: 1, background: 'var(--och-kulrang)', padding: 10, borderRadius: 10, fontSize: 13, fontWeight: 700 },
   kutishOgoh: { background: '#FEF3C7', borderLeft: '4px solid #F59E0B', padding: '10px 12px', borderRadius: 10, marginBottom: 10, fontSize: 13, color: '#92400E', fontWeight: 600 },
   kutishQushilgan: { background: '#FEE2E2', padding: 8, borderRadius: 8, fontSize: 13, color: '#991B1B', textAlign: 'center', marginBottom: 10 },
-  panel: { position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 1000, background: 'var(--oq)', borderRadius: '24px 24px 0 0', padding: 24, boxShadow: '0 -4px 20px rgba(0,0,0,0.1)' },
+  panel: { position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 1000, borderRadius: '24px 24px 0 0', padding: 24, background: 'rgba(255,255,255,0.78)', WebkitBackdropFilter: 'blur(24px) saturate(180%)', backdropFilter: 'blur(24px) saturate(180%)', borderTop: '1px solid rgba(255,255,255,0.5)', boxShadow: '0 -8px 32px rgba(0,0,0,0.12)' },
   sarlavha: { fontSize: 22, fontWeight: 800, marginBottom: 16 },
   izoh: { color: 'var(--kulrang)', fontSize: 14, marginBottom: 16 },
   maydon: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--och-kulrang)', padding: 14, borderRadius: 14, marginBottom: 10, cursor: 'pointer' },

@@ -7,7 +7,7 @@ export default function KirishSahifa() {
   const { t } = useT();
 
   return (
-    <div style={st.sahifa}>
+    <div style={st.sahifa} className="fon-blobs">
       {/* Юқорида тил свитчер */}
       <div style={st.tilSwitcher}><TilTanlovchi /></div>
 
@@ -41,9 +41,9 @@ export default function KirishSahifa() {
         </button>
       </div>
 
-      {/* Бизнинг устунлик — Шаффоф адолат */}
+      {/* Бизнинг устунлик — Шаффоф адолат (glass card) */}
       <div style={st.afzallik} className="fade-in">
-        <div style={st.afzKarta}>
+        <div style={st.afzKarta} className="glass">
           <div style={st.afzIkon}>🌟</div>
           <div style={st.afzMatn}>
             <div style={st.afzSarlavha}>{t('home.uniqueTitle')}</div>
@@ -122,11 +122,10 @@ const st = {
   afzallik: { marginTop: 'var(--space-5)' },
   afzKarta: {
     display: 'flex', gap: 'var(--space-3)',
-    background: 'var(--oq)',
     borderLeft: '4px solid var(--amber)',
     padding: 'var(--space-4)',
     borderRadius: 'var(--r-md)',
-    boxShadow: 'var(--shadow-1)',
+    /* glass class фон ва blur беради */
   },
   afzIkon: { fontSize: 22, flexShrink: 0, lineHeight: 1 },
   afzMatn: { display: 'flex', flexDirection: 'column', gap: 4 },

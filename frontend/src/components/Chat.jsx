@@ -53,7 +53,7 @@ export default function Chat({ rideId, meId, hamrohIsm, onClose }) {
 
   return (
     <div style={st.fon} onClick={onClose}>
-      <div style={st.panel} className="slide-up-modal" onClick={(e) => e.stopPropagation()}>
+      <div style={st.panel} className="glass slide-up-modal" onClick={(e) => e.stopPropagation()}>
         <div style={st.header}>
           <div>
             <div style={st.sarlavha}>💬 {sarlavha}</div>
@@ -101,7 +101,7 @@ export default function Chat({ rideId, meId, hamrohIsm, onClose }) {
 
 const st = {
   fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 3000 },
-  panel: { background: 'var(--oq)', width: '100%', maxWidth: 480, height: '85vh', borderRadius: '24px 24px 0 0', display: 'flex', flexDirection: 'column' },
+  panel: { width: '100%', maxWidth: 480, height: '85vh', borderRadius: '24px 24px 0 0', display: 'flex', flexDirection: 'column' },
   header: { padding: 16, borderBottom: '1px solid #E5E7EB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   sarlavha: { fontSize: 17, fontWeight: 800 },
   izoh: { fontSize: 12, color: 'var(--kulrang)', marginTop: 2 },
