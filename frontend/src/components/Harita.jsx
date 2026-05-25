@@ -1,7 +1,7 @@
 // Харита компоненти — манзилларни кўрсатади ва танлаш имконини беради.
 // Икки режим: (1) тап билан нуқта қўйиш (onBosish), (2) Yandex Go услуби —
 // марказда турғун пин, харита сурилади, марказ координатаси onMarkaz'га узатилади.
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Polyline, useMapEvents, useMap } from 'react-leaflet';
 import { useEffect } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -95,6 +95,14 @@ export default function Harita({
         {uchish && <UchishKuzat uchish={uchish} />}
         {onBosish && <BosishHodisasi onBosish={onBosish} />}
         {markazRejim && onMarkaz && <MarkazKuzat onMarkaz={onMarkaz} />}
+        {/* Йўл чизиғи — pickup ↔ борар манзил */}
+        {boshlanish && tugash && (
+          <Polyline positions={[boshlanish, tugash]} pathOptions={{ color: '#0E9384', weight: 4, opacity: 0.85 }} />
+        )}
+        {/* Ҳайдовчи → pickup (пунктир) — ҳайдовчи йўлда бўлганда */}
+        {haydovchi && boshlanish && (
+          <Polyline positions={[haydovchi, boshlanish]} pathOptions={{ color: '#0E9384', weight: 3, opacity: 0.55, dashArray: '6 8' }} />
+        )}
         {boshlanish && <Marker position={boshlanish} icon={yashilIcon} />}
         {tugash && <Marker position={tugash} />}
         {haydovchi && <Marker position={haydovchi} icon={haydovchiIcon} />}
