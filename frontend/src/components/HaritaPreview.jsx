@@ -54,7 +54,7 @@ export default function HaritaPreview({ boshlanish, tugash, height = 110 }) {
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <Marker position={boshlanish} icon={yashilDot} />
         <Marker position={tugash} icon={qizilDot} />
-        <Polyline positions={[boshlanish, tugash]} pathOptions={{ color: '#FACC15', weight: 4, opacity: 0.9 }} />
+        <Polyline positions={[boshlanish, tugash]} pathOptions={{ color: '#0E9384', weight: 4, opacity: 0.9 }} />
         <FitBounds nuqtalar={[boshlanish, tugash]} />
       </MapContainer>
     </div>

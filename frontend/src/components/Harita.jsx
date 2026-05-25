@@ -25,7 +25,7 @@ const haydovchiIcon = L.divIcon({
   className: 'haydovchi-marker',
   html: `<div style="
     width:44px;height:44px;border-radius:50%;
-    background:#FACC15;display:flex;align-items:center;justify-content:center;
+    background:#0E9384;display:flex;align-items:center;justify-content:center;
     font-size:24px;box-shadow:0 2px 8px rgba(0,0,0,.3);
     border:3px solid #fff;
   ">🚗</div>`,

@@ -2,11 +2,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap');
 
 :root {
-  /* ===== Брэнд ранглари (сариқ + қора) ===== */
-  --sariq:           #FCDB00;
-  --sariq-light:     #FFE940;
-  --sariq-dark:      #E8C800;
-  --sariq-surface:   #FFFBEA;  /* жуда оч сариқ — таг ранг */
+  /* ===== Брэнд ранглари (бирюза + қора) =====
+     Эслатма: `--sariq` номи қолдирилди (бой кодга мос),
+     лекин қиймати энди бирюза — рақобатчилардан фарқлантириш учун.
+     Янги код учун `--asosiy` синонимини ишлатиш мумкин.
+  */
+  --sariq:           #0E9384;  /* primary teal */
+  --sariq-light:     #2DD4BF;
+  --sariq-dark:      #134E48;
+  --sariq-surface:   #F0FDFA;  /* жуда оч бирюза — таг ранг */
+
+  /* Семантик синонимлар (янги код учун) */
+  --asosiy:          var(--sariq);
+  --asosiy-light:    var(--sariq-light);
+  --asosiy-dark:     var(--sariq-dark);
+  --asosiy-surface:  var(--sariq-surface);
 
   --qora:            #1A1A1A;
   --qora-soft:       #374151;  /* асосий матн */
@@ -66,7 +76,7 @@
   --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
   --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
   --shadow-4: 0 24px 48px rgba(0, 0, 0, 0.18), 0 8px 16px rgba(0, 0, 0, 0.10);
-  --shadow-sariq: 0 8px 24px rgba(252, 219, 0, 0.35);
+  --shadow-sariq: 0 8px 24px rgba(14, 147, 132, 0.32);
 
   /* Эски ном — бой кодга мос */
   --soya: var(--shadow-2);
@@ -123,12 +133,12 @@ input, textarea {
 }
 input:focus, textarea:focus {
   border-color: var(--sariq) !important;
-  box-shadow: 0 0 0 3px rgba(252, 219, 0, 0.25);
+  box-shadow: 0 0 0 3px rgba(14, 147, 132, 0.22);
 }
 
 /* ===== Focus ring (accessibility) ===== */
 button:focus-visible {
-  outline: 3px solid rgba(252, 219, 0, 0.55);
+  outline: 3px solid rgba(14, 147, 132, 0.5);
   outline-offset: 2px;
 }
 
