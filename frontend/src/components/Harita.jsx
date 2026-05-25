@@ -22,17 +22,16 @@ const pinSvg = (rang) => `<svg width="30" height="40" viewBox="0 0 24 32" xmlns=
 const boshlanishIcon = L.divIcon({ className: 'brand-pin', html: pinSvg('#0E9384'), iconSize: [30, 40], iconAnchor: [15, 40] });
 const tugashIcon = L.divIcon({ className: 'brand-pin', html: pinSvg('#EF4444'), iconSize: [30, 40], iconAnchor: [15, 40] });
 
-// Ҳайдовчи учун машина иконкаси (emoji + бирюза доира)
+// Ҳайдовчи учун машина иконкаси (SVG + бирюза доира)
 const haydovchiIcon = L.divIcon({
   className: 'haydovchi-marker',
   html: `<div style="
-    width:44px;height:44px;border-radius:50%;
+    width:42px;height:42px;border-radius:50%;
     background:#0E9384;display:flex;align-items:center;justify-content:center;
-    font-size:24px;box-shadow:0 2px 8px rgba(0,0,0,.3);
-    border:3px solid #fff;
-  ">🚗</div>`,
-  iconSize: [44, 44],
-  iconAnchor: [22, 22],
+    box-shadow:0 2px 8px rgba(0,0,0,.3);border:3px solid #fff;
+  "><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11l1.8-4.6A2 2 0 0 1 8.7 5h6.6a2 2 0 0 1 1.9 1.4L19 11"/><path d="M4 11h16a1 1 0 0 1 1 1v4H3v-4a1 1 0 0 1 1-1z"/><circle cx="7.5" cy="16.5" r="1.6"/><circle cx="16.5" cy="16.5" r="1.6"/></svg></div>`,
+  iconSize: [42, 42],
+  iconAnchor: [21, 21],
 });
 
 // Харитани белгиланган нуқтага кўчириш

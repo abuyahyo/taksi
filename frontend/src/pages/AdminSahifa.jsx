@@ -194,7 +194,7 @@ function AdminIchki({ onChiqish }) {
                       )}
                     </div>
                     <div style={st.userMeta}>
-                      {u.telefon} · {u.rol === 'haydovchi' ? t('admin.roleDriver') : u.rol === 'admin' ? t('admin.roleAdmin') : t('admin.roleClient')} · ⭐ {u.reyting}
+                      {u.telefon} · {u.rol === 'haydovchi' ? t('admin.roleDriver') : u.rol === 'admin' ? t('admin.roleAdmin') : t('admin.roleClient')} · <Ikonka nom="star" size={11} /> {u.reyting}
                     </div>
                     {u.bloklangan && <div style={st.blokBelgi}>{t('admin.blocked', { sabab: u.blok_sababi })}</div>}
                   </div>
