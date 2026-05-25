@@ -32,6 +32,22 @@ export default function Ikonka({ nom, size = 20 }) {
       return <svg {...p}><path d="M12 21s7-5.5 7-11a7 7 0 0 0-14 0c0 5.5 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>;
     case 'arrow-right':
       return <svg {...p}><path d="M5 12h14M13 6l6 6-6 6" /></svg>;
+    case 'arrow-left':
+      return <svg {...p}><path d="M19 12H5M11 6l-6 6 6 6" /></svg>;
+    case 'star':
+      return <svg {...p} fill="currentColor" stroke="none"><path d="M12 3.5l2.6 5.27 5.82.85-4.21 4.1.99 5.79L12 16.77l-5.2 2.74.99-5.79-4.21-4.1 5.82-.85L12 3.5z" /></svg>;
+    case 'lock':
+      return <svg {...p}><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>;
+    case 'chat':
+      return <svg {...p}><path d="M21 12a8 8 0 0 1-11.5 7.2L4 20l.9-4.4A8 8 0 1 1 21 12z" /><path d="M8.5 11h7M8.5 14h4" /></svg>;
+    case 'search':
+      return <svg {...p}><circle cx="11" cy="11" r="7" /><path d="M21 21l-4-4" /></svg>;
+    case 'road':
+      return <svg {...p}><path d="M7 21L9 3M17 21l-2-18M12 6v2M12 12v2M12 18v1" /></svg>;
+    case 'moon':
+      return <svg {...p}><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" /></svg>;
+    case 'alert':
+      return <svg {...p}><path d="M10.3 3.9l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3.1l-8-14a2 2 0 0 0-3.4 0z" /><path d="M12 9v4M12 17h.01" /></svg>;
     default:
       return null;
   }

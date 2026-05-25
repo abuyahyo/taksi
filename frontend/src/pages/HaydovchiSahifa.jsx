@@ -226,7 +226,7 @@ function Ichki({ user, onChiqish }) {
   return (
     <div style={st.sahifa}>
       <div style={st.header}>
-        <div style={st.logo}>🚕 {user.ism}</div>
+        <div style={st.logo}><Ikonka nom="taxi" size={18} /> {user.ism}</div>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <TemaTanlovchi />
           <TilTanlovchi />
@@ -279,7 +279,7 @@ function Ichki({ user, onChiqish }) {
                 #{faolSafar.rideId} · {Number(faolSafar.narx).toLocaleString()} · {joylashuvOchiqmi ? t('drv.gpsOn') : t('drv.gpsWait')}
               </div>
             </div>
-            <button style={st.chatTugma} onClick={() => setChatOchiq(true)}>💬</button>
+            <button style={st.chatTugma} onClick={() => setChatOchiq(true)} title={t('chat.tripChat')}><Ikonka nom="chat" size={20} /></button>
           </div>
 
           {/* Кутиш таймери (yetib_keldi ҳолатида) */}
@@ -298,10 +298,10 @@ function Ichki({ user, onChiqish }) {
           {/* Тугмалар - ҳолатга қараб */}
           <div style={st.tugmaQator}>
             {faolSafar.holati === 'kelmoqda' && (
-              <button style={st.harakatTugma} onClick={yetibKeldim}>🚗 {t('wait.iArrived')}</button>
+              <button style={st.harakatTugma} onClick={yetibKeldim}><Ikonka nom="car" size={18} /> {t('wait.iArrived')}</button>
             )}
             {faolSafar.holati === 'yetib_keldi' && (
-              <button style={st.harakatTugma} onClick={yolgaChiqdik}>🛣 {t('wait.startDrive')}</button>
+              <button style={st.harakatTugma} onClick={yolgaChiqdik}><Ikonka nom="road" size={18} /> {t('wait.startDrive')}</button>
             )}
             {faolSafar.holati === 'yolda' && (
               <button style={st.harakatTugma} onClick={safarTugatish}>{t('drv.endRide')}</button>
@@ -346,13 +346,13 @@ function Ichki({ user, onChiqish }) {
       <div style={st.royxat}>
         {!onlayn ? (
           <div style={st.bosh}>
-            <div style={st.boshIkon}>🌙</div>
+            <div style={st.boshIkon}><Ikonka nom="moon" size={32} /></div>
             <h3 style={st.boshSarlavha}>{t('drv.youOffline')}</h3>
             <p style={st.boshMatn}>{t('drv.youOfflineHint')}</p>
           </div>
         ) : buyurtmalar.length === 0 ? (
           <div style={st.bosh}>
-            <div style={st.boshIkon}>🔍</div>
+            <div style={st.boshIkon}><Ikonka nom="search" size={32} /></div>
             <h3 style={st.boshSarlavha}>{t('drv.waiting')}</h3>
             <p style={st.boshMatn}>{t('drv.waitingHint')}</p>
           </div>
@@ -362,7 +362,7 @@ function Ichki({ user, onChiqish }) {
               <div style={st.kartaYuqori}>
                 <div>
                   <div style={st.narx}>{Number(b.narx).toLocaleString()}</div>
-                  <div style={st.masofa}>{b.masofa} км · {b.mijoz} ⭐ {b.reyting}</div>
+                  <div style={st.masofa}>{b.masofa} км · {b.mijoz} <Ikonka nom="star" size={12} /> {b.reyting}</div>
                 </div>
                 <div style={st.vaqt}>{b.vaqt}</div>
               </div>
@@ -413,7 +413,7 @@ function Ichki({ user, onChiqish }) {
       {pinModal && (
         <div style={st.modalFon} onClick={() => setPinModal(false)}>
           <div style={st.modal} onClick={(e) => e.stopPropagation()}>
-            <h3 style={st.modalSarlavha}>🔒 {t('pin.enterTitle')}</h3>
+            <h3 style={st.modalSarlavha}><Ikonka nom="lock" size={18} /> {t('pin.enterTitle')}</h3>
             <input
               style={st.pinInput}
               type="tel"
@@ -440,7 +440,7 @@ function Ichki({ user, onChiqish }) {
 const st = {
   sahifa: { width: '100%', maxWidth: 480, margin: '0 auto', minHeight: '100dvh', background: 'var(--och-kulrang)', paddingBottom: 'env(safe-area-inset-bottom)' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', paddingTop: 'calc(16px + env(safe-area-inset-top))', background: 'var(--oq)', gap: 8 },
-  logo: { fontWeight: 800, fontSize: 14, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  logo: { display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 800, fontSize: 14, flex: 1, overflow: 'hidden', whiteSpace: 'nowrap' },
   chiqish: { background: 'var(--och-kulrang)', padding: '8px 12px', borderRadius: 16, fontWeight: 600, fontSize: 12 },
   tarixTugma: { background: 'var(--och-kulrang)', width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--qora)' },
   obunaBadge: { position: 'absolute', top: -4, right: -4, background: '#DC2626', color: '#fff', minWidth: 18, height: 18, borderRadius: 9, fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' },
@@ -449,25 +449,25 @@ const st = {
   daromad: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 16, padding: 20, background: 'linear-gradient(135deg, #1F2937, #111827)', borderRadius: 18, color: '#fff', boxShadow: 'var(--shadow-2)' },
   faolSafar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 16px 10px', padding: 16, background: 'var(--yashil)', borderRadius: 16, color: 'var(--oq)', gap: 8 },
   tugatTugma: { background: 'var(--oq)', color: 'var(--yashil)', padding: '10px 12px', borderRadius: 12, fontWeight: 800, fontSize: 12 },
-  chatTugma: { background: 'rgba(255,255,255,.2)', color: 'var(--oq)', width: 40, height: 40, borderRadius: '50%', fontSize: 18 },
+  chatTugma: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,.2)', color: 'var(--oq)', width: 40, height: 40, borderRadius: '50%' },
   kutishKarta: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 16px 10px', padding: 12, borderRadius: 12 },
   kutishMatn: { fontSize: 12, fontWeight: 700, color: 'var(--kulrang)' },
   kutishVaqt: { fontSize: 24, fontWeight: 800, fontFamily: 'monospace', marginTop: 2 },
   kutishHaq: { fontSize: 18, fontWeight: 800, color: '#92400E' },
   tugmaQator: { margin: '0 16px 16px' },
-  harakatTugma: { width: '100%', background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', padding: 16, borderRadius: 14, fontWeight: 800, fontSize: 16, boxShadow: 'var(--shadow-sariq)' },
+  harakatTugma: { width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', padding: 16, borderRadius: 14, fontWeight: 800, fontSize: 16, boxShadow: 'var(--shadow-sariq)' },
   daromadRaqam: { fontSize: 28, fontWeight: 800, color: 'var(--sariq-light)' },
   kichikRaqam: { fontSize: 28, fontWeight: 800, color: '#fff' },
   daromadMatn: { fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 },
   royxat: { padding: '0 16px 16px' },
   bosh: { textAlign: 'center', padding: '60px 20px', color: 'var(--kulrang)' },
-  boshIkon: { fontSize: 48, marginBottom: 12 },
+  boshIkon: { display: 'inline-flex', color: 'var(--neutral-400)', marginBottom: 12 },
   boshSarlavha: { fontSize: 18, fontWeight: 700, color: 'var(--qora)', marginBottom: 6 },
   boshMatn: { fontSize: 14 },
   karta: { background: 'var(--oq)', borderRadius: 18, padding: 18, marginBottom: 12, boxShadow: 'var(--soya)' },
   kartaYuqori: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 },
   narx: { fontSize: 24, fontWeight: 800 },
-  masofa: { fontSize: 13, color: 'var(--kulrang)', marginTop: 2 },
+  masofa: { display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 13, color: 'var(--kulrang)', marginTop: 2 },
   vaqt: { fontSize: 12, color: 'var(--kulrang)' },
   haritaWrap: { marginBottom: 12 },
   yollar: { marginBottom: 16 },
@@ -480,7 +480,7 @@ const st = {
   roziTugma: { flex: 1.4, background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', padding: 14, borderRadius: 12, fontWeight: 800, fontSize: 14, boxShadow: 'var(--shadow-sariq)' },
   modalFon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 2000 },
   modal: { background: 'var(--oq)', width: '100%', maxWidth: 480, borderRadius: '24px 24px 0 0', padding: 24, paddingBottom: 'calc(24px + env(safe-area-inset-bottom))' },
-  modalSarlavha: { fontSize: 20, fontWeight: 800, marginBottom: 8 },
+  modalSarlavha: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 20, fontWeight: 800, marginBottom: 8 },
   modalIzoh: { fontSize: 14, color: 'var(--kulrang)', marginBottom: 20 },
   narxBox: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--och-kulrang)', padding: 16, borderRadius: 16, marginBottom: 16 },
   narxTugma: { width: 44, height: 44, borderRadius: '50%', background: 'var(--oq)', fontSize: 24, fontWeight: 700, boxShadow: 'var(--soya)' },

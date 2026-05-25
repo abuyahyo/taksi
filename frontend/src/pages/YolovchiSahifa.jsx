@@ -218,7 +218,7 @@ export default function YolovchiSahifa() {
           uchish={uchish}
         />
       </div>
-      <div style={st.logo}>🚕 Safar Taksi</div>
+      <div style={st.logo}><Ikonka nom="taxi" size={18} /> Safar Taksi</div>
       <div style={st.tilWrap}><TemaTanlovchi /><TilTanlovchi /></div>
       <button
         style={st.profilTugma}
@@ -262,7 +262,7 @@ export default function YolovchiSahifa() {
                   const p = parse(m.manzil);
                   if (!p) return null;
                   return (
-                    <button key={i} style={st.tezTugma} onClick={() => setUchish([p[0], p[1]])}>🕒 {p[0].toFixed(2)}, {p[1].toFixed(2)}</button>
+                    <button key={i} style={st.tezTugma} className="bosiladi" onClick={() => setUchish([p[0], p[1]])}><Ikonka nom="clock" size={14} /> {p[0].toFixed(2)}, {p[1].toFixed(2)}</button>
                   );
                 })}
               </div>
@@ -272,7 +272,7 @@ export default function YolovchiSahifa() {
               {tanlovRejimi === 'boshlanish' ? t('pass.confirmStart') : t('common.continue')}
             </button>
             {tanlovRejimi === 'tugash' && (
-              <button style={st.orqaga} onClick={() => setTanlovRejimi('boshlanish')}>← {t('common.back')}</button>
+              <button style={st.orqaga} onClick={() => setTanlovRejimi('boshlanish')}><Ikonka nom="arrow-left" size={16} /> {t('common.back')}</button>
             )}
           </>
         )}
@@ -298,7 +298,7 @@ export default function YolovchiSahifa() {
             />
 
             <button style={st.tugma} onClick={buyurtmaBerish}>{t('pass.placeOrder')}</button>
-            <button style={st.orqaga} onClick={() => setBosqich('manzil')}>← {t('common.back')}</button>
+            <button style={st.orqaga} onClick={() => setBosqich('manzil')}><Ikonka nom="arrow-left" size={16} /> {t('common.back')}</button>
           </>
         )}
 
@@ -311,7 +311,7 @@ export default function YolovchiSahifa() {
             </h2>
             {/* Келиш вақти (ETA) — ҳайдовчи йўлда бўлганда */}
             {haydovchiInfo.holati !== 'yetib_keldi' && haydovchiInfo.holati !== 'yolda' && kelishVaqti() && (
-              <div style={st.eta}>🚗 {t('wait.etaMin', { min: kelishVaqti() })}</div>
+              <div style={st.eta}><Ikonka nom="car" size={16} /> {t('wait.etaMin', { min: kelishVaqti() })}</div>
             )}
             <div style={st.haydovchi}>
               <div style={st.avatar}>{haydovchiInfo.ism[0]}</div>
@@ -319,7 +319,7 @@ export default function YolovchiSahifa() {
                 <div style={st.hIsm}>
                   {haydovchiInfo.ism}
                   {haydovchiInfo.tasdiqlangan && <span style={st.tasdiqBelgi} title={t('verify.badge')}>✓</span>}
-                  {' '}⭐ {haydovchiInfo.reyting}
+                  {' '}<Ikonka nom="star" size={13} /> {haydovchiInfo.reyting}
                 </div>
                 <div style={st.hMashina}>{haydovchiInfo.mashina} · {Number(haydovchiInfo.narx).toLocaleString()}</div>
               </div>
@@ -328,7 +328,7 @@ export default function YolovchiSahifa() {
             {/* Машина PIN-коди — ҳайдовчига айтилади, сафар фақат тўғри PIN билан бошланади */}
             {safarPin && haydovchiInfo.holati !== 'yolda' && (
               <div style={st.pinKarta}>
-                <div style={st.pinLabel}>🔒 {t('pin.tellDriver')}</div>
+                <div style={st.pinLabel}><Ikonka nom="lock" size={13} /> {t('pin.tellDriver')}</div>
                 <div style={st.pinRaqam}>{String(safarPin).split('').map((d, i) => <span key={i} style={st.pinXona}>{d}</span>)}</div>
               </div>
             )}
@@ -336,7 +336,7 @@ export default function YolovchiSahifa() {
             {/* Кутиш огоҳлантириш — ҳайдовчи етиб келганда */}
             {haydovchiInfo.holati === 'yetib_keldi' && (
               <div style={st.kutishOgoh}>
-                ⚠️ {t('wait.passengerHurry')}
+                <Ikonka nom="alert" size={15} /> {t('wait.passengerHurry')}
               </div>
             )}
 
@@ -393,7 +393,7 @@ export default function YolovchiSahifa() {
                         <div style={st.hIsm}>
                           {tk.haydovchi_ism}
                           {tk.tasdiqlangan && <span style={st.tasdiqBelgi} title={t('verify.badge')}>✓</span>}
-                          {' '}⭐ {tk.reyting}
+                          {' '}<Ikonka nom="star" size={13} /> {tk.reyting}
                         </div>
                         <div style={st.hMashina}>{tk.mashina} · {tk.min} {t('drv.minute')}</div>
                       </div>
@@ -460,7 +460,7 @@ export default function YolovchiSahifa() {
 const st = {
   sahifa: { position: 'relative', width: '100%', height: '100dvh', overflow: 'hidden' },
   harita: { position: 'absolute', inset: 0 },
-  logo: { position: 'absolute', top: 'calc(16px + env(safe-area-inset-top))', left: 16, zIndex: 1000, background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', padding: '8px 16px', borderRadius: 'var(--r-md)', fontWeight: 800, fontSize: 18, boxShadow: 'var(--shadow-sariq)' },
+  logo: { position: 'absolute', top: 'calc(16px + env(safe-area-inset-top))', left: 16, zIndex: 1000, display: 'inline-flex', alignItems: 'center', gap: 6, background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', padding: '8px 16px', borderRadius: 'var(--r-md)', fontWeight: 800, fontSize: 18, boxShadow: 'var(--shadow-sariq)' },
   yordam: { position: 'absolute', top: 'calc(16px + env(safe-area-inset-top))', right: 16, zIndex: 1000, padding: '8px 14px', borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 13, color: 'var(--qora-faint)' },
   tarixTugma: { position: 'absolute', top: 'calc(16px + env(safe-area-inset-top))', right: 116, zIndex: 1000, width: 38, height: 38, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--qora)' },
   profilTugma: { position: 'absolute', top: 'calc(16px + env(safe-area-inset-top))', right: 162, zIndex: 1000, width: 38, height: 38, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--qora)' },
@@ -468,8 +468,8 @@ const st = {
   tolovTugma: { background: 'var(--qora)', color: 'var(--oq)', padding: 16, borderRadius: 14, fontSize: 14, fontWeight: 800, whiteSpace: 'nowrap' },
   ulashishTugma: { width: '100%', background: 'var(--och-kulrang)', padding: 12, borderRadius: 12, fontSize: 14, fontWeight: 700, marginTop: 8 },
   tezManzillar: { display: 'flex', gap: 8, marginTop: 8, marginBottom: 8 },
-  tezTugma: { flex: 1, background: 'var(--och-kulrang)', padding: 10, borderRadius: 10, fontSize: 13, fontWeight: 700 },
-  kutishOgoh: { background: '#FEF3C7', borderLeft: '4px solid #F59E0B', padding: '10px 12px', borderRadius: 10, marginBottom: 10, fontSize: 13, color: '#92400E', fontWeight: 600 },
+  tezTugma: { flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 5, background: 'var(--och-kulrang)', padding: 10, borderRadius: 10, fontSize: 13, fontWeight: 700 },
+  kutishOgoh: { display: 'flex', alignItems: 'center', gap: 8, background: '#FEF3C7', borderLeft: '4px solid #F59E0B', padding: '10px 12px', borderRadius: 10, marginBottom: 10, fontSize: 13, color: '#92400E', fontWeight: 600 },
   kutishQushilgan: { background: '#FEE2E2', padding: 8, borderRadius: 8, fontSize: 13, color: '#991B1B', textAlign: 'center', marginBottom: 10 },
   panel: { position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 1000, borderRadius: '24px 24px 0 0', padding: '24px 24px calc(24px + env(safe-area-inset-bottom))', boxShadow: '0 -8px 32px rgba(0,0,0,0.12)' },
   sarlavha: { fontSize: 22, fontWeight: 800, marginBottom: 16 },
@@ -480,7 +480,7 @@ const st = {
   markazManzilQator: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--och-kulrang)', padding: 14, borderRadius: 14, marginBottom: 10, minHeight: 48 },
   markazManzilMatn: { fontSize: 14, fontWeight: 600, lineHeight: 1.3, color: 'var(--qora)' },
   tugma: { width: '100%', background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', padding: 16, borderRadius: 14, fontSize: 16, fontWeight: 800, marginTop: 8, boxShadow: 'var(--shadow-sariq)' },
-  orqaga: { width: '100%', background: 'transparent', padding: 12, color: 'var(--kulrang)', fontSize: 14, marginTop: 4 },
+  orqaga: { width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 4, background: 'transparent', padding: 12, color: 'var(--kulrang)', fontSize: 14, marginTop: 4 },
   narxBox: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--och-kulrang)', padding: 16, borderRadius: 16, marginBottom: 16 },
   narxTugma: { width: 44, height: 44, borderRadius: '50%', background: 'var(--oq)', fontSize: 24, fontWeight: 700, boxShadow: 'var(--soya)' },
   narxMatn: { fontSize: 28, fontWeight: 800 },
@@ -490,14 +490,14 @@ const st = {
   bekor: { width: '100%', background: 'var(--och-kulrang)', padding: 14, borderRadius: 14, fontSize: 15, fontWeight: 600, marginTop: 8 },
   haydovchi: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--och-kulrang)', padding: 12, borderRadius: 14, marginBottom: 10 },
   avatar: { width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 18, flexShrink: 0 },
-  hIsm: { fontWeight: 700, fontSize: 15 },
+  hIsm: { display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap', fontWeight: 700, fontSize: 15 },
   tasdiqBelgi: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 16, height: 16, borderRadius: '50%', background: 'var(--asosiy)', color: '#fff', fontSize: 10, fontWeight: 900, marginLeft: 5, verticalAlign: 'middle' },
   hMashina: { fontSize: 12, color: 'var(--kulrang)' },
   qabul: { background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', padding: '10px 16px', borderRadius: 10, fontWeight: 800, fontSize: 15, boxShadow: 'var(--shadow-sariq)' },
   kuzatishMatn: { textAlign: 'center', padding: 12, color: 'var(--kulrang)', fontSize: 13, marginTop: 4 },
-  eta: { background: 'rgba(14,147,132,0.12)', color: 'var(--asosiy-dark)', padding: '8px 12px', borderRadius: 10, fontSize: 15, fontWeight: 800, marginBottom: 12, textAlign: 'center' },
+  eta: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, background: 'rgba(14,147,132,0.12)', color: 'var(--asosiy-dark)', padding: '8px 12px', borderRadius: 10, fontSize: 15, fontWeight: 800, marginBottom: 12 },
   pinKarta: { background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', borderRadius: 14, padding: 14, marginBottom: 12, textAlign: 'center', boxShadow: 'var(--shadow-sariq)' },
-  pinLabel: { fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.9)', marginBottom: 8 },
+  pinLabel: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.9)', marginBottom: 8 },
   pinRaqam: { display: 'flex', justifyContent: 'center', gap: 8 },
   pinXona: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 48, borderRadius: 10, background: 'rgba(255,255,255,0.2)', color: '#fff', fontSize: 26, fontWeight: 900 },
 };
