@@ -216,6 +216,18 @@ button:focus-visible {
 .slide-up      { animation: slideUp var(--t-med); }
 .slide-up-modal { animation: slideUpModal var(--t-slow); }
 
+/* Рўйхат элементлари кетма-кет (staggered) кириб келади */
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.royxat-anim > * { animation: fadeInUp var(--t-med) both; }
+.royxat-anim > *:nth-child(2) { animation-delay: 40ms; }
+.royxat-anim > *:nth-child(3) { animation-delay: 80ms; }
+.royxat-anim > *:nth-child(4) { animation-delay: 120ms; }
+.royxat-anim > *:nth-child(5) { animation-delay: 160ms; }
+.royxat-anim > *:nth-child(6) { animation-delay: 200ms; }
+@media (prefers-reduced-motion: reduce) {
+  .royxat-anim > * { animation: none; }
+}
+
 .skelet {
   background: linear-gradient(90deg, var(--neutral-200) 0%, var(--neutral-100) 50%, var(--neutral-200) 100%);
   background-size: 200% 100%;

@@ -384,7 +384,7 @@ export default function YolovchiSahifa() {
             ) : (
               <>
                 <h2 style={st.sarlavha}>{t('pass.offers')} ({takliflar.length})</h2>
-                <div style={{ maxHeight: 260, overflowY: 'auto' }}>
+                <div style={{ maxHeight: 260, overflowY: 'auto' }} className="royxat-anim">
                   {takliflar.map((tk, i) => (
                     <div key={i} style={st.haydovchi}>
                       <div style={st.avatar}>{tk.haydovchi_ism[0]}</div>

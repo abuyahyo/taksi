@@ -179,7 +179,7 @@ function AdminIchki({ onChiqish }) {
 
         {tab === 'users' && (
           users == null ? <Yuklanmoqda /> : users.length === 0 ? <Bosh matn={t('admin.noUsers')} /> : (
-            <div style={st.royxat}>
+            <div style={st.royxat} className="royxat-anim">
               {users.map((u) => (
                 <div key={u.id} style={st.userKarta}>
                   <div style={st.avatar}>{u.ism[0]}</div>
@@ -215,7 +215,7 @@ function AdminIchki({ onChiqish }) {
 
         {tab === 'rides' && (
           rides == null ? <Yuklanmoqda /> : rides.length === 0 ? <Bosh matn={t('admin.noRides')} /> : (
-            <div style={st.royxat}>
+            <div style={st.royxat} className="royxat-anim">
               {rides.map((r) => (
                 <div key={r.id} style={st.rideKarta}>
                   <div style={st.rideYuqori}>
