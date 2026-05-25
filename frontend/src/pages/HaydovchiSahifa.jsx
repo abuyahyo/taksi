@@ -17,6 +17,7 @@ import { bildir, ruxsatSora } from '../services/bildirishnoma';
 import { pushObunaBol } from '../services/push';
 import { useT, TilTanlovchi } from '../i18n';
 import { TemaTanlovchi } from '../theme';
+import Ikonka from '../components/Ikonka';
 
 export default function HaydovchiSahifa() {
   const [user, setUser] = useState(() => {
@@ -234,12 +235,12 @@ function Ichki({ user, onChiqish }) {
             onClick={() => setObunaOchiq(true)}
             title={t('sub.title')}
           >
-            💳
+            <Ikonka nom="card" />
             {obunaBormi && obunaKun < 5 && <span style={st.obunaBadge}>{obunaKun}</span>}
           </button>
-          <button style={st.tarixTugma} onClick={() => setIssiqOchiq(true)} title={t('heat.title')}>🔥</button>
-          <button style={st.tarixTugma} onClick={() => setProfilOchiq(true)} title={t('car.title')}>🚗</button>
-          <button style={st.tarixTugma} onClick={() => navigate('/tarix')} title={t('hist.title')}>🕒</button>
+          <button style={st.tarixTugma} onClick={() => setIssiqOchiq(true)} title={t('heat.title')}><Ikonka nom="flame" /></button>
+          <button style={st.tarixTugma} onClick={() => setProfilOchiq(true)} title={t('car.title')}><Ikonka nom="car" /></button>
+          <button style={st.tarixTugma} onClick={() => navigate('/tarix')} title={t('hist.title')}><Ikonka nom="clock" /></button>
           <button style={st.chiqish} onClick={onChiqish}>{t('common.exit')}</button>
           <button style={{ ...st.statusTugma, background: onlayn ? 'var(--yashil)' : 'var(--kulrang)' }} onClick={statusOzgartir}>
             {onlayn ? t('drv.online') : t('drv.offline')}
@@ -441,7 +442,7 @@ const st = {
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', paddingTop: 'calc(16px + env(safe-area-inset-top))', background: 'var(--oq)', gap: 8 },
   logo: { fontWeight: 800, fontSize: 14, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   chiqish: { background: 'var(--och-kulrang)', padding: '8px 12px', borderRadius: 16, fontWeight: 600, fontSize: 12 },
-  tarixTugma: { background: 'var(--och-kulrang)', width: 36, height: 36, borderRadius: '50%', fontSize: 16 },
+  tarixTugma: { background: 'var(--och-kulrang)', width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--qora)' },
   obunaBadge: { position: 'absolute', top: -4, right: -4, background: '#DC2626', color: '#fff', minWidth: 18, height: 18, borderRadius: 9, fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' },
   ogohlantirish: { margin: '0 16px 12px', padding: 12, background: '#FEF3C7', color: '#92400E', borderRadius: 12, fontSize: 13, cursor: 'pointer', borderLeft: '4px solid #F59E0B' },
   statusTugma: { color: 'var(--oq)', padding: '8px 16px', borderRadius: 20, fontWeight: 700, fontSize: 13 },
