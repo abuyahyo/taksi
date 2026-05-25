@@ -231,7 +231,7 @@ function Ichki({ user, onChiqish }) {
           <TemaTanlovchi />
           <TilTanlovchi />
           <button
-            style={{ ...st.tarixTugma, background: obunaBormi ? 'var(--asosiy-surface)' : '#FEE2E2', position: 'relative' }}
+            style={{ ...st.tarixTugma, background: obunaBormi ? 'var(--tint-fill)' : 'rgba(255,59,48,0.14)', color: obunaBormi ? 'var(--tint)' : 'var(--qizil)', position: 'relative' }}
             onClick={() => setObunaOchiq(true)}
             title={t('sub.title')}
           >
@@ -242,7 +242,7 @@ function Ichki({ user, onChiqish }) {
           <button style={st.tarixTugma} onClick={() => setProfilOchiq(true)} title={t('car.title')}><Ikonka nom="car" /></button>
           <button style={st.tarixTugma} onClick={() => navigate('/tarix')} title={t('hist.title')}><Ikonka nom="clock" /></button>
           <button style={st.chiqish} onClick={onChiqish}>{t('common.exit')}</button>
-          <button style={{ ...st.statusTugma, background: onlayn ? 'var(--yashil)' : 'var(--kulrang)' }} onClick={statusOzgartir}>
+          <button style={{ ...st.statusTugma, background: onlayn ? 'var(--yashil)' : 'var(--fill-strong)', color: onlayn ? '#fff' : 'var(--label)' }} onClick={statusOzgartir}>
             {onlayn ? t('drv.online') : t('drv.offline')}
           </button>
         </div>
@@ -284,7 +284,7 @@ function Ichki({ user, onChiqish }) {
 
           {/* Кутиш таймери (yetib_keldi ҳолатида) */}
           {kutish && (
-            <div style={{ ...st.kutishKarta, background: kutish.tekin ? '#DCFCE7' : '#FEF3C7', borderLeft: `4px solid ${kutish.tekin ? '#16A34A' : '#F59E0B'}` }}>
+            <div style={{ ...st.kutishKarta, background: kutish.tekin ? 'rgba(52,199,89,0.14)' : 'rgba(255,149,0,0.14)' }}>
               <div>
                 <div style={st.kutishMatn}>{kutish.tekin ? t('wait.freeWait') : t('wait.feeAccruing')}</div>
                 <div style={st.kutishVaqt}>{kutish.vaqt}</div>
@@ -313,7 +313,7 @@ function Ichki({ user, onChiqish }) {
         </>
       )}
       {chatOchiq && faolSafar && (
-        <Chat rideId={faolSafar.rideId} meId={user.id} hamrohIsm={`💬 ${faolSafar.mijoz_ism || t('chat.guestName')}`} onClose={() => setChatOchiq(false)} />
+        <Chat rideId={faolSafar.rideId} meId={user.id} hamrohIsm={faolSafar.mijoz_ism || t('chat.guestName')} onClose={() => setChatOchiq(false)} />
       )}
 
       {baholashUchun && (
@@ -396,12 +396,13 @@ function Ichki({ user, onChiqish }) {
       {tanlangan && (
         <div style={st.modalFon} onClick={() => setTanlangan(null)}>
           <div style={st.modal} onClick={(e) => e.stopPropagation()}>
+            <div style={st.grabber} />
             <h3 style={st.modalSarlavha}>{t('drv.myPriceTitle')}</h3>
             <p style={st.modalIzoh}>{tanlangan.boshlanish} → {tanlangan.tugash} ({tanlangan.masofa} км)</p>
             <div style={st.narxBox}>
-              <button style={st.narxTugma} onClick={() => setOznarx(Math.max(5000, oznarx - 1000))}>−</button>
+              <button style={st.narxTugma} onClick={() => setOznarx(Math.max(5000, oznarx - 1000))}><Ikonka nom="minus" size={20} /></button>
               <div style={st.modalNarx}>{oznarx.toLocaleString()}</div>
-              <button style={st.narxTugma} onClick={() => setOznarx(oznarx + 1000)}>+</button>
+              <button style={st.narxTugma} onClick={() => setOznarx(oznarx + 1000)}><Ikonka nom="plus" size={20} /></button>
             </div>
             <button style={st.yuborishTugma} onClick={oznarxYuborish}>{t('drv.sendOffer')}</button>
             <button style={st.bekorTugma} onClick={() => setTanlangan(null)}>{t('common.cancel')}</button>
@@ -413,6 +414,7 @@ function Ichki({ user, onChiqish }) {
       {pinModal && (
         <div style={st.modalFon} onClick={() => setPinModal(false)}>
           <div style={st.modal} onClick={(e) => e.stopPropagation()}>
+            <div style={st.grabber} />
             <h3 style={st.modalSarlavha}><Ikonka nom="lock" size={18} /> {t('pin.enterTitle')}</h3>
             <input
               style={st.pinInput}
@@ -438,54 +440,55 @@ function Ichki({ user, onChiqish }) {
 }
 
 const st = {
-  sahifa: { width: '100%', maxWidth: 480, margin: '0 auto', minHeight: '100dvh', background: 'var(--och-kulrang)', paddingBottom: 'env(safe-area-inset-bottom)' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', paddingTop: 'calc(16px + env(safe-area-inset-top))', background: 'var(--oq)', gap: 8 },
-  logo: { display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 800, fontSize: 14, flex: 1, overflow: 'hidden', whiteSpace: 'nowrap' },
-  chiqish: { background: 'var(--och-kulrang)', padding: '8px 12px', borderRadius: 16, fontWeight: 600, fontSize: 12 },
-  tarixTugma: { background: 'var(--och-kulrang)', width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--qora)' },
-  obunaBadge: { position: 'absolute', top: -4, right: -4, background: '#DC2626', color: '#fff', minWidth: 18, height: 18, borderRadius: 9, fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' },
-  ogohlantirish: { margin: '0 16px 12px', padding: 12, background: '#FEF3C7', color: '#92400E', borderRadius: 12, fontSize: 13, cursor: 'pointer', borderLeft: '4px solid #F59E0B' },
-  statusTugma: { color: 'var(--oq)', padding: '8px 16px', borderRadius: 20, fontWeight: 700, fontSize: 13 },
-  daromad: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 16, padding: 20, background: 'linear-gradient(135deg, #1F2937, #111827)', borderRadius: 18, color: '#fff', boxShadow: 'var(--shadow-2)' },
-  faolSafar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 16px 10px', padding: 16, background: 'var(--yashil)', borderRadius: 16, color: 'var(--oq)', gap: 8 },
-  tugatTugma: { background: 'var(--oq)', color: 'var(--yashil)', padding: '10px 12px', borderRadius: 12, fontWeight: 800, fontSize: 12 },
-  chatTugma: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,.2)', color: 'var(--oq)', width: 40, height: 40, borderRadius: '50%' },
-  kutishKarta: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 16px 10px', padding: 12, borderRadius: 12 },
-  kutishMatn: { fontSize: 12, fontWeight: 700, color: 'var(--kulrang)' },
-  kutishVaqt: { fontSize: 24, fontWeight: 800, fontFamily: 'monospace', marginTop: 2 },
-  kutishHaq: { fontSize: 18, fontWeight: 800, color: '#92400E' },
+  sahifa: { width: '100%', maxWidth: 480, margin: '0 auto', minHeight: '100dvh', background: 'var(--bg)', paddingBottom: 'env(safe-area-inset-bottom)' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', paddingTop: 'calc(12px + env(safe-area-inset-top))', background: 'var(--material-bar)', backdropFilter: 'saturate(180%) blur(20px)', WebkitBackdropFilter: 'saturate(180%) blur(20px)', borderBottom: '0.5px solid var(--separator)', gap: 8, position: 'sticky', top: 0, zIndex: 50 },
+  logo: { display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 600, fontSize: 15, color: 'var(--label)', flex: 1, overflow: 'hidden', whiteSpace: 'nowrap' },
+  chiqish: { background: 'transparent', padding: '6px 8px', color: 'var(--tint)', fontWeight: 400, fontSize: 15 },
+  tarixTugma: { background: 'var(--fill)', width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--tint)' },
+  obunaBadge: { position: 'absolute', top: -3, right: -3, background: 'var(--qizil)', color: '#fff', minWidth: 18, height: 18, borderRadius: 9, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', border: '1.5px solid var(--surface)' },
+  ogohlantirish: { margin: '12px 16px 0', padding: 12, background: 'rgba(255,149,0,0.14)', color: 'var(--amber)', borderRadius: 'var(--r-md)', fontSize: 14, cursor: 'pointer', fontWeight: 500 },
+  statusTugma: { color: '#fff', padding: '8px 18px', borderRadius: 'var(--r-full)', fontWeight: 600, fontSize: 14 },
+  daromad: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '16px', padding: 18, background: 'var(--surface)', borderRadius: 'var(--r-lg)', boxShadow: 'var(--shadow-1)' },
+  faolSafar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 16px 10px', padding: 16, background: 'var(--yashil)', borderRadius: 'var(--r-lg)', color: '#fff', gap: 8 },
+  tugatTugma: { background: '#fff', color: 'var(--yashil)', padding: '10px 12px', borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 13 },
+  chatTugma: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,.22)', color: '#fff', width: 40, height: 40, borderRadius: '50%' },
+  kutishKarta: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 16px 10px', padding: 14, borderRadius: 'var(--r-md)' },
+  kutishMatn: { fontSize: 13, fontWeight: 500, color: 'var(--secondary-label)' },
+  kutishVaqt: { fontSize: 26, fontWeight: 600, fontVariantNumeric: 'tabular-nums', marginTop: 2, color: 'var(--label)' },
+  kutishHaq: { fontSize: 18, fontWeight: 600, color: 'var(--amber)' },
   tugmaQator: { margin: '0 16px 16px' },
-  harakatTugma: { width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', padding: 16, borderRadius: 14, fontWeight: 800, fontSize: 16, boxShadow: 'var(--shadow-sariq)' },
-  daromadRaqam: { fontSize: 28, fontWeight: 800, color: 'var(--sariq-light)' },
-  kichikRaqam: { fontSize: 28, fontWeight: 800, color: '#fff' },
-  daromadMatn: { fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 },
-  royxat: { padding: '0 16px 16px' },
-  bosh: { textAlign: 'center', padding: '60px 20px', color: 'var(--kulrang)' },
-  boshIkon: { display: 'inline-flex', color: 'var(--neutral-400)', marginBottom: 12 },
-  boshSarlavha: { fontSize: 18, fontWeight: 700, color: 'var(--qora)', marginBottom: 6 },
-  boshMatn: { fontSize: 14 },
-  karta: { background: 'var(--oq)', borderRadius: 18, padding: 18, marginBottom: 12, boxShadow: 'var(--soya)' },
+  harakatTugma: { width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'var(--tint)', color: '#fff', padding: 15, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 17 },
+  daromadRaqam: { fontSize: 30, fontWeight: 700, color: 'var(--tint)', letterSpacing: '0.3px' },
+  kichikRaqam: { fontSize: 30, fontWeight: 700, color: 'var(--label)', letterSpacing: '0.3px' },
+  daromadMatn: { fontSize: 13, color: 'var(--secondary-label)', marginTop: 2 },
+  royxat: { padding: '4px 16px 16px' },
+  bosh: { textAlign: 'center', padding: '60px 20px', color: 'var(--secondary-label)' },
+  boshIkon: { display: 'inline-flex', color: 'var(--tertiary-label)', marginBottom: 12 },
+  boshSarlavha: { fontSize: 20, fontWeight: 600, color: 'var(--label)', marginBottom: 6 },
+  boshMatn: { fontSize: 15 },
+  karta: { background: 'var(--surface)', borderRadius: 'var(--r-lg)', padding: 16, marginBottom: 12, boxShadow: 'var(--shadow-1)' },
   kartaYuqori: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 },
-  narx: { fontSize: 24, fontWeight: 800 },
-  masofa: { display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 13, color: 'var(--kulrang)', marginTop: 2 },
-  vaqt: { fontSize: 12, color: 'var(--kulrang)' },
-  haritaWrap: { marginBottom: 12 },
+  narx: { fontSize: 24, fontWeight: 700, letterSpacing: '0.3px' },
+  masofa: { display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 13, color: 'var(--secondary-label)', marginTop: 2 },
+  vaqt: { fontSize: 13, color: 'var(--secondary-label)' },
+  haritaWrap: { marginBottom: 12, borderRadius: 'var(--r-md)', overflow: 'hidden' },
   yollar: { marginBottom: 16 },
   yol: { display: 'flex', alignItems: 'center', gap: 10 },
   nuqta: { width: 10, height: 10, borderRadius: '50%', flexShrink: 0 },
-  chiziq: { width: 2, height: 16, background: 'var(--neutral-200)', marginLeft: 4 },
-  yolMatn: { fontSize: 14, fontWeight: 500 },
+  chiziq: { width: 2, height: 16, background: 'var(--separator)', marginLeft: 4 },
+  yolMatn: { fontSize: 15, fontWeight: 400 },
   tugmalar: { display: 'flex', gap: 10 },
-  oznarxTugma: { flex: 1, background: 'var(--och-kulrang)', padding: 14, borderRadius: 12, fontWeight: 700, fontSize: 14 },
-  roziTugma: { flex: 1.4, background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', padding: 14, borderRadius: 12, fontWeight: 800, fontSize: 14, boxShadow: 'var(--shadow-sariq)' },
-  modalFon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 2000 },
-  modal: { background: 'var(--oq)', width: '100%', maxWidth: 480, borderRadius: '24px 24px 0 0', padding: 24, paddingBottom: 'calc(24px + env(safe-area-inset-bottom))' },
-  modalSarlavha: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 20, fontWeight: 800, marginBottom: 8 },
-  modalIzoh: { fontSize: 14, color: 'var(--kulrang)', marginBottom: 20 },
-  narxBox: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--och-kulrang)', padding: 16, borderRadius: 16, marginBottom: 16 },
-  narxTugma: { width: 44, height: 44, borderRadius: '50%', background: 'var(--oq)', fontSize: 24, fontWeight: 700, boxShadow: 'var(--soya)' },
-  modalNarx: { fontSize: 28, fontWeight: 800 },
-  yuborishTugma: { width: '100%', background: 'linear-gradient(135deg, var(--sariq-light), var(--sariq))', color: '#fff', padding: 16, borderRadius: 14, fontWeight: 800, fontSize: 16, boxShadow: 'var(--shadow-sariq)' },
-  pinInput: { width: '100%', textAlign: 'center', letterSpacing: 14, fontSize: 32, fontWeight: 900, padding: '14px 0', borderRadius: 14, border: '2px solid var(--neutral-200)', background: 'var(--oq)', color: 'var(--qora)', marginBottom: 16 },
-  bekorTugma: { width: '100%', background: 'transparent', padding: 12, color: 'var(--kulrang)', fontSize: 14, marginTop: 4 },
+  oznarxTugma: { flex: 1, background: 'var(--fill)', color: 'var(--tint)', padding: 13, borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 15 },
+  roziTugma: { flex: 1.4, background: 'var(--tint)', color: '#fff', padding: 13, borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 15 },
+  modalFon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 2000, backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)' },
+  modal: { background: 'var(--surface-elevated)', width: '100%', maxWidth: 480, borderRadius: '14px 14px 0 0', padding: '8px 20px', paddingBottom: 'calc(20px + env(safe-area-inset-bottom))' },
+  grabber: { width: 36, height: 5, borderRadius: 3, background: 'var(--fill-strong)', margin: '0 auto 14px' },
+  modalSarlavha: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 20, fontWeight: 600, marginBottom: 8 },
+  modalIzoh: { fontSize: 15, color: 'var(--secondary-label)', marginBottom: 20 },
+  narxBox: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--fill)', padding: 14, borderRadius: 'var(--r-lg)', marginBottom: 16 },
+  narxTugma: { width: 44, height: 44, borderRadius: '50%', background: 'var(--surface)', color: 'var(--tint)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-1)' },
+  modalNarx: { fontSize: 30, fontWeight: 700, letterSpacing: '0.3px' },
+  yuborishTugma: { width: '100%', background: 'var(--tint)', color: '#fff', padding: 15, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 17 },
+  pinInput: { width: '100%', textAlign: 'center', letterSpacing: 14, fontSize: 32, fontWeight: 700, padding: '14px 0', borderRadius: 'var(--r-md)', border: 'none', background: 'var(--fill)', color: 'var(--label)', marginBottom: 16 },
+  bekorTugma: { width: '100%', background: 'transparent', padding: 12, color: 'var(--tint)', fontSize: 17, fontWeight: 400, marginTop: 4 },
 };
