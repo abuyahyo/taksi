@@ -58,7 +58,7 @@ const yol = async (req, res) => {
       const ctrl = new AbortController();
       const t = setTimeout(() => ctrl.abort(), 6000);
       const r = await fetch(url, {
-        headers: { 'User-Agent': 'SafarTaksi/1.0 (https://github.com/abuyahyo/tez-taxi)' },
+        headers: { 'User-Agent': 'Manzil/1.0 (https://github.com/abuyahyo/taksi)' },
         signal: ctrl.signal,
       });
       clearTimeout(t);

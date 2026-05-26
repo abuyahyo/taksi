@@ -78,7 +78,7 @@ export default function UlashilganSahifa() {
           boshlanish={boshlanish} tugash={tugash} haydovchi={haydovchiNuqta} />
       </div>
 
-      <div style={st.logo} className="glass-tugma"><Ikonka nom="taxi" size={17} /> Safar Taksi</div>
+      <div style={st.logo} className="glass-tugma"><Ikonka nom="taxi" size={17} /> Manzil</div>
       <div style={st.tilWrap}><TemaTanlovchi /><TilTanlovchi /></div>
 
       <div style={st.panel}>

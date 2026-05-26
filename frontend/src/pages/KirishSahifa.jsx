@@ -39,7 +39,7 @@ export default function KirishSahifa() {
 
       {/* Hero — app icon */}
       <div style={st.hero} className="fade-in">
-        <img src="/logo.png" alt="Safar Taksi" style={st.appIcon} />
+        <img src="/logo.png" alt="Manzil" style={st.appIcon} />
         <h1 style={st.appName}>{t('common.app')}</h1>
         <p style={st.tagline}>{t('home.tagline')}</p>
       </div>

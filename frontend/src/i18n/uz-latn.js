@@ -1,7 +1,7 @@
 // Oʻzbek lotin alifbosi (uz-Latn)
 export default {
   // Umumiy
-  'common.app':          'Safar Taksi',
+  'common.app':          'Manzil',
   'common.continue':     'Davom etish',
   'common.back':         'Orqaga',
   'common.cancel':       'Bekor qilish',
@@ -175,7 +175,7 @@ export default {
   'hist.status.bekor_qilindi': 'Bekor qilindi',
 
   // Admin
-  'admin.title':         'Safar Taksi · Admin',
+  'admin.title':         'Manzil · Admin',
   'admin.titleShort':    'Admin',
   'admin.titleLogin':    'Admin paneliga kirish',
   'admin.tab.stats':     'Statistika',

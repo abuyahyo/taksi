@@ -20,7 +20,7 @@ const qidir = async (req, res) => {
 
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=6&countrycodes=uz&accept-language=${til}`;
     const r = await fetch(url, {
-      headers: { 'User-Agent': 'TezTaxi/1.0 (https://github.com/abuyahyo/tez-taxi)' },
+      headers: { 'User-Agent': 'Manzil/1.0 (https://github.com/abuyahyo/taksi)' },
     });
     if (!r.ok) return res.json([]);
 
@@ -60,7 +60,7 @@ const teskari = async (req, res) => {
     if (eski && Date.now() - eski.vaqt < TTL) return res.json(eski.natija);
 
     const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=${til}&zoom=18`;
-    const r = await fetch(url, { headers: { 'User-Agent': 'SafarTaksi/1.0' } });
+    const r = await fetch(url, { headers: { 'User-Agent': 'Manzil/1.0 (https://github.com/abuyahyo/taksi)' } });
     if (!r.ok) return res.json({ manzil: '' });
 
     const data = await r.json();

@@ -1,7 +1,7 @@
 // Русские переводы
 export default {
   // Общие
-  'common.app':          'Safar Taksi',
+  'common.app':          'Manzil',
   'common.continue':     'Продолжить',
   'common.back':         'Назад',
   'common.cancel':       'Отмена',
@@ -175,7 +175,7 @@ export default {
   'hist.status.bekor_qilindi': 'Отменён',
 
   // Админ
-  'admin.title':         'Safar Taksi · Админ',
+  'admin.title':         'Manzil · Админ',
   'admin.titleShort':    'Админ',
   'admin.titleLogin':    'Вход в админ-панель',
   'admin.tab.stats':     'Статистика',

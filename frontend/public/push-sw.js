@@ -8,7 +8,7 @@ self.addEventListener('push', (event) => {
   } catch (e) {
     data = { body: event.data ? event.data.text() : '' };
   }
-  const title = data.title || 'Safar Taksi';
+  const title = data.title || 'Manzil';
   const options = {
     body: data.body || '',
     tag: data.tag || 'safar-taksi',

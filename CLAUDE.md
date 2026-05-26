@@ -1,4 +1,4 @@
-# Safar Taksi — Claude учун ёдгорчик
+# Manzil — Claude учун ёдгорчик
 
 inDrive услубидаги такси веб-дастур. Тошкент учун. PWA билан — телефонга ўрнатилади.
 
@@ -150,7 +150,7 @@ npm install playwright-core socket.io-client axios --no-save
 - **Тоннел URL ҳар сафар ўзгаради** — Cloudflare quick tunnel шундай. Қайта ишга туширилса янги URL чиқади.
 - **`node --watch` .env'ни тингламайди.** `.env` ўзгарганда қўлда `npm run dev`'ни қайта ишга тушуринг.
 - **PowerShell ва Cyrillic**: `Invoke-RestMethod`'нинг `-Body` ишлатганда UTF-8 яхши ишламайди — кириллча текст `?????`'га айланиши мумкин. SQL орқали ишланиши керак бўлса, файлга UTF-8'да ёзинг ва `psql -f`'нинг ишлатинг.
-- **GitHub repo**: `abuyahyo/tez-taxi` (исм Tez Taxi'дан Safar Taksi'га ўзгарди, лекин repo номи ўзгармаган — атайлаб).
+- **GitHub repo**: `abuyahyo/taksi`. Бренд номи Tez Taxi → Safar Taksi → **Manzil**'га ўзгарди (repo номи ўзгармаслиги мумкин — атайлаб).
 
 ## Reja.md ва README.md
 

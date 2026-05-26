@@ -301,7 +301,7 @@ export default function YolovchiSahifa() {
           uchish={uchish}
         />
       </div>
-      <div style={st.logo} className="glass-tugma"><Ikonka nom="taxi" size={18} /> Safar Taksi</div>
+      <div style={st.logo} className="glass-tugma"><Ikonka nom="taxi" size={18} /> Manzil</div>
       <div style={st.tilWrap}><TemaTanlovchi /><TilTanlovchi /></div>
       <button
         style={st.profilTugma}
