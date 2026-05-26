@@ -16,8 +16,8 @@ export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
 
   const sarlavha = sarlavhaKey ? t(sarlavhaKey) : (rejim === 'login' ? t('login.title') : t('login.register'));
   const ozRegister = rejim === 'register';
-  // Админ ва ҳайдовчи учун саҳифаларда фақат логин (рўйхатдан ўтиш бошқа усулда)
-  const registerKoʻrsatish = !kerakliRol || kerakliRol === 'mijoz';
+  // Админ учун фақат логин (админни админ яратади). Йўловчи ва ҳайдовчи ўзи рўйхатдан ўтади.
+  const registerKoʻrsatish = !kerakliRol || kerakliRol === 'mijoz' || kerakliRol === 'haydovchi';
 
   const yubor = async (e) => {
     e.preventDefault();
