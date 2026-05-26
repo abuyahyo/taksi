@@ -18,7 +18,11 @@ const qidir = async (req, res) => {
       return res.json(eski.natija);
     }
 
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=6&countrycodes=uz&accept-language=${til}`;
+    // Мамлакат чекови — env билан. Дефолт 'uz' (Тошкент фокуси).
+    // Бўш ёки '*' → бутун дунё (глобал режим).
+    const mamlakatlar = process.env.GEOCODE_COUNTRIES ?? 'uz';
+    const ccParam = (mamlakatlar && mamlakatlar !== '*') ? `&countrycodes=${encodeURIComponent(mamlakatlar)}` : '';
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=6${ccParam}&accept-language=${til}`;
     const r = await fetch(url, {
       headers: { 'User-Agent': 'Manzil/1.0 (https://github.com/abuyahyo/taksi)' },
     });

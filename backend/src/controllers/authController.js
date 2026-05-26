@@ -25,8 +25,9 @@ const register = async (req, res) => {
     if (String(ism).trim().length < 2) {
       return res.status(400).json({ xato: 'Исмни тўлиқ киритинг' });
     }
-    if (!/^\+998\d{9}$/.test(String(telefon))) {
-      return res.status(400).json({ xato: 'Телефон рақами +998XXXXXXXXX форматида бўлсин' });
+    // Халқаро формат (E.164): + ва 7–15 рақам. Дунёнинг исталган мамлакати.
+    if (!/^\+\d{7,15}$/.test(String(telefon))) {
+      return res.status(400).json({ xato: 'Телефон рақамини халқаро форматда киритинг (масалан +998901234567)' });
     }
     if (String(parol).length < 6) {
       return res.status(400).json({ xato: 'Парол камида 6 белгидан иборат бўлсин' });
