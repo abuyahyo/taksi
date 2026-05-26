@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import { useT } from '../i18n';
 import Ikonka from './Ikonka';
+import Sheet from './Sheet';
 
 export default function YolovchiProfili({ onYopish, onYangilandi, mapNuqta }) {
   const { t } = useT();
@@ -67,18 +68,15 @@ export default function YolovchiProfili({ onYopish, onYangilandi, mapNuqta }) {
 
   if (!profil) {
     return (
-      <div style={st.fon} onClick={onYopish}>
-        <div style={st.modal} className="glass slide-up-modal" onClick={(e) => e.stopPropagation()}>
-          <div>{t('common.loading')}</div>
+      <Sheet onYopish={onYopish} zIndex={3500} panelStyle={{ padding: '0 20px 20px' }}>
+          <div style={{ marginTop: 8 }}>{t('common.loading')}</div>
           {xato && <div style={st.xato}>{xato}</div>}
-        </div>
-      </div>
+      </Sheet>
     );
   }
 
   return (
-    <div style={st.fon} onClick={onYopish}>
-      <div style={st.modal} className="glass slide-up-modal" onClick={(e) => e.stopPropagation()}>
+    <Sheet onYopish={onYopish} zIndex={3500} panelStyle={{ padding: '0 20px 20px', maxHeight: '90vh' }}>
         <div style={st.header}>
           <div style={st.sarlavha}>{t('prof.title')}</div>
           <button style={st.yopish} onClick={onYopish}><Ikonka nom="x" size={16} /></button>
@@ -130,8 +128,7 @@ export default function YolovchiProfili({ onYopish, onYangilandi, mapNuqta }) {
         </div>
 
         {xato && <div style={st.xato}>{xato}</div>}
-      </div>
-    </div>
+    </Sheet>
   );
 }
 
@@ -145,9 +142,7 @@ function Stat({ raqam, matn, keng }) {
 }
 
 const st = {
-  fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 3500, padding: 0, backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)' },
-  modal: { width: '100%', maxWidth: 480, maxHeight: '90vh', overflowY: 'auto', borderRadius: '14px 14px 0 0', padding: '8px 20px 20px' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, marginTop: 8 },
   sarlavha: { fontSize: 20, fontWeight: 600 },
   yopish: { width: 30, height: 30, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   avatar: { width: 76, height: 76, borderRadius: '50%', background: 'var(--tint)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, fontWeight: 600, margin: '0 auto 12px' },

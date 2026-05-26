@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { api, socket } from '../services/api';
 import { useT } from '../i18n';
 import Ikonka from './Ikonka';
+import Sheet from './Sheet';
 
 export default function Chat({ rideId, meId, hamrohIsm, onClose }) {
   const { t } = useT();
@@ -53,9 +54,7 @@ export default function Chat({ rideId, meId, hamrohIsm, onClose }) {
   const sarlavha = hamrohIsm || t('chat.tripChat');
 
   return (
-    <div style={st.fon} onClick={onClose}>
-      <div style={st.panel} className="glass slide-up-modal" onClick={(e) => e.stopPropagation()}>
-        <div style={st.grabber} />
+    <Sheet onYopish={onClose} zIndex={3000} panelStyle={st.panel}>
         <div style={st.header}>
           <div style={{ textAlign: 'center', flex: 1 }}>
             <div style={st.sarlavha}>{sarlavha}</div>
@@ -115,15 +114,12 @@ export default function Chat({ rideId, meId, hamrohIsm, onClose }) {
             <Ikonka nom="send" size={20} />
           </button>
         </div>
-      </div>
-    </div>
+    </Sheet>
   );
 }
 
 const st = {
-  fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 3000, backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)' },
-  panel: { width: '100%', maxWidth: 480, height: '85vh', borderRadius: '14px 14px 0 0', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
-  grabber: { width: 36, height: 5, borderRadius: 3, background: 'var(--fill-strong)', margin: '6px auto 4px' },
+  panel: { height: '85vh', maxHeight: 'none', display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0 },
   header: { position: 'relative', padding: '8px 16px 12px', borderBottom: '0.5px solid var(--separator)', display: 'flex', alignItems: 'center' },
   sarlavha: { fontSize: 17, fontWeight: 600, color: 'var(--label)' },
   izoh: { fontSize: 12, color: 'var(--secondary-label)', marginTop: 1 },
