@@ -113,8 +113,8 @@ CREATE INDEX IF NOT EXISTS idx_users_telefon ON users(telefon);
 -- Тўлов транзакциялари (Payme + Click)
 CREATE TABLE IF NOT EXISTS transactions (
   id SERIAL PRIMARY KEY,
-  ride_id INTEGER REFERENCES rides(id),
-  tizim VARCHAR(10) NOT NULL,            -- payme, click
+  ride_id INTEGER REFERENCES rides(id),    -- сафар тўлови (ёки obuna_id — иккаласидан бири тўлади)
+  tizim VARCHAR(10) NOT NULL,            -- payme, click, test
   tashqi_id VARCHAR(100),                -- Payme/Click транзакция ID'си
   summa INTEGER NOT NULL,                -- тийинда (1 сўм = 100 тийин)
   holat VARCHAR(20) DEFAULT 'kutilmoqda', -- kutilmoqda, tolandi, bekor
@@ -141,6 +141,11 @@ CREATE TABLE IF NOT EXISTS obunalar (
 );
 CREATE INDEX IF NOT EXISTS idx_obunalar_user ON obunalar(user_id);
 CREATE INDEX IF NOT EXISTS idx_obunalar_tugash ON obunalar(tugash_sana);
+
+-- Транзакция обунага ҳам боғланиши мумкин (ҳайдовчи обуна тўлови).
+-- obunalar яратилгандан кейин қўшамиз (FK тартиби учун).
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS obuna_id INTEGER REFERENCES obunalar(id);
+CREATE INDEX IF NOT EXISTS idx_tx_obuna ON transactions(obuna_id);
 
 -- 🆘 SOS шошилинч сигналлар — фойдаланувчи қизил тугмани босганида
 CREATE TABLE IF NOT EXISTS sos_signals (

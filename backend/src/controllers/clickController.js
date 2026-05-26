@@ -1,7 +1,15 @@
 // Click Merchant API — Prepare + Complete (2 босқич, имзо текшируви билан)
 const crypto = require('crypto');
 const { query } = require('../config/db');
+const { obunaFaollashtir } = require('./subscriptionController');
 require('dotenv').config();
+
+// Тўлов нишони merchant_trans_id'дан: обуна ('sub-N') ёки сафар (рақам = ride id)
+function nishon(merchantTransId) {
+  const s = String(merchantTransId || '');
+  if (s.startsWith('sub-')) return { tur: 'obuna', id: parseInt(s.slice(4), 10) };
+  return { tur: 'ride', id: parseInt(s, 10) };
+}
 
 // Click хато кодлари (расмий)
 const XATO = {
@@ -39,24 +47,28 @@ const prepare = async (req, res) => {
     return res.json({ error: XATO.IMZO_XATO, error_note: 'Имзо нотўғри' });
   }
 
-  const ride = await query('SELECT * FROM rides WHERE id = $1', [b.merchant_trans_id]);
-  if (ride.rows.length === 0) {
-    return res.json({ error: XATO.BUYURTMA_TOPILMADI, error_note: 'Буюртма топилмади' });
+  const n = nishon(b.merchant_trans_id);
+  let kerakliSum; // сўмда
+  if (n.tur === 'ride') {
+    const ride = await query('SELECT kelishilgan_narx, holat FROM rides WHERE id = $1', [n.id]);
+    if (ride.rows.length === 0) return res.json({ error: XATO.BUYURTMA_TOPILMADI, error_note: 'Буюртма топилмади' });
+    if (ride.rows[0].holat === 'bekor_qilindi') return res.json({ error: XATO.BEKOR_QILINGAN, error_note: 'Сафар бекор қилинган' });
+    kerakliSum = Number(ride.rows[0].kelishilgan_narx);
+  } else {
+    const ob = await query('SELECT summa, holat FROM obunalar WHERE id = $1', [n.id]);
+    if (ob.rows.length === 0) return res.json({ error: XATO.BUYURTMA_TOPILMADI, error_note: 'Обуна топилмади' });
+    if (ob.rows[0].holat === 'faol') return res.json({ error: XATO.BEKOR_QILINGAN, error_note: 'Обуна аллақачон фаол' });
+    kerakliSum = Number(ob.rows[0].summa);
   }
-  const r0 = ride.rows[0];
-
-  // Бекор қилинган сафарга тўлов йўқ
-  if (r0.holat === 'bekor_qilindi') {
-    return res.json({ error: XATO.BEKOR_QILINGAN, error_note: 'Сафар бекор қилинган' });
-  }
-  // Сумма сафар нархига мос келиши шарт (Click сўм бирлигида юборади)
-  if (!r0.kelishilgan_narx || Math.round(Number(b.amount)) !== Number(r0.kelishilgan_narx)) {
+  // Сумма мос келиши шарт (Click сўм бирлигида юборади)
+  if (!kerakliSum || Math.round(Number(b.amount)) !== kerakliSum) {
     return res.json({ error: XATO.SUMMA_XATO, error_note: 'Сумма нотўғри' });
   }
   // Икки марта тўловни тўсамиз
+  const ustun = n.tur === 'ride' ? 'ride_id' : 'obuna_id';
   const tolangan = await query(
-    `SELECT 1 FROM transactions WHERE ride_id = $1 AND holat = 'tolandi' LIMIT 1`,
-    [b.merchant_trans_id]
+    `SELECT 1 FROM transactions WHERE ${ustun} = $1 AND holat = 'tolandi' LIMIT 1`,
+    [n.id]
   );
   if (tolangan.rows.length) {
     return res.json({ error: XATO.ALLAQACHON_TOLANGAN, error_note: 'Аллақачон тўланган' });
@@ -64,9 +76,9 @@ const prepare = async (req, res) => {
 
   // Транзакция яратамиз
   const natija = await query(
-    `INSERT INTO transactions (ride_id, tizim, tashqi_id, summa, holat)
-     VALUES ($1, 'click', $2, $3, 'kutilmoqda') RETURNING id`,
-    [b.merchant_trans_id, b.click_trans_id, Math.round(b.amount * 100)]
+    `INSERT INTO transactions (ride_id, obuna_id, tizim, tashqi_id, summa, holat)
+     VALUES ($1, $2, 'click', $3, $4, 'kutilmoqda') RETURNING id`,
+    [n.tur === 'ride' ? n.id : null, n.tur === 'obuna' ? n.id : null, b.click_trans_id, Math.round(b.amount * 100)]
   );
 
   res.json({
@@ -99,7 +111,9 @@ const complete = async (req, res) => {
 
   // Тўловни якунлаймиз
   await query(`UPDATE transactions SET holat = 'tolandi' WHERE id = $1`, [b.merchant_prepare_id]);
-  await query(`UPDATE rides SET holat = 'yakunlandi' WHERE id = $1`, [tx.rows[0].ride_id]);
+  // Нишонга қараб: сафарни тўланган деб белгилаймиз ёки обунани фаоллаштирамиз
+  if (tx.rows[0].ride_id) await query(`UPDATE rides SET holat = 'yakunlandi' WHERE id = $1`, [tx.rows[0].ride_id]);
+  if (tx.rows[0].obuna_id) await obunaFaollashtir(tx.rows[0].obuna_id);
 
   res.json({
     error: XATO.MUVAFFAQIYAT,
@@ -112,14 +126,14 @@ const complete = async (req, res) => {
 
 // Click checkout URL яратиш
 //   format: https://my.click.uz/services/pay?service_id=X&merchant_id=Y&amount=Z&transaction_param=N&return_url=R
-function clickCheckoutUrl({ rideId, summaSum, returnUrl }) {
+function clickCheckoutUrl({ rideId, obunaId, summaSum, returnUrl }) {
   const serviceId = process.env.CLICK_SERVICE_ID || 'test_service_id';
   const merchantId = process.env.CLICK_MERCHANT_ID || 'test_merchant_id';
   const params = new URLSearchParams({
     service_id: serviceId,
     merchant_id: merchantId,
     amount: String(summaSum),
-    transaction_param: String(rideId),
+    transaction_param: obunaId ? `sub-${obunaId}` : String(rideId),
   });
   if (returnUrl) params.set('return_url', returnUrl);
   return `https://my.click.uz/services/pay?${params.toString()}`;
