@@ -101,6 +101,17 @@ export default function YolovchiSahifa() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Харита марказини фойдаланувчи жойига кўчирамиз (глобал — Тошкентга боғланмаган).
+  // Рухсат берилмаса дефолт марказ (Тошкент) қолади.
+  useEffect(() => {
+    if (!('geolocation' in navigator)) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setUchish([pos.coords.latitude, pos.coords.longitude]),
+      () => {},
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+    );
+  }, []);
+
   const { yubor } = useSocket({
     // Қайта уланганда фаол сафар хонасига қайта қўшиламиз (рўйхатдан ўтган мижоз)
     connect: () => {
