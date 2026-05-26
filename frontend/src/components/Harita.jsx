@@ -2,7 +2,7 @@
 // Икки режим: (1) тап билан нуқта қўйиш (onBosish), (2) Yandex Go услуби —
 // марказда турғун пин, харита сурилади, марказ координатаси onMarkaz'га узатилади.
 import { MapContainer, TileLayer, Marker, Polyline, useMapEvents, useMap } from 'react-leaflet';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useTema } from '../theme';
@@ -37,23 +37,97 @@ const oraliqIcon = L.divIcon({
   iconSize: [16, 16], iconAnchor: [8, 8],
 });
 
-// Ҳайдовчи учун машина иконкаси (SVG + бирюза доира)
-const haydovchiIcon = L.divIcon({
-  className: 'haydovchi-marker',
-  html: `<div style="
-    width:42px;height:42px;border-radius:50%;
-    background:#0E9384;display:flex;align-items:center;justify-content:center;
-    box-shadow:0 2px 8px rgba(0,0,0,.3);border:3px solid #fff;
-  "><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11l1.8-4.6A2 2 0 0 1 8.7 5h6.6a2 2 0 0 1 1.9 1.4L19 11"/><path d="M4 11h16a1 1 0 0 1 1 1v4H3v-4a1 1 0 0 1 1-1z"/><circle cx="7.5" cy="16.5" r="1.6"/><circle cx="16.5" cy="16.5" r="1.6"/></svg></div>`,
-  iconSize: [42, 42],
-  iconAnchor: [21, 21],
+// Ҳайдовчи машинаси — юқоридан кўриниш (top-down), йўналишга қараб айланади.
+// Леафлет маркер ичидаги `.mashina-aylan` элементи rotate бўлади.
+const mashinaIcon = L.divIcon({
+  className: 'mashina-marker',
+  html: `<div class="mashina-aylan" style="transition:transform .45s ease-out;will-change:transform;filter:drop-shadow(0 2px 4px rgba(0,0,0,.35))">
+    <svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+      <rect x="11" y="6" width="14" height="24" rx="6.5" fill="#0E9384" stroke="#fff" stroke-width="2.2"/>
+      <path d="M13.5 12 C15 10.5 21 10.5 22.5 12 L21.5 15.5 L14.5 15.5 Z" fill="#fff" opacity="0.9"/>
+      <rect x="14" y="23" width="8" height="3.5" rx="1.5" fill="#fff" opacity="0.7"/>
+    </svg>
+  </div>`,
+  iconSize: [36, 36],
+  iconAnchor: [18, 18],
 });
 
-// Харитани белгиланган нуқтага кўчириш
+// Икки нуқта орасидаги азимут (0=шимол, соат бўйлаб), top-down иконка айланиши учун.
+function burchakHisobla(a, b) {
+  const rad = (d) => (d * Math.PI) / 180;
+  const dLon = rad(b.lng - a.lng);
+  const lat1 = rad(a.lat), lat2 = rad(b.lat);
+  const y = Math.sin(dLon) * Math.cos(lat2);
+  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+  return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
+}
+
+// Силлиқ ҳаракатланувчи ҳайдовчи маркери — янги GPS нуқтаси келганда сакрамайди,
+// rAF билан ~0.9с давомида интерполяция қилади + йўналишга қараб бурилади.
+function HaydovchiMarker({ joylashuv }) {
+  const map = useMap();
+  const markerRef = useRef(null);
+  const rafRef = useRef(null);
+  const holatRef = useRef({ lat: null, lng: null });
+
+  useEffect(() => {
+    // Сафар тугади / жойлашув йўқ — маркерни олиб ташлаймиз
+    if (!joylashuv) {
+      cancelAnimationFrame(rafRef.current);
+      if (markerRef.current) { markerRef.current.remove(); markerRef.current = null; }
+      holatRef.current = { lat: null, lng: null };
+      return;
+    }
+    const [lat, lng] = joylashuv;
+    // Биринчи марта — дарров қўямиз, анимация йўқ
+    if (!markerRef.current) {
+      holatRef.current = { lat, lng };
+      markerRef.current = L.marker([lat, lng], { icon: mashinaIcon, interactive: false, zIndexOffset: 1000 }).addTo(map);
+      return;
+    }
+    // Жорий кўрсатилаётган нуқтадан янги нуқтага силлиқ ўтиш
+    const boshla = { ...holatRef.current };
+    const tugat = { lat, lng };
+    const burchak = burchakHisobla(boshla, tugat);
+    const el = markerRef.current.getElement();
+    const ichki = el && el.querySelector('.mashina-aylan');
+    if (ichki) ichki.style.transform = `rotate(${burchak}deg)`;
+
+    const davom = 900;
+    const t0 = performance.now();
+    cancelAnimationFrame(rafRef.current);
+    const qadam = (hozir) => {
+      const p = Math.min(1, (hozir - t0) / davom);
+      const e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2; // easeInOutQuad
+      const cLat = boshla.lat + (tugat.lat - boshla.lat) * e;
+      const cLng = boshla.lng + (tugat.lng - boshla.lng) * e;
+      if (markerRef.current) markerRef.current.setLatLng([cLat, cLng]);
+      holatRef.current = { lat: cLat, lng: cLng };
+      if (p < 1) rafRef.current = requestAnimationFrame(qadam);
+    };
+    rafRef.current = requestAnimationFrame(qadam);
+  }, [joylashuv, map]);
+
+  useEffect(() => () => {
+    cancelAnimationFrame(rafRef.current);
+    if (markerRef.current) markerRef.current.remove();
+  }, []);
+
+  return null;
+}
+
+// Харитани белгиланган нуқтага кўчириш — машина силлиқ сурилганда фон ҳам
+// силлиқ эргашсин (сакраш ўрнига panTo анимацияси). Жуда кичик GPS «шовқини»
+// учун ҳаракат қилмаймиз.
 function HaritaMarkaz({ markaz }) {
   const map = useMap();
   useEffect(() => {
-    if (markaz) map.setView(markaz, map.getZoom());
+    if (!markaz) return;
+    const hozir = map.getCenter();
+    const farq = map.distance(hozir, markaz); // метр
+    if (farq < 8) return;
+    if (farq > 1500) map.setView(markaz, map.getZoom()); // узоқ сакраш — дарров
+    else map.panTo(markaz, { animate: true, duration: 0.9, easeLinearity: 0.5 });
   }, [markaz, map]);
   return null;
 }
@@ -133,7 +207,7 @@ export default function Harita({
         )}
         {boshlanish && <Marker position={boshlanish} icon={boshlanishIcon} />}
         {tugash && <Marker position={tugash} icon={tugashIcon} />}
-        {haydovchi && <Marker position={haydovchi} icon={haydovchiIcon} />}
+        <HaydovchiMarker joylashuv={haydovchi} />
       </MapContainer>
 
       {/* Yandex услуби марказий пин — харита остида сурилади, пин турғун */}
