@@ -7,6 +7,8 @@ const cors = require('cors');
 const { Server } = require('socket.io');
 require('dotenv').config();
 
+const { xavfsizlikHeaders } = require('./middleware/xavfsizlik');
+
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const driverRoutes = require('./routes/driverRoutes');
@@ -33,6 +35,7 @@ const io = new Server(server, {
 });
 
 // Middleware
+app.use(xavfsizlikHeaders);
 app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 
