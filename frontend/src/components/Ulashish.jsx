@@ -4,6 +4,7 @@ import { api } from '../services/api';
 import { useT } from '../i18n';
 import Ikonka from './Ikonka';
 import Sheet from './Sheet';
+import { tgUlash } from '../services/telegram';
 
 export default function Ulashish({ rideId, onYopish }) {
   const { t } = useT();
@@ -58,7 +59,14 @@ export default function Ulashish({ rideId, onYopish }) {
             </div>
 
             <div style={st.deepLinks}>
-              <a href={tgUrl} target="_blank" rel="noreferrer" style={{ ...st.tashqi, background: '#229ED9' }}>
+              {/* Telegram ичида бўлсак — нативе share sheet; акс ҳолда оддий линк */}
+              <a
+                href={tgUrl}
+                target="_blank"
+                rel="noreferrer"
+                style={{ ...st.tashqi, background: '#229ED9' }}
+                onClick={(e) => { if (tgUlash(link, t('share.tgMatn'))) e.preventDefault(); }}
+              >
                 Telegram
               </a>
               <a href={waUrl} target="_blank" rel="noreferrer" style={{ ...st.tashqi, background: '#25D366' }}>

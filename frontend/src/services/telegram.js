@@ -19,6 +19,14 @@ export function tgTayyorla() {
   try { w.ready(); w.expand(); } catch { /* эски клиент */ }
 }
 
+// Telegram'да линкни чатга улашиш (share sheet). Telegram'да эмас → false.
+export function tgUlash(url, matn) {
+  const w = tgWebApp();
+  if (!w || !w.openTelegramLink) return false;
+  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(matn || '')}`;
+  try { w.openTelegramLink(shareUrl); return true; } catch { return false; }
+}
+
 // initData орқали серверда аутентификация — JWT олиб localStorage'га ёзамиз.
 // Қайтаради: user объекти ёки null (Telegram'да эмас / хато).
 export async function tgAvtoKirish() {

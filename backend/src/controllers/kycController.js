@@ -123,4 +123,29 @@ const faylBer = async (req, res) => {
   }
 };
 
-module.exports = { upload, yukla, royxatim, faylBer };
+// Бот орқали юкланган KYC ҳужжатни базага ёзиш — файл аллақачон UPLOAD_DIR'да.
+// (Telegram'да расм юборган ҳайдовчи учун.)
+async function kycYoz(userId, turi, faylNomi) {
+  if (!TURLAR.includes(turi)) return false;
+  const bor = await query(`SELECT 1 FROM drivers WHERE user_id = $1`, [userId]);
+  if (bor.rowCount === 0) await query(`INSERT INTO drivers (user_id) VALUES ($1)`, [userId]);
+
+  const eski = await query(`SELECT fayl FROM driver_hujjatlar WHERE user_id = $1 AND turi = $2`, [userId, turi]);
+  await query(
+    `INSERT INTO driver_hujjatlar (user_id, turi, fayl, holat, rad_sababi, yuklangan)
+     VALUES ($1, $2, $3, 'kutilmoqda', NULL, NOW())
+     ON CONFLICT (user_id, turi)
+     DO UPDATE SET fayl = $3, holat = 'kutilmoqda', rad_sababi = NULL, yuklangan = NOW()`,
+    [userId, turi, faylNomi]
+  );
+  await query(
+    `UPDATE drivers SET tasdiq_holati = 'kutilmoqda', rad_sababi = NULL
+     WHERE user_id = $1 AND tasdiqlangan IS NOT TRUE`,
+    [userId]
+  );
+  const eskiFayl = eski.rows[0]?.fayl;
+  if (eskiFayl && eskiFayl !== faylNomi) fs.unlink(path.join(UPLOAD_DIR, eskiFayl), () => {});
+  return true;
+}
+
+module.exports = { upload, yukla, royxatim, faylBer, kycYoz, KYC_DIR: UPLOAD_DIR };
