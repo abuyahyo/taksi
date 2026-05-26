@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { socket } from '../services/api';
 import { useT } from '../i18n';
 import { useToast } from './Toast';
+import { tebrat, TEBRANISH } from '../services/haptika';
 import Ikonka from './Ikonka';
 
 export default function SOS({ rideId, kichik }) {
@@ -13,6 +14,7 @@ export default function SOS({ rideId, kichik }) {
 
   const yubor = () => {
     setYuborilmoqda(true);
+    tebrat(TEBRANISH.ogohlantirish);
     const yuborSignal = (lat, lng) => {
       socket.emit('sos_yuborildi', { rideId, lat, lng, matn: null });
       socket.once('sos_qabul_qilindi', () => {

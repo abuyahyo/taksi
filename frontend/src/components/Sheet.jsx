@@ -3,6 +3,7 @@
 // ичкаридаги контент эркин скролл бўлади. Етарли тортилса ёпилади, акс
 // ҳолда орқага қайтади. Backdrop бармоқ ҳаракатига қараб хиралашади.
 import { useRef, useState, useCallback } from 'react';
+import { tebrat } from '../services/haptika';
 
 const YOPISH_CHEGARA = 90; // px — шу масофадан кўп тортилса ёпилади
 
@@ -38,7 +39,7 @@ export default function Sheet({
   const tugat = () => {
     if (!tortilmoqda) return;
     setTortilmoqda(false);
-    if (dy > YOPISH_CHEGARA) yop();
+    if (dy > YOPISH_CHEGARA) { tebrat(); yop(); }
     else setDy(0); // орқага қайтиш
   };
 
