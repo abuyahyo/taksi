@@ -142,6 +142,12 @@ function Ichki({ user, onChiqish }) {
   };
 
   const { yubor } = useSocket({
+    // Қайта уланганда (socket узилиб-уланса) ҳолатни тиклаймиз — акс ҳолда
+    // ҳайдовчи "онлайн"дек кўриниб, аслида буюртма олмай қоларди.
+    connect: () => {
+      if (onlayn) yubor('haydovchi_online', { userId: user.id, ism: user.ism });
+      if (faolSafar) yubor('safarga_qoshil', { rideId: faolSafar.rideId });
+    },
     obuna_kerak: () => {
       toast.error(t('sub.requiredToOnline'));
       setObunaOchiq(true);

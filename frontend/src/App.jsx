@@ -5,6 +5,7 @@ import { I18nProvider } from './i18n';
 import { TemaProvider } from './theme';
 import { ToastProvider } from './components/Toast';
 import YangilanishBanner from './components/YangilanishBanner';
+import XatoChegarasi from './components/XatoChegarasi';
 
 // Route-based code splitting — ҳар саҳифа алоҳида chunk
 // Бош саҳифа Leaflet/Chat/Tolov ва бошқалар билан юкланмайди — тез очилади
@@ -29,6 +30,7 @@ export default function App() {
       <TemaProvider>
       <ToastProvider>
       <BrowserRouter>
+        <XatoChegarasi>
         <Suspense fallback={<Yuklanmoqda />}>
           <Routes>
             <Route path="/" element={<KirishSahifa />} />
@@ -39,6 +41,7 @@ export default function App() {
             <Route path="/k/:kalit" element={<UlashilganSahifa />} />
           </Routes>
         </Suspense>
+        </XatoChegarasi>
         <YangilanishBanner />
       </BrowserRouter>
       </ToastProvider>

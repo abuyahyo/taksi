@@ -79,6 +79,10 @@ export default function YolovchiSahifa() {
   }, [user?.id]);
 
   const { yubor } = useSocket({
+    // Қайта уланганда фаол сафар хонасига қайта қўшиламиз (рўйхатдан ўтган мижоз)
+    connect: () => {
+      if (rideId) yubor('safarga_qoshil', { rideId });
+    },
     buyurtma_yaratildi: ({ id, pin }) => {
       setRideId(id); // мижоз ID'сини базадан келган реал ID билан алмаштирамиз
       if (pin) setSafarPin(pin); // машина PIN-коди — ҳайдовчига айтилади
