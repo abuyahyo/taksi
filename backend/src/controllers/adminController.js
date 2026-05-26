@@ -28,7 +28,9 @@ const foydalanuvchilar = async (req, res) => {
   try {
     const natija = await query(
       `SELECT u.id, u.ism, u.telefon, u.rol, u.reyting, u.bloklangan, u.blok_sababi, u.yaratilgan,
-              COALESCE(d.tasdiqlangan, FALSE) AS tasdiqlangan
+              COALESCE(d.tasdiqlangan, FALSE) AS tasdiqlangan,
+              COALESCE(d.tasdiq_holati, 'yangi') AS tasdiq_holati,
+              (SELECT COUNT(*) FROM driver_hujjatlar dh WHERE dh.user_id = u.id) AS hujjat_soni
        FROM users u
        LEFT JOIN drivers d ON d.user_id = u.id
        ORDER BY u.yaratilgan DESC`
@@ -78,10 +80,11 @@ const tasdiqlash = async (req, res) => {
   try {
     const { id } = req.params;
     const r = await query(
-      `UPDATE drivers SET tasdiqlangan = TRUE WHERE user_id = $1`,
+      `UPDATE drivers SET tasdiqlangan = TRUE, tasdiq_holati = 'tasdiqlandi', rad_sababi = NULL WHERE user_id = $1`,
       [id]
     );
     if (r.rowCount === 0) return res.status(404).json({ xato: 'Ҳайдовчи топилмади' });
+    await query(`UPDATE driver_hujjatlar SET holat = 'tasdiqlandi', rad_sababi = NULL WHERE user_id = $1`, [id]);
     res.json({ xabar: 'Ҳайдовчи тасдиқланди' });
   } catch (err) {
     res.status(500).json({ xato: 'Сервер хатоси' });
@@ -91,9 +94,61 @@ const tasdiqlash = async (req, res) => {
 const tasdiqBekor = async (req, res) => {
   try {
     const { id } = req.params;
-    await query(`UPDATE drivers SET tasdiqlangan = FALSE WHERE user_id = $1`, [id]);
+    await query(`UPDATE drivers SET tasdiqlangan = FALSE, tasdiq_holati = 'kutilmoqda' WHERE user_id = $1`, [id]);
     res.json({ xabar: 'Тасдиқ бекор қилинди' });
   } catch (err) {
+    res.status(500).json({ xato: 'Сервер хатоси' });
+  }
+};
+
+// Ҳайдовчи ҳужжатлари рўйхати (админ кўради)
+const hujjatlar = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const h = await query(
+      `SELECT id, turi, holat, rad_sababi, yuklangan
+       FROM driver_hujjatlar WHERE user_id = $1 ORDER BY turi`,
+      [userId]
+    );
+    const d = await query(
+      `SELECT COALESCE(tasdiqlangan, FALSE) AS tasdiqlangan,
+              COALESCE(tasdiq_holati, 'yangi') AS tasdiq_holati, rad_sababi
+       FROM drivers WHERE user_id = $1`,
+      [userId]
+    );
+    res.json({
+      hujjatlar: h.rows,
+      tasdiqlangan: d.rows[0]?.tasdiqlangan || false,
+      tasdiq_holati: d.rows[0]?.tasdiq_holati || 'yangi',
+      rad_sababi: d.rows[0]?.rad_sababi || null,
+    });
+  } catch (err) {
+    console.error('admin hujjatlar xato:', err.message);
+    res.status(500).json({ xato: 'Сервер хатоси' });
+  }
+};
+
+// Ҳужжатни рад этиш — сабаб МАЖБУРИЙ (шаффоф блоклаш тамойили). Ҳайдовчи сабабни кўради.
+const hujjatRad = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const sabab = typeof req.body.sabab === 'string' ? req.body.sabab.trim() : '';
+    if (!sabab) return res.status(400).json({ xato: 'Рад этиш сабабини кўрсатинг' });
+
+    const r = await query(
+      `UPDATE driver_hujjatlar SET holat = 'rad', rad_sababi = $2 WHERE id = $1 RETURNING user_id`,
+      [id, sabab.slice(0, 300)]
+    );
+    if (r.rowCount === 0) return res.status(404).json({ xato: 'Ҳужжат топилмади' });
+
+    // Ҳайдовчи умумий ҳолати "рад" — у сабабни кўриб қайта юклайди
+    await query(
+      `UPDATE drivers SET tasdiqlangan = FALSE, tasdiq_holati = 'rad', rad_sababi = $2 WHERE user_id = $1`,
+      [r.rows[0].user_id, sabab.slice(0, 300)]
+    );
+    res.json({ xabar: 'Ҳужжат рад этилди', sabab });
+  } catch (err) {
+    console.error('admin hujjatRad xato:', err.message);
     res.status(500).json({ xato: 'Сервер хатоси' });
   }
 };
@@ -116,4 +171,4 @@ const buyurtmalar = async (req, res) => {
   }
 };
 
-module.exports = { statistika, foydalanuvchilar, bloklash, blokniYechish, buyurtmalar, tasdiqlash, tasdiqBekor };
+module.exports = { statistika, foydalanuvchilar, bloklash, blokniYechish, buyurtmalar, tasdiqlash, tasdiqBekor, hujjatlar, hujjatRad };
