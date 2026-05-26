@@ -62,6 +62,9 @@ const holatim = async (req, res) => {
 };
 
 // POST /api/driver/subscription/buy { turi }
+// Обунани БЕПУЛ бермаймиз — кутилаётган (pending) обуна яратиб, унинг id'сини
+// қайтарамиз. Фойдаланувчи Payme/Click орқали тўлайди, webhook тасдиқлагач
+// obunaFaollashtir() уни фаоллаштиради. Тўловсиз обуна берилмайди.
 const sotibOlish = async (req, res) => {
   try {
     const { turi } = req.body;
@@ -70,36 +73,55 @@ const sotibOlish = async (req, res) => {
       return res.status(400).json({ xato: 'Нотўғри пакет' });
     }
 
-    // Фаол обуна бўлса — узайтирамиз; йўқ бўлса янгисини яратамиз
-    const faol = await faolObuna(req.user.id);
-    let yangi;
-    if (faol) {
-      // Қолган кунлар сақланади, янги муддат уни узайтиради
-      const r = await query(
-        `UPDATE obunalar
-            SET tugash_sana = GREATEST(tugash_sana, NOW()) + ($2 || ' days')::INTERVAL,
-                summa = summa + $3
-          WHERE id = $1
-          RETURNING *`,
-        [faol.id, paket.kun, paket.summa]
-      );
-      yangi = r.rows[0];
+    // Шу тур учун аввалдан кутилаётган обуна бўлса — қайта ишлатамиз (қатор спамини тўсиш)
+    const mavjud = await query(
+      `SELECT id FROM obunalar WHERE user_id = $1 AND turi = $2 AND holat = 'kutilmoqda'
+       ORDER BY id DESC LIMIT 1`,
+      [req.user.id, turi]
+    );
+    let obunaId;
+    if (mavjud.rows[0]) {
+      obunaId = mavjud.rows[0].id;
     } else {
+      // tugash_sana NOT NULL — вақтинча тўлдирамиз, фаоллашганда қайта ҳисобланади.
       const r = await query(
-        `INSERT INTO obunalar (user_id, turi, summa, tugash_sana)
-         VALUES ($1, $2, $3, NOW() + ($4 || ' days')::INTERVAL)
-         RETURNING *`,
+        `INSERT INTO obunalar (user_id, turi, summa, tugash_sana, holat)
+         VALUES ($1, $2, $3, NOW() + ($4 || ' days')::INTERVAL, 'kutilmoqda')
+         RETURNING id`,
         [req.user.id, turi, paket.summa, paket.kun]
       );
-      yangi = r.rows[0];
+      obunaId = r.rows[0].id;
     }
 
-    res.json({ ok: true, obuna: yangi });
+    res.json({ ok: true, obunaId, turi, summa: paket.summa });
   } catch (err) {
     console.error('subscription buy xato:', err.message);
     res.status(500).json({ xato: 'Сервер хатоси' });
   }
 };
+
+// Тўлов тасдиқлангач — кутилаётган обунани фаоллаштириш (webhook/test-pay чақиради).
+// Идемпотент: фаол бўлса қайта ишламайди. Мавжуд фаол муддат устига қўшамиз (stacking).
+async function obunaFaollashtir(obunaId) {
+  const r = await query(`SELECT user_id, turi, holat FROM obunalar WHERE id = $1`, [obunaId]);
+  const o = r.rows[0];
+  if (!o) return false;
+  if (o.holat === 'faol') return true; // аллақачон фаол
+  const paket = PAKETLAR[o.turi];
+  const kun = paket?.kun || 0;
+  await query(
+    `UPDATE obunalar
+        SET holat = 'faol', boshlanish_sana = NOW(),
+            tugash_sana = GREATEST(
+              COALESCE((SELECT MAX(tugash_sana) FROM obunalar
+                        WHERE user_id = $2 AND holat = 'faol' AND tugash_sana > NOW()), NOW()),
+              NOW()
+            ) + ($3 || ' days')::INTERVAL
+      WHERE id = $1`,
+    [obunaId, o.user_id, kun]
+  );
+  return true;
+}
 
 // Бошқа модуллар учун — обуна фаоллигини текшириш
 async function obunaFaolmi(userId) {
@@ -107,4 +129,4 @@ async function obunaFaolmi(userId) {
   return !!o;
 }
 
-module.exports = { holatim, sotibOlish, faolObuna, obunaFaolmi, PAKETLAR };
+module.exports = { holatim, sotibOlish, faolObuna, obunaFaolmi, obunaFaollashtir, PAKETLAR };

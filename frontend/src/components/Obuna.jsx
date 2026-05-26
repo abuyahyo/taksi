@@ -7,35 +7,71 @@ import Ikonka from './Ikonka';
 import Sheet from './Sheet';
 
 export default function Obuna({ onYopish, onYangilandi }) {
-  const { t } = useT();
+  const { t, til } = useT();
   const toast = useToast();
   const [holat, setHolat] = useState(null);
   const [yuklanmoqda, setYuklanmoqda] = useState(true);
   const [sotibOlinmoqda, setSotibOlinmoqda] = useState(null);
+  // Тўлов босқичи — пакет танлангач кутилаётган обуна + тўлов усуллари
+  const [tolov, setTolov] = useState(null);       // { obunaId, turi, summa }
+  const [tolovYubor, setTolovYubor] = useState(false);
 
   const yukla = async () => {
     try {
       const { data } = await api.get('/driver/subscription');
       setHolat(data);
+      return data;
     } catch (err) {
       toast.error(err.response?.data?.xato || t('common.error'));
+    } finally {
+      setYuklanmoqda(false);
     }
-    setYuklanmoqda(false);
   };
   useEffect(() => { yukla(); }, []);
 
+  // Пакет танлаш — обуна БЕРИЛМАЙДИ, фақат кутилаётган обуна яратилади. Сўнг тўлов.
   const sotibOl = async (turi) => {
     setSotibOlinmoqda(turi);
     try {
       const { data } = await api.post('/driver/subscription/buy', { turi });
-      toast.success(t('sub.bought'));
-      setHolat((h) => h ? { ...h, faol: data.obuna } : h);
-      onYangilandi?.(data.obuna);
-      yukla();
+      setTolov({ obunaId: data.obunaId, turi, summa: data.summa });
     } catch (err) {
       toast.error(err.response?.data?.xato || t('common.error'));
     }
     setSotibOlinmoqda(null);
+  };
+
+  // Payme/Click — ташқи тўлов саҳифасини очамиз; қайтгач обуна ҳолатини текширамиз
+  const tashqiTola = async (tizim) => {
+    setTolovYubor(true);
+    try {
+      const { data } = await api.post('/payment/url', {
+        obunaId: tolov.obunaId, tizim, til, returnUrl: window.location.origin,
+      });
+      window.open(data.url, '_blank');
+      setTimeout(async () => {
+        const yangi = await yukla();
+        if (yangi?.faol) { toast.success(t('sub.bought')); onYangilandi?.(yangi.faol); setTolov(null); }
+      }, 1500);
+    } catch (err) {
+      toast.error(err.response?.data?.xato || t('common.error'));
+    }
+    setTolovYubor(false);
+  };
+
+  // Синов тўлови — фақат сервер тест режимида ишлайди
+  const testTola = async () => {
+    setTolovYubor(true);
+    try {
+      await api.post('/payment/test-pay', { obunaId: tolov.obunaId });
+      const yangi = await yukla();
+      toast.success(t('sub.bought'));
+      onYangilandi?.(yangi?.faol);
+      setTolov(null);
+    } catch (err) {
+      toast.error(err.response?.data?.xato || t('common.error'));
+    }
+    setTolovYubor(false);
   };
 
   const qolganKun = (sana) => {
@@ -61,6 +97,22 @@ export default function Obuna({ onYopish, onYangilandi }) {
 
         {yuklanmoqda ? (
           <div style={st.bosh}>{t('common.loading')}</div>
+        ) : tolov ? (
+          /* Тўлов босқичи — танланган пакет учун */
+          <>
+            <div style={st.summaQutisi}>
+              <div style={st.summaLabel}>{turi2matn[tolov.turi]} · {t('pay.amount')}</div>
+              <div style={st.summaRaqam}>{Number(tolov.summa).toLocaleString()} {t('wait.sum')}</div>
+            </div>
+            <div style={st.tolovTugmalar}>
+              <button style={{ ...st.payme, opacity: tolovYubor ? 0.5 : 1 }} disabled={tolovYubor} onClick={() => tashqiTola('payme')}>{t('pay.payme')}</button>
+              <button style={{ ...st.click, opacity: tolovYubor ? 0.5 : 1 }} disabled={tolovYubor} onClick={() => tashqiTola('click')}>{t('pay.click')}</button>
+              <div style={st.ajratgich} />
+              <button style={{ ...st.test, opacity: tolovYubor ? 0.5 : 1 }} disabled={tolovYubor} onClick={testTola}>{t('pay.test')}</button>
+              <div style={st.testHint}>{t('pay.testHint')}</div>
+            </div>
+            <button style={st.orqaga} onClick={() => setTolov(null)}>{t('common.back')}</button>
+          </>
         ) : (
           <>
             {/* Жорий обуна */}
@@ -131,4 +183,15 @@ const st = {
   paketNarx: { fontSize: 20, fontWeight: 700, color: 'var(--label)' },
   paketSom: { fontSize: 12, fontWeight: 400, color: 'var(--secondary-label)' },
   paketKun: { fontSize: 13, color: 'var(--secondary-label)', marginTop: 2 },
+  // Тўлов босқичи
+  summaQutisi: { background: 'var(--fill)', padding: 18, borderRadius: 'var(--r-lg)', textAlign: 'center', marginBottom: 18 },
+  summaLabel: { fontSize: 13, color: 'var(--secondary-label)' },
+  summaRaqam: { fontSize: 32, fontWeight: 700, marginTop: 4 },
+  tolovTugmalar: { display: 'flex', flexDirection: 'column', gap: 10 },
+  payme: { background: '#00C2A6', color: '#fff', padding: 15, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 17 },
+  click: { background: '#1E40AF', color: '#fff', padding: 15, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 17 },
+  ajratgich: { height: '0.5px', background: 'var(--separator)', margin: '6px 0' },
+  test: { background: 'var(--fill)', color: 'var(--label)', padding: 14, borderRadius: 'var(--r-lg)', fontWeight: 500, fontSize: 15 },
+  testHint: { fontSize: 13, color: 'var(--secondary-label)', textAlign: 'center', marginTop: -2 },
+  orqaga: { width: '100%', background: 'transparent', padding: 12, color: 'var(--tint)', fontSize: 16, marginTop: 12 },
 };

@@ -70,7 +70,9 @@ export default function SafarEkrani({ safar, onBaho, onYopish }) {
           <div style={st.hIsm}>{safar.haydovchi_ism} ⭐ {safar.reyting || '5.0'}</div>
           <div style={st.hMashina}>{safar.mashina}</div>
         </div>
-        <a href="tel:+998000000000" style={st.qongiroq}>📞</a>
+        {safar.haydovchi_telefon && (
+          <a href={`tel:${safar.haydovchi_telefon}`} style={st.qongiroq}>📞</a>
+        )}
       </div>
 
       {/* Босқич индикатори */}

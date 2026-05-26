@@ -1,7 +1,16 @@
 // Payme Merchant API — JSON-RPC протоколи
 // Payme сервери шу манзилга сўров юборади, биз жавоб берамиз
 const { query } = require('../config/db');
+const { obunaFaollashtir } = require('./subscriptionController');
 require('dotenv').config();
+
+// Тўлов нишони account'дан: обуна (ac.obuna_id) ёки сафар (ac.ride_id)
+function nishon(account) {
+  const a = account || {};
+  if (a.obuna_id) return { tur: 'obuna', id: parseInt(a.obuna_id, 10) };
+  if (a.ride_id) return { tur: 'ride', id: parseInt(a.ride_id, 10) };
+  return null;
+}
 
 // Payme хато кодлари (расмий)
 const XATO = {
@@ -20,25 +29,30 @@ const muvaffaqiyat = (id, result) => ({ id, result });
 
 // 1. CheckPerformTransaction — тўлов мумкинми текшириш
 async function checkPerform(params, id) {
-  const buyurtmaId = params.account?.ride_id;
-  const ride = await query('SELECT * FROM rides WHERE id = $1', [buyurtmaId]);
+  const n = nishon(params.account);
+  if (!n) return xatoJavob(id, XATO.BUYURTMA_TOPILMADI, 'Буюртма топилмади');
 
-  if (ride.rows.length === 0) {
-    return xatoJavob(id, XATO.BUYURTMA_TOPILMADI, 'Буюртма топилмади');
-  }
-  // Бекор қилинган сафарга тўлов йўқ
-  if (ride.rows[0].holat === 'bekor_qilindi') {
-    return xatoJavob(id, XATO.BAJARIB_BOLMAYDI, 'Сафар бекор қилинган');
+  let kerakli; // тийинда
+  if (n.tur === 'ride') {
+    const ride = await query('SELECT kelishilgan_narx, holat FROM rides WHERE id = $1', [n.id]);
+    if (ride.rows.length === 0) return xatoJavob(id, XATO.BUYURTMA_TOPILMADI, 'Буюртма топилмади');
+    if (ride.rows[0].holat === 'bekor_qilindi') return xatoJavob(id, XATO.BAJARIB_BOLMAYDI, 'Сафар бекор қилинган');
+    kerakli = ride.rows[0].kelishilgan_narx * 100;
+  } else {
+    const ob = await query('SELECT summa, holat FROM obunalar WHERE id = $1', [n.id]);
+    if (ob.rows.length === 0) return xatoJavob(id, XATO.BUYURTMA_TOPILMADI, 'Обуна топилмади');
+    if (ob.rows[0].holat === 'faol') return xatoJavob(id, XATO.BAJARIB_BOLMAYDI, 'Обуна аллақачон фаол');
+    kerakli = ob.rows[0].summa * 100;
   }
   // Сумма тўғрими? (тийинда солиштирамиз)
-  const kerakli = ride.rows[0].kelishilgan_narx * 100;
   if (params.amount !== kerakli) {
     return xatoJavob(id, XATO.NOTOGRI_SUMMA, 'Сумма нотўғри');
   }
   // Аллақачон тўланганми?
+  const ustun = n.tur === 'ride' ? 'ride_id' : 'obuna_id';
   const tolangan = await query(
-    `SELECT 1 FROM transactions WHERE ride_id = $1 AND holat = 'tolandi' LIMIT 1`,
-    [buyurtmaId]
+    `SELECT 1 FROM transactions WHERE ${ustun} = $1 AND holat = 'tolandi' LIMIT 1`,
+    [n.id]
   );
   if (tolangan.rows.length) {
     return xatoJavob(id, XATO.BAJARIB_BOLMAYDI, 'Аллақачон тўланган');
@@ -59,12 +73,13 @@ async function create(params, id) {
     });
   }
 
-  const buyurtmaId = params.account?.ride_id;
+  const n = nishon(params.account);
+  if (!n) return xatoJavob(id, XATO.BUYURTMA_TOPILMADI, 'Буюртма топилмади');
   const vaqt = Date.now();
   const natija = await query(
-    `INSERT INTO transactions (ride_id, tizim, tashqi_id, summa, holat, yaratilgan_vaqt)
-     VALUES ($1, 'payme', $2, $3, 'kutilmoqda', $4) RETURNING id`,
-    [buyurtmaId, params.id, params.amount, vaqt]
+    `INSERT INTO transactions (ride_id, obuna_id, tizim, tashqi_id, summa, holat, yaratilgan_vaqt)
+     VALUES ($1, $2, 'payme', $3, $4, 'kutilmoqda', $5) RETURNING id`,
+    [n.tur === 'ride' ? n.id : null, n.tur === 'obuna' ? n.id : null, params.id, params.amount, vaqt]
   );
 
   return muvaffaqiyat(id, {
@@ -92,8 +107,9 @@ async function perform(params, id) {
 
   const vaqt = Date.now();
   await query(`UPDATE transactions SET holat = 'tolandi', amalga_oshgan_vaqt = $1 WHERE id = $2`, [vaqt, t.id]);
-  // Сафарни "тўланган" деб белгилаймиз
-  await query(`UPDATE rides SET holat = 'yakunlandi' WHERE id = $1`, [t.ride_id]);
+  // Нишонга қараб: сафарни тўланган деб белгилаймиз ёки обунани фаоллаштирамиз
+  if (t.ride_id) await query(`UPDATE rides SET holat = 'yakunlandi' WHERE id = $1`, [t.ride_id]);
+  if (t.obuna_id) await obunaFaollashtir(t.obuna_id);
 
   return muvaffaqiyat(id, { transaction: String(t.id), perform_time: vaqt, state: HOLAT.TOLANDI });
 }
@@ -182,10 +198,11 @@ const paymeWebhook = async (req, res) => {
 
 // Payme checkout URL яратиш — фойдаланувчи юборилиб тўловни киритади
 //   format: https://checkout.paycom.uz/{base64(m=MERCHANT;ac.ride_id=N;a=AMOUNT_TIYIN;c=RETURN;l=LANG)}
-function paymeCheckoutUrl({ rideId, summaSum, returnUrl, til = 'uz' }) {
+function paymeCheckoutUrl({ rideId, obunaId, summaSum, returnUrl, til = 'uz' }) {
   const merchant = process.env.PAYME_ID || 'test_payme_id';
   const summa = summaSum * 100; // тийинда
-  const qismlar = [`m=${merchant}`, `ac.ride_id=${rideId}`, `a=${summa}`, `l=${til}`];
+  const account = obunaId ? `ac.obuna_id=${obunaId}` : `ac.ride_id=${rideId}`;
+  const qismlar = [`m=${merchant}`, account, `a=${summa}`, `l=${til}`];
   if (returnUrl) qismlar.push(`c=${returnUrl}`);
   const param = qismlar.join(';');
   const base64 = Buffer.from(param, 'utf8').toString('base64');
