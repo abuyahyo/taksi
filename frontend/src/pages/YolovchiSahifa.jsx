@@ -16,6 +16,7 @@ import { masofaKm } from '../utils/geo';
 import { api, yolHisobla } from '../services/api';
 import { useSocket } from '../services/useSocket';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
+import { tebrat, TEBRANISH } from '../services/haptika';
 import { pushObunaBol } from '../services/push';
 import { useT, TilTanlovchi } from '../i18n';
 import { TemaTanlovchi } from '../theme';
@@ -84,6 +85,7 @@ export default function YolovchiSahifa() {
     },
     yangi_taklif: (taklif) => {
       setTakliflar((oldin) => [...oldin, taklif]);
+      tebrat(TEBRANISH.muvaffaqiyat);
       bildir('💰 Янги таклиф', `${taklif.haydovchi_ism} · ${Number(taklif.haydovchi_narx).toLocaleString()} сўм${taklif.min != null ? ` · ${taklif.min} мин` : ''}`, { tag: 'taklif' });
     },
     // Ҳайдовчи сафар ҳолатини янгилаганда
@@ -241,6 +243,7 @@ export default function YolovchiSahifa() {
 
   // Буюртма бериш — socket орқали ҳайдовчиларга юборилади
   const buyurtmaBerish = () => {
+    tebrat(TEBRANISH.yengil);
     const taklifId = Date.now(); // вақтинча — сервер DB id'ни қайтариб buyurtma_yaratildi'да юборади
     setRideId(null);
     setTakliflar([]);
@@ -266,6 +269,7 @@ export default function YolovchiSahifa() {
 
   // Ҳайдовчини танлаш — haydovchi_id ҳам юборамиз, токи backend rides жадвалини янгилаб қўйсин
   const haydovchiTanla = (t) => {
+    tebrat(TEBRANISH.muvaffaqiyat);
     yubor('haydovchi_tanlandi', {
       rideId,
       haydovchi_id: t.haydovchi_id,

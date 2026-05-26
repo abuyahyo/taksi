@@ -14,6 +14,7 @@ import IssiqXarita from '../components/IssiqXarita';
 import SOS from '../components/SOS';
 import Obuna from '../components/Obuna';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
+import { tebrat, TEBRANISH } from '../services/haptika';
 import { pushObunaBol } from '../services/push';
 import { useT, TilTanlovchi } from '../i18n';
 import { TemaTanlovchi } from '../theme';
@@ -134,6 +135,7 @@ function Ichki({ user, onChiqish }) {
     },
     buyurtma_keldi: (b) => {
       setBuyurtmalar((oldin) => [...oldin, b]);
+      tebrat(TEBRANISH.muvaffaqiyat);
       bildir(t('notif.newOrder'), `${Number(b.narx).toLocaleString()} · ${b.boshlanish} → ${b.tugash}`, { tag: `buyurtma-${b.id}` });
     },
     mavjud_buyurtmalar: (royxat) => setBuyurtmalar(royxat),
@@ -230,6 +232,7 @@ function Ichki({ user, onChiqish }) {
   };
 
   const roziBolish = async (b) => {
+    tebrat(TEBRANISH.muvaffaqiyat);
     const min = await etaHisobla(b);
     yubor('narx_taklif', {
       rideId: b.id, haydovchi_ism: user.ism, haydovchi_narx: b.narx,
@@ -239,6 +242,7 @@ function Ichki({ user, onChiqish }) {
   };
 
   const oznarxYuborish = async () => {
+    tebrat(TEBRANISH.muvaffaqiyat);
     const b = tanlangan;
     const min = await etaHisobla(b);
     yubor('narx_taklif', {

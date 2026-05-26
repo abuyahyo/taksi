@@ -4,6 +4,7 @@ import { api } from '../services/api';
 import { useT } from '../i18n';
 import Ikonka from './Ikonka';
 import Sheet from './Sheet';
+import { tebrat, TEBRANISH } from '../services/haptika';
 
 export default function Tolov({ rideId, summa, onYopish, onTolandi }) {
   const { t, til } = useT();
@@ -41,6 +42,7 @@ export default function Tolov({ rideId, summa, onYopish, onTolandi }) {
       await api.post('/payment/test-pay', { rideId });
       const { data } = await api.get(`/payment/status/${rideId}`);
       setHolat(data);
+      tebrat(TEBRANISH.muvaffaqiyat);
       onTolandi?.();
       setTimeout(onYopish, 1200);
     } catch (err) {
