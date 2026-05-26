@@ -122,4 +122,6 @@ maxfiyKalitTekshir();
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`🚀 Сервер ${PORT} портда ишламоқда`);
+  // Telegram бот буйруқлари менюсини ўрнатамиз (токен бўлса; жим, fire-and-forget)
+  require('./controllers/telegramBotController').komandalarOrnat();
 });
