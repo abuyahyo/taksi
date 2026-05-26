@@ -1,9 +1,11 @@
 // Логин/Регистрация формаси — admin/haydovchi/mijoz саҳифалари учун
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { api } from '../services/api';
 import { useT, TilTanlovchi } from '../i18n';
 import { TemaTanlovchi } from '../theme';
 import Ikonka from './Ikonka';
+import { tgIchidami } from '../services/telegram';
+import { googleYoqilgan, googleTayyor, googleRender } from '../services/google';
 
 export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
   const { t } = useT();
@@ -18,6 +20,37 @@ export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
   const ozRegister = rejim === 'register';
   // Админ учун фақат логин (админни админ яратади). Йўловчи ва ҳайдовчи ўзи рўйхатдан ўтади.
   const registerKoʻrsatish = !kerakliRol || kerakliRol === 'mijoz' || kerakliRol === 'haydovchi';
+
+  // Google Sign-In — Telegram'дан ташқарида ва client_id берилганда
+  const googleRef = useRef(null);
+  const googleKoʻrsatish = registerKoʻrsatish && googleYoqilgan() && !tgIchidami();
+  useEffect(() => {
+    if (!googleKoʻrsatish) return;
+    let bekor = false;
+    googleTayyor().then((ok) => {
+      if (!ok || bekor || !googleRef.current) return;
+      googleRender(googleRef.current, async (idToken) => {
+        setXato(''); setYuklanmoqda(true);
+        try {
+          const { data } = await api.post('/auth/google', { idToken, rol: kerakliRol || 'mijoz' });
+          if (kerakliRol && data.user.rol !== kerakliRol) {
+            const rolMatni = kerakliRol === 'haydovchi' ? t('home.driver') : t('home.passenger');
+            setXato(t('login.wrongRole', { rol: rolMatni }));
+            setYuklanmoqda(false);
+            return;
+          }
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          onKirildi?.(data.user);
+        } catch (err) {
+          setXato(err.response?.data?.xato || t('common.error'));
+          setYuklanmoqda(false);
+        }
+      });
+    });
+    return () => { bekor = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const yubor = async (e) => {
     e.preventDefault();
@@ -107,6 +140,13 @@ export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
             {ozRegister ? t('login.haveAccount') : t('login.noAccount')}
           </button>
         )}
+
+        {googleKoʻrsatish && (
+          <>
+            <div style={st.ajratgich}><span style={st.ajratgichMatn}>{t('login.or')}</span></div>
+            <div ref={googleRef} style={st.googleWrap} />
+          </>
+        )}
       </form>
     </div>
   );
@@ -166,4 +206,10 @@ const st = {
     background: 'transparent', padding: 10,
     color: 'var(--tint)', fontSize: 15, fontWeight: 400, marginTop: 2,
   },
+  ajratgich: {
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    color: 'var(--tertiary-label)', fontSize: 13, margin: '6px 0',
+  },
+  ajratgichMatn: { padding: '0 10px' },
+  googleWrap: { display: 'flex', justifyContent: 'center', minHeight: 44 },
 };

@@ -47,6 +47,7 @@ export default {
   'login.submit':        'Кириш',
   'login.wrongRole':     'Бу саҳифа фақат {rol} учун',
   'login.noAccount':     'Аккаунтингиз йўқми? Рўйхатдан ўтинг',
+  'login.or':            'ёки',
   'login.haveAccount':   'Аккаунтингиз борми? Киринг',
 
   // Йўловчи

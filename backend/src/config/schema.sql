@@ -5,9 +5,11 @@
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
   ism VARCHAR(100) NOT NULL,
-  telefon VARCHAR(20) UNIQUE,            -- Telegram орқали кирганда бўлмаслиги мумкин (NULL)
+  telefon VARCHAR(20) UNIQUE,            -- Telegram/Google орқали кирганда бўлмаслиги мумкин (NULL)
   telegram_id BIGINT UNIQUE,            -- Telegram Mini App фойдаланувчиси
-  parol_hash VARCHAR(255),              -- Telegram кириш учун парол шарт эмас
+  google_id VARCHAR(64) UNIQUE,         -- Google Sign-In фойдаланувчиси (sub)
+  email VARCHAR(255),                   -- Google'дан келган email (ихтиёрий)
+  parol_hash VARCHAR(255),              -- Telegram/Google кириш учун парол шарт эмас
   rol VARCHAR(20) NOT NULL DEFAULT 'mijoz', -- mijoz, haydovchi, admin
   reyting NUMERIC(2,1) DEFAULT 5.0,
   -- Йўловчининг сақланган манзиллари (тез-тез манзил танлаш учун)

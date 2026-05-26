@@ -1,7 +1,7 @@
 // Аутентификация API йўллари
 const express = require('express');
 const router = express.Router();
-const { register, login, telegramKirish } = require('../controllers/authController');
+const { register, login, telegramKirish, googleKirish } = require('../controllers/authController');
 const { rateLimit } = require('../middleware/rateLimit');
 
 // Brute-force ҳимояси — IP бўйича уринишларни чеклаймиз
@@ -11,5 +11,6 @@ const registerLimit = rateLimit({ oyna: 60 * 60 * 1000, maks: 5 }); // 1 соа�
 router.post('/register', registerLimit, register);
 router.post('/login', loginLimit, login);
 router.post('/telegram', loginLimit, telegramKirish);
+router.post('/google', loginLimit, googleKirish);
 
 module.exports = router;
