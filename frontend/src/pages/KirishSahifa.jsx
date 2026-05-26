@@ -18,7 +18,8 @@ export default function KirishSahifa() {
     let bekor = false;
     tgAvtoKirish().then((user) => {
       if (bekor) return;
-      if (user) navigate(user.rol === 'haydovchi' ? '/haydovchi' : '/yolovchi', { replace: true });
+      // location query'ни (масалan ?dest_lat=..) сақлаб ўтамиз — локация тугмасидан кирганда
+      if (user) navigate((user.rol === 'haydovchi' ? '/haydovchi' : '/yolovchi') + window.location.search, { replace: true });
       else setTgYuklanmoqda(false); // кириш бўлмади — оддий саҳифа кўрсатамиз
     });
     return () => { bekor = true; };

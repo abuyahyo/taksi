@@ -78,6 +78,29 @@ export default function YolovchiSahifa() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
+  // Telegram локация тугмасидан кирганда — URL'даги манзилни олдиндан қўямиз.
+  // Фойдаланувчи фақат "Қаердан?" (пикап)ни танлаб, давом этади.
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const dlat = parseFloat(sp.get('dest_lat'));
+    const dlng = parseFloat(sp.get('dest_lng'));
+    if (!Number.isFinite(dlat) || !Number.isFinite(dlng)) return;
+    let bekor = false;
+    (async () => {
+      let manzil = `${dlat.toFixed(4)}, ${dlng.toFixed(4)}`;
+      try {
+        const { data } = await api.get(`/geocode/reverse?lat=${dlat}&lng=${dlng}&til=${til}`);
+        if (data.manzil) manzil = data.manzil;
+      } catch { /* координата матни қолади */ }
+      if (bekor) return;
+      setOraliqlar([{ nuqta: [dlat, dlng], manzil }]);
+      setTanlovRejimi('boshlanish');
+      setBosqich('manzil');
+    })();
+    return () => { bekor = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const { yubor } = useSocket({
     // Қайта уланганда фаол сафар хонасига қайта қўшиламиз (рўйхатдан ўтган мижоз)
     connect: () => {

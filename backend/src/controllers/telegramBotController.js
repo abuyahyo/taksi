@@ -46,4 +46,23 @@ async function botRolga(rol, text) {
   }
 }
 
-module.exports = { yubor, botFoydalanuvchiga, botRolga };
+// Web App тугмали хабар — фойдаланувчи босса Mini App шу URL билan очилади.
+async function botWebAppTugma(chatId, text, tugmaMatn, url) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token || !chatId || !url) return;
+  try {
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text,
+        reply_markup: { inline_keyboard: [[{ text: tugmaMatn, web_app: { url } }]] },
+      }),
+    });
+  } catch (err) {
+    console.error('botWebAppTugma xato:', err.message);
+  }
+}
+
+module.exports = { yubor, botFoydalanuvchiga, botRolga, botWebAppTugma };
