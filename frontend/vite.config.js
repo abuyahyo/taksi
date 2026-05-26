@@ -38,11 +38,12 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/api/, /^\/socket\.io/],
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/(?:[a-z]+)\.tile\.openstreetmap\.org\//,
+            // CARTO харита плиткалари — тез юклаш ва оффлайн учун кешлаймиз
+            urlPattern: /^https:\/\/(?:[a-z]+)\.basemaps\.cartocdn\.com\//,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'osm-tiles',
-              expiration: { maxEntries: 200, maxAgeSeconds: 7 * 24 * 60 * 60 },
+              cacheName: 'carto-tiles',
+              expiration: { maxEntries: 300, maxAgeSeconds: 7 * 24 * 60 * 60 },
             },
           },
         ],

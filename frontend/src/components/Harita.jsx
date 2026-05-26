@@ -5,6 +5,15 @@ import { MapContainer, TileLayer, Marker, Polyline, useMapEvents, useMap } from 
 import { useEffect } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useTema } from '../theme';
+
+// CARTO тинч векторли-кўриниш плиткалари (карта/билинг талаб қилмайди — бепул).
+// Ёруғ: Voyager (тоза, йўллар ажралиб туради). Тунги: Dark Matter.
+// Бу Uber/Bolt/Yandex'нинг «премиум» харита ҳиссини беради — оддий OSM эмас.
+const PLITKA = {
+  light: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+  dark:  'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+};
 
 // Leaflet'нинг стандарт иконка муаммосини ҳал қилиш
 delete L.Icon.Default.prototype._getIconUrl;
@@ -94,12 +103,15 @@ export default function Harita({
   const oraliqlar = koplik ? yol.slice(1, -1) : [];
   // yolChizigi — OSRM реал йўл геометрияси ([lat,lng] нуқталар). Бўлса тўғри чизиқ ўрнига шуни чизамиз.
   const realYol = Array.isArray(yolChizigi) && yolChizigi.length >= 2 ? yolChizigi : null;
+  const { tema } = useTema();
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       <MapContainer center={markaz} zoom={13} zoomControl={false}>
         <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution="© OpenStreetMap"
+          url={tema === 'dark' ? PLITKA.dark : PLITKA.light}
+          attribution='© OpenStreetMap © CARTO'
+          subdomains="abcd"
+          detectRetina
         />
         <HaritaMarkaz markaz={haydovchi || markaz} />
         {uchish && <UchishKuzat uchish={uchish} />}
