@@ -84,7 +84,7 @@ export default function YolovchiSahifa() {
     },
     yangi_taklif: (taklif) => {
       setTakliflar((oldin) => [...oldin, taklif]);
-      bildir('💰 Янги таклиф', `${taklif.haydovchi_ism} · ${Number(taklif.haydovchi_narx).toLocaleString()} сўм · ${taklif.min} мин`, { tag: 'taklif' });
+      bildir('💰 Янги таклиф', `${taklif.haydovchi_ism} · ${Number(taklif.haydovchi_narx).toLocaleString()} сўм${taklif.min != null ? ` · ${taklif.min} мин` : ''}`, { tag: 'taklif' });
     },
     // Ҳайдовчи сафар ҳолатини янгилаганда
     holat_yangilandi: (data) => {
@@ -201,6 +201,16 @@ export default function YolovchiSahifa() {
   // Сафар вақти (ETA, дақиқа) — OSRM'дан. Йўқ бўлса null.
   const safarDaqiqa = () => (aniqYol && Number.isFinite(aniqYol.davomiylik_min) ? aniqYol.davomiylik_min : null);
 
+  // Таклифларни саралаб кўрсатамиз: арзонроқ → тезроқ (ETA) → юқори рейтинг.
+  // Йўловчи энг фойдалисини тепада кўради (Uber/Bolt услуби).
+  const saralanganTakliflar = [...takliflar].sort((a, b) => {
+    const na = Number(a.haydovchi_narx) || 0, nb = Number(b.haydovchi_narx) || 0;
+    if (na !== nb) return na - nb;
+    const ea = a.min ?? Infinity, eb = b.min ?? Infinity;
+    if (ea !== eb) return ea - eb;
+    return (Number(b.reyting) || 0) - (Number(a.reyting) || 0);
+  });
+
   // Ҳайдовчининг келиш вақти (ETA) — жонли GPS'дан пикап нуқтасигача, шаҳар ўртача тезлиги
   const kelishVaqti = () => {
     if (!haydovchiNuqta || !boshlanish) return null;
@@ -241,6 +251,8 @@ export default function YolovchiSahifa() {
       reyting: 5.0,
       boshlanish: boshlanishManzil || `${boshlanish[0].toFixed(4)}, ${boshlanish[1].toFixed(4)}`,
       tugash: tugashManzil || `${tugash[0].toFixed(4)}, ${tugash[1].toFixed(4)}`,
+      boshlanish_koord: boshlanish, // [lat,lng] — ҳайдовчи ETA ва харита учун
+      tugash_koord: tugash,
       masofa: masofa(),
       narx,
       tarif,
@@ -548,8 +560,8 @@ export default function YolovchiSahifa() {
               <>
                 <h2 style={st.sarlavha}>{t('pass.offers')} ({takliflar.length})</h2>
                 <div style={{ maxHeight: 260, overflowY: 'auto' }} className="royxat-anim">
-                  {takliflar.map((tk, i) => (
-                    <div key={i} style={st.haydovchi}>
+                  {saralanganTakliflar.map((tk, i) => (
+                    <div key={tk.haydovchi_id ?? i} style={st.haydovchi}>
                       <div style={st.avatar}>{tk.haydovchi_ism[0]}</div>
                       <div style={{ flex: 1 }}>
                         <div style={st.hIsm}>
@@ -557,7 +569,10 @@ export default function YolovchiSahifa() {
                           {tk.tasdiqlangan && <span style={st.tasdiqBelgi} title={t('verify.badge')}>✓</span>}
                           {' '}<Ikonka nom="star" size={13} /> {tk.reyting}
                         </div>
-                        <div style={st.hMashina}>{tk.mashina} · {tk.min} {t('drv.minute')}</div>
+                        <div style={st.hMashina}>
+                          {tk.mashina}
+                          {tk.min != null && ` · ${tk.min} ${t('drv.minute')}`}
+                        </div>
                       </div>
                       <button style={st.qabul} onClick={() => haydovchiTanla(tk)}>
                         {tk.haydovchi_narx.toLocaleString()}

@@ -83,11 +83,20 @@ module.exports = (io) => {
         const oraliqlar = Array.isArray(buyurtma.oraliq_manzillar)
           ? buyurtma.oraliq_manzillar.filter((x) => typeof x === 'string' && x.trim()).slice(0, 5).map((x) => x.trim().slice(0, 200))
           : [];
+        // Пикап ва манзил координаталари — ҳайдовчи ETA ҳисоблаши ва харита учун
+        const koord = (k) => {
+          const v = Array.isArray(k) ? k : [];
+          const lat = parseFloat(v[0]), lng = parseFloat(v[1]);
+          return (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180)
+            ? [lat, lng] : [null, null];
+        };
+        const [bLat, bLng] = koord(buyurtma.boshlanish_koord);
+        const [tLat, tLng] = koord(buyurtma.tugash_koord);
         const result = await query(
-          `INSERT INTO rides (mijoz_id, boshlanish_manzil, tugash_manzil, masofa_km, taklif_narx, holat, pin, tarif, opsiyalar, rejalashtirilgan_vaqt, oraliq_manzillar)
-           VALUES ($1, $2, $3, $4, $5, 'kutilmoqda', $6, $7, $8, $9, $10)
+          `INSERT INTO rides (mijoz_id, boshlanish_manzil, tugash_manzil, masofa_km, taklif_narx, holat, pin, tarif, opsiyalar, rejalashtirilgan_vaqt, oraliq_manzillar, boshlanish_lat, boshlanish_lng, tugash_lat, tugash_lng)
+           VALUES ($1, $2, $3, $4, $5, 'kutilmoqda', $6, $7, $8, $9, $10, $11, $12, $13, $14)
            RETURNING id`,
-          [mijoz_id, buyurtma.boshlanish, buyurtma.tugash, buyurtma.masofa, buyurtma.narx, pin, tarif, JSON.stringify(opsiyalar), rejaVaqt, JSON.stringify(oraliqlar)]
+          [mijoz_id, buyurtma.boshlanish, buyurtma.tugash, buyurtma.masofa, buyurtma.narx, pin, tarif, JSON.stringify(opsiyalar), rejaVaqt, JSON.stringify(oraliqlar), bLat, bLng, tLat, tLng]
         );
         const dbId = result.rows[0].id;
         const enriched = { ...buyurtma, id: dbId, taklif_id: buyurtma.id, tarif, opsiyalar, reja_vaqt: rejaVaqt, oraliq_manzillar: oraliqlar, mijoz_id, mijoz_ism, mijoz: mijoz_ism, reyting: mijoz_reyting };
