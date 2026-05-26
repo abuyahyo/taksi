@@ -1,7 +1,7 @@
 // Русские переводы
 export default {
   // Общие
-  'common.app':          'Safar Taksi',
+  'common.app':          'Manzil',
   'common.continue':     'Продолжить',
   'common.back':         'Назад',
   'common.cancel':       'Отмена',
@@ -104,6 +104,7 @@ export default {
   'drv.endRide':         'Завершить',
   'drv.gpsOn':           'GPS',
   'drv.gpsWait':         'GPS...',
+  'drv.gpsDenied':       'GPS выключен — пассажир не видит вашу геопозицию. Разрешите доступ к локации в настройках браузера или Telegram.',
   'drv.carInfoEmpty':    'Данные машины не заполнены. Пассажиры должны их видеть — {link}',
   'drv.carInfoFill':     'заполнить',
   'drv.minute':          'мин',
@@ -174,7 +175,7 @@ export default {
   'hist.status.bekor_qilindi': 'Отменён',
 
   // Админ
-  'admin.title':         'Safar Taksi · Админ',
+  'admin.title':         'Manzil · Админ',
   'admin.titleShort':    'Админ',
   'admin.titleLogin':    'Вход в админ-панель',
   'admin.tab.stats':     'Статистика',

@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',           // Янги версия → дарҳол кешни алмаштириш
       includeAssets: ['favicon.svg', 'icons.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Safar Taksi — нархни ўзингиз белгиланг',
-        short_name: 'Safar Taksi',
+        name: 'Manzil — нархни ўзингиз белгиланг',
+        short_name: 'Manzil',
         description: 'Нархни ўзингиз белгилайдиган такси хизмати',
         lang: 'uz',
         theme_color: '#0E9384',

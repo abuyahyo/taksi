@@ -1,7 +1,7 @@
 // Ўзбек тилидаги матнлар (асосий)
 export default {
   // Умумий
-  'common.app':          'Safar Taksi',
+  'common.app':          'Manzil',
   'common.continue':     'Давом этиш',
   'common.back':         'Орқага',
   'common.cancel':       'Бекор қилиш',
@@ -104,6 +104,7 @@ export default {
   'drv.endRide':         'Тугатиш',
   'drv.gpsOn':           'GPS',
   'drv.gpsWait':         'GPS...',
+  'drv.gpsDenied':       'GPS ўчиқ — йўловчи жонли жойлашувингизни кўрмайди. Браузер ёки Telegram созламасидан жойлашувга рухсат беринг.',
   'drv.carInfoEmpty':    'Машина маълумотлари тўлдирилмаган. Йўловчилар буни кўриши керак — {link}',
   'drv.carInfoFill':     'тўлдириш',
   'drv.minute':          'мин',
@@ -174,7 +175,7 @@ export default {
   'hist.status.bekor_qilindi': 'Бекор қилинди',
 
   // Админ
-  'admin.title':         'Safar Taksi · Админ',
+  'admin.title':         'Manzil · Админ',
   'admin.titleShort':    'Админ',
   'admin.titleLogin':    'Админ панелига кириш',
   'admin.tab.stats':     'Статистика',

@@ -79,6 +79,10 @@ export default function YolovchiSahifa() {
   }, [user?.id]);
 
   const { yubor } = useSocket({
+    // Қайта уланганда фаол сафар хонасига қайта қўшиламиз (рўйхатдан ўтган мижоз)
+    connect: () => {
+      if (rideId) yubor('safarga_qoshil', { rideId });
+    },
     buyurtma_yaratildi: ({ id, pin }) => {
       setRideId(id); // мижоз ID'сини базадан келган реал ID билан алмаштирамиз
       if (pin) setSafarPin(pin); // машина PIN-коди — ҳайдовчига айтилади
@@ -301,7 +305,7 @@ export default function YolovchiSahifa() {
           uchish={uchish}
         />
       </div>
-      <div style={st.logo} className="glass-tugma"><Ikonka nom="taxi" size={18} /> Safar Taksi</div>
+      <div style={st.logo} className="glass-tugma"><Ikonka nom="taxi" size={18} /> Manzil</div>
       <div style={st.tilWrap}><TemaTanlovchi /><TilTanlovchi /></div>
       <button
         style={st.profilTugma}

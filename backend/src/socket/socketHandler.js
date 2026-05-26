@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const { query } = require('../config/db');
 const { obunaFaolmi } = require('../controllers/subscriptionController');
 const { yuborFoydalanuvchiga, yuborRolga } = require('../controllers/pushController');
+const { botFoydalanuvchiga, botRolga } = require('../controllers/telegramBotController');
 const { kutishHaqiHisobla } = require('../utils/kutishHaqi');
 
 // Фаол буюртмалар: rideId -> buyurtma ma'lumoti
@@ -119,6 +120,8 @@ module.exports = (io) => {
           tag: `buyurtma-${dbId}`,
           url: '/haydovchi',
         });
+        // Telegram бот — Telegram'да кирган ҳайдовчиларга
+        botRolga('haydovchi', `🚖 Янги буюртма\n${Number(buyurtma.narx).toLocaleString()} сўм · ${buyurtma.boshlanish} → ${buyurtma.tugash}`);
         console.log(`📦 Янги буюртма #${dbId}: ${buyurtma.narx} сўм (mijoz=${mijoz_id})`);
       } catch (err) {
         console.error('yangi_buyurtma xato:', err.message);
@@ -158,6 +161,7 @@ module.exports = (io) => {
             tag: `taklif-${taklif.rideId}`,
             url: '/yolovchi',
           });
+          botFoydalanuvchiga(mijozId, `💰 Янги таклиф\n${taklif.haydovchi_ism} · ${Number(taklif.haydovchi_narx).toLocaleString()} сўм`);
         }
       } catch (err) { console.error('taklif push xato:', err.message); }
       console.log(`💰 Таклиф #${taklif.rideId}: ${taklif.haydovchi_narx} сўм (haydovchi=${enriched.haydovchi_id})`);
@@ -334,6 +338,7 @@ module.exports = (io) => {
               ? { title: '🚗 Ҳайдовчи етиб келди', body: 'Ҳайдовчи сизни кутмоқда', tag: `holat-${data.rideId}`, url: '/yolovchi' }
               : { title: '✅ Сафар тугади', body: 'Ҳайдовчини баҳоланг', tag: `holat-${data.rideId}`, url: '/yolovchi' };
             yuborFoydalanuvchiga(mid, payload);
+            botFoydalanuvchiga(mid, data.holat === 'yetib_keldi' ? '🚗 Ҳайдовчи етиб келди — сизни кутмоқда' : '✅ Сафар тугади — ҳайдовчини баҳоланг');
           }
         } catch (err) { console.error('holat push xato:', err.message); }
       }
@@ -390,6 +395,7 @@ module.exports = (io) => {
           tag: `sos-${sig.id}`,
           url: '/admin',
         });
+        botRolga('admin', `🆘 SOS сигнал\n${ism} (${rol}) — сафар #${data.rideId || '?'}`);
         // Юборувчига тасдиқ
         socket.emit('sos_qabul_qilindi', { id: sig.id });
         console.log(`🆘 SOS #${sig.id} ${rol}=${ism}, ride=${data.rideId}`);
@@ -442,6 +448,7 @@ module.exports = (io) => {
                 tag: `chat-${data.rideId}`,
                 url: '/',
               });
+              botFoydalanuvchiga(qabul, `💬 ${yuboruvchi_ism}: ${matn.slice(0, 120)}`);
             }
           }
         } catch (err) { console.error('chat push xato:', err.message); }

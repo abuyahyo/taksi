@@ -1,12 +1,37 @@
 // Бошланғич саҳифа — рол танлаш (iOS услуби)
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useT, TilTanlovchi } from '../i18n';
 import { TemaTanlovchi } from '../theme';
 import Ikonka from '../components/Ikonka';
+import { tgIchidami, tgTayyorla, tgAvtoKirish } from '../services/telegram';
 
 export default function KirishSahifa() {
   const navigate = useNavigate();
   const { t } = useT();
+  // Telegram Mini App ичида бўлсак — авто-кириб, рол саҳифасига ўтамиз
+  const [tgYuklanmoqda, setTgYuklanmoqda] = useState(() => tgIchidami());
+
+  useEffect(() => {
+    if (!tgIchidami()) return;
+    tgTayyorla();
+    let bekor = false;
+    tgAvtoKirish().then((user) => {
+      if (bekor) return;
+      if (user) navigate(user.rol === 'haydovchi' ? '/haydovchi' : '/yolovchi', { replace: true });
+      else setTgYuklanmoqda(false); // кириш бўлмади — оддий саҳифа кўрсатамиз
+    });
+    return () => { bekor = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (tgYuklanmoqda) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100dvh', background: 'var(--bg)' }}>
+        <div className="spinner" />
+      </div>
+    );
+  }
 
   return (
     <div style={st.sahifa}>
@@ -14,7 +39,7 @@ export default function KirishSahifa() {
 
       {/* Hero — app icon */}
       <div style={st.hero} className="fade-in">
-        <img src="/logo.png" alt="Safar Taksi" style={st.appIcon} />
+        <img src="/logo.png" alt="Manzil" style={st.appIcon} />
         <h1 style={st.appName}>{t('common.app')}</h1>
         <p style={st.tagline}>{t('home.tagline')}</p>
       </div>

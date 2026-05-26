@@ -2,6 +2,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { query } = require('../config/db');
+const { initDataTekshir } = require('../utils/telegram');
 require('dotenv').config();
 
 // Токен яратиш ёрдамчи функцияси
@@ -106,4 +107,51 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+// TELEGRAM MINI APP КИРИШ — initData'ни бот токени билан текшириб, JWT берамиз.
+// Бот токени созланмаган бўлса fail-closed: кириш рад этилади.
+const telegramKirish = async (req, res) => {
+  try {
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    if (!botToken) {
+      return res.status(503).json({ xato: 'Telegram кириш созланмаган' });
+    }
+    const { initData } = req.body;
+    const n = initDataTekshir(initData, botToken);
+    if (!n.ok || !n.user?.id) {
+      return res.status(401).json({ xato: 'Telegram маълумоти нотўғри' });
+    }
+
+    const tgId = String(n.user.id);
+    const ism = [n.user.first_name, n.user.last_name].filter(Boolean).join(' ').trim().slice(0, 100) || 'Telegram';
+
+    // Мавжуд фойдаланувчими? — telegram_id бўйича топамиз, бўлмаса яратамиз
+    let r = await query('SELECT * FROM users WHERE telegram_id = $1', [tgId]);
+    let user = r.rows[0];
+    if (!user) {
+      const ins = await query(
+        `INSERT INTO users (ism, telegram_id, rol) VALUES ($1, $2, 'mijoz') RETURNING *`,
+        [ism, tgId]
+      );
+      user = ins.rows[0];
+    }
+
+    // Блокланганлик (шаффоф — сабабини айтамиз)
+    if (user.bloklangan) {
+      return res.status(403).json({
+        xato: 'Ҳисобингиз блокланган',
+        sabab: user.blok_sababi || 'Сабаб кўрсатилмаган',
+      });
+    }
+
+    const token = tokenYaratish(user);
+    res.json({
+      token,
+      user: { id: user.id, ism: user.ism, telefon: user.telefon, rol: user.rol, reyting: user.reyting },
+    });
+  } catch (err) {
+    console.error('Telegram кириш хатоси:', err.message);
+    res.status(500).json({ xato: 'Сервер хатоси' });
+  }
+};
+
+module.exports = { register, login, telegramKirish };

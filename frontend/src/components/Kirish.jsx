@@ -51,7 +51,7 @@ export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
       <div style={st.topbar}><TemaTanlovchi /><TilTanlovchi /></div>
 
       <form style={st.karta} className="slide-up" onSubmit={yubor}>
-        <img src="/logo.png" alt="Safar Taksi" style={st.logoBadge} />
+        <img src="/logo.png" alt="Manzil" style={st.logoBadge} />
         <h2 style={st.sarlavha}>{sarlavha}</h2>
 
         <div style={st.group}>

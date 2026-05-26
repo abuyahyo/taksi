@@ -7,6 +7,8 @@ const cors = require('cors');
 const { Server } = require('socket.io');
 require('dotenv').config();
 
+const { xavfsizlikHeaders } = require('./middleware/xavfsizlik');
+
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const driverRoutes = require('./routes/driverRoutes');
@@ -33,8 +35,9 @@ const io = new Server(server, {
 });
 
 // Middleware
+app.use(xavfsizlikHeaders);
 app.use(cors({ origin: allowedOrigins }));
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 
 // io объектини routes ичида ишлатиш учун
 app.set('io', io);
@@ -51,6 +54,11 @@ app.use('/api/geocode', geocodeRoutes);
 app.use('/api/heatmap', heatmapRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/push', pushRoutes);
+
+// Мос келмаган API йўли — HTML эмас, JSON 404 қайтарамиз
+app.use('/api', (req, res) => {
+  res.status(404).json({ xato: 'Йўл топилмади' });
+});
 
 // Health check (frontend build йўқлигида)
 const distPath = path.join(__dirname, '..', '..', 'frontend', 'dist');
@@ -70,6 +78,16 @@ if (!hasFrontend) {
   });
   console.log(`📂 Frontend хизмат қилмоқда: ${distPath}`);
 }
+
+// Глобал хато-ишловчи — стек оқиб кетмайди, доим JSON {xato}
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  if (err?.type === 'entity.parse.failed') {
+    return res.status(400).json({ xato: 'Нотўғри JSON' });
+  }
+  console.error('Кутилмаган сервер хатоси:', err?.message);
+  res.status(500).json({ xato: 'Сервер хатоси' });
+});
 
 // Socket.io уланиш мантиғи
 require('./socket/socketHandler')(io);

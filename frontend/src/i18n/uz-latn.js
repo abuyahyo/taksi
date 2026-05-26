@@ -1,7 +1,7 @@
 // Oʻzbek lotin alifbosi (uz-Latn)
 export default {
   // Umumiy
-  'common.app':          'Safar Taksi',
+  'common.app':          'Manzil',
   'common.continue':     'Davom etish',
   'common.back':         'Orqaga',
   'common.cancel':       'Bekor qilish',
@@ -104,6 +104,7 @@ export default {
   'drv.endRide':         'Tugatish',
   'drv.gpsOn':           'GPS',
   'drv.gpsWait':         'GPS...',
+  'drv.gpsDenied':       'GPS oʻchiq — yoʻlovchi jonli joylashuvingizni koʻrmaydi. Brauzer yoki Telegram sozlamasidan joylashuvga ruxsat bering.',
   'drv.carInfoEmpty':    'Mashina maʼlumotlari toʻldirilmagan. Yoʻlovchilar buni koʻrishi kerak — {link}',
   'drv.carInfoFill':     'toʻldirish',
   'drv.minute':          'min',
@@ -174,7 +175,7 @@ export default {
   'hist.status.bekor_qilindi': 'Bekor qilindi',
 
   // Admin
-  'admin.title':         'Safar Taksi · Admin',
+  'admin.title':         'Manzil · Admin',
   'admin.titleShort':    'Admin',
   'admin.titleLogin':    'Admin paneliga kirish',
   'admin.tab.stats':     'Statistika',
