@@ -21,6 +21,15 @@ const register = async (req, res) => {
     if (!ism || !telefon || !parol) {
       return res.status(400).json({ xato: 'Барча майдонларни тўлдиринг' });
     }
+    if (String(ism).trim().length < 2) {
+      return res.status(400).json({ xato: 'Исмни тўлиқ киритинг' });
+    }
+    if (!/^\+998\d{9}$/.test(String(telefon))) {
+      return res.status(400).json({ xato: 'Телефон рақами +998XXXXXXXXX форматида бўлсин' });
+    }
+    if (String(parol).length < 6) {
+      return res.status(400).json({ xato: 'Парол камида 6 белгидан иборат бўлсин' });
+    }
 
     // Бу телефон рўйхатдан ўтганми?
     const mavjud = await query('SELECT id FROM users WHERE telefon = $1', [telefon]);

@@ -23,6 +23,20 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Токен муддати тугаганда (401) — сессияни тозалаб бош саҳифага қайтарамиз.
+// Акс ҳолда фойдаланувчи "киргандек" қолиб, сўровлар жимгина йиқиларди.
+api.interceptors.response.use(
+  (resp) => resp,
+  (err) => {
+    if (err.response?.status === 401 && localStorage.getItem('token')) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      if (window.location.pathname !== '/') window.location.href = '/';
+    }
+    return Promise.reject(err);
+  }
+);
+
 // Йўл ҳисоблаш — реал йўл масофаси, ETA ва йўл чизиғи (OSRM, захира Haversine).
 // nuqtalar = [[lat,lng], ...]. Хато бўлса null қайтаради.
 export async function yolHisobla(nuqtalar) {
