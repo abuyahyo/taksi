@@ -5,14 +5,14 @@
       <stop offset="1" stop-color="#0A7D71"/>
     </linearGradient>
     <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.20"/>
-      <stop offset="0.48" stop-color="#ffffff" stop-opacity="0.05"/>
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.16"/>
+      <stop offset="0.49" stop-color="#ffffff" stop-opacity="0.04"/>
       <stop offset="0.5" stop-color="#ffffff" stop-opacity="0"/>
     </linearGradient>
   </defs>
-  <rect x="0" y="0" width="512" height="512" rx="115" fill="url(#bg)"/>
-  <rect x="0" y="0" width="512" height="512" rx="115" fill="url(#gloss)"/>
-  <path d="M 150 372 L 150 150 L 256 292 L 362 150 L 362 372"
-        fill="none" stroke="#ffffff" stroke-width="58"
+  <rect x="0" y="0" width="512" height="512" rx="120" fill="url(#bg)"/>
+  <rect x="0" y="0" width="512" height="512" rx="120" fill="url(#gloss)"/>
+  <path d="M 162 358 L 162 182 L 256 298 L 350 182 L 350 358"
+        fill="none" stroke="#ffffff" stroke-width="64"
         stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
