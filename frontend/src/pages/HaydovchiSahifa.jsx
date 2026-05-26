@@ -58,7 +58,19 @@ function Ichki({ user, onChiqish }) {
   const [obunaOchiq, setObunaOchiq] = useState(false);
   const [obuna, setObuna] = useState(null); // faol subscription
   const [joylashuvOchiqmi, setJoylashuvOchiqmi] = useState(false); // GPS таклиф қилинганми
+  const [gpsRad, setGpsRad] = useState(false); // GPS рухсати рад этилган
   const joriyJoyRef = useRef(null); // [lat,lng] — ҳайдовчининг жорий жойи (таклифда ETA ҳисоблаш учун)
+  const gpsToastRef = useRef(false); // рад этиш toast'и бир марта чиқсин
+
+  // GPS хатоси — рад этилса аниқ огоҳлантириш (акс ҳолда ҳайдовчи сабабини билмасди)
+  const gpsXatosi = (err) => {
+    console.warn('Geolocation:', err.message);
+    if (err.code === 1) { // PERMISSION_DENIED
+      setGpsRad(true);
+      if (!gpsToastRef.current) { toast.error(t('drv.gpsDenied')); gpsToastRef.current = true; }
+    }
+  };
+  const gpsTiklandi = () => { setGpsRad(false); gpsToastRef.current = false; };
 
   const statsYukla = async () => {
     try {
@@ -97,10 +109,11 @@ function Ichki({ user, onChiqish }) {
     const watchId = navigator.geolocation.watchPosition(
       (pos) => {
         setJoylashuvOchiqmi(true);
+        gpsTiklandi();
         joriyJoyRef.current = [pos.coords.latitude, pos.coords.longitude];
         yubor('joylashuv', { rideId: faolSafar.rideId, lat: pos.coords.latitude, lng: pos.coords.longitude });
       },
-      (err) => { console.warn('Geolocation:', err.message); setJoylashuvOchiqmi(false); },
+      (err) => { setJoylashuvOchiqmi(false); gpsXatosi(err); },
       { enableHighAccuracy: true, maximumAge: 4000, timeout: 15000 }
     );
     return () => navigator.geolocation.clearWatch(watchId);
@@ -111,11 +124,12 @@ function Ichki({ user, onChiqish }) {
   useEffect(() => {
     if (!onlayn || faolSafar || !('geolocation' in navigator)) return;
     const watchId = navigator.geolocation.watchPosition(
-      (pos) => { joriyJoyRef.current = [pos.coords.latitude, pos.coords.longitude]; },
-      (err) => { console.warn('Geolocation:', err.message); },
+      (pos) => { joriyJoyRef.current = [pos.coords.latitude, pos.coords.longitude]; gpsTiklandi(); },
+      gpsXatosi,
       { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
     );
     return () => navigator.geolocation.clearWatch(watchId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onlayn, faolSafar]);
 
   // Пикапгача ETA (дақиқа) — жорий жой ва буюртма пикап координатасидан (OSRM). Йўқ бўлса null.
@@ -228,6 +242,7 @@ function Ichki({ user, onChiqish }) {
     } else {
       yubor('haydovchi_offline');
       setBuyurtmalar([]);
+      gpsTiklandi();
     }
   };
 
@@ -280,6 +295,12 @@ function Ichki({ user, onChiqish }) {
       {!mashinaToldirilganmi && (
         <div style={st.ogohlantirish} onClick={() => setProfilOchiq(true)}>
           {t('drv.carInfoEmpty', { link: '' })}<b>{t('drv.carInfoFill')}</b>
+        </div>
+      )}
+
+      {onlayn && gpsRad && (
+        <div style={st.gpsOgoh}>
+          <Ikonka nom="alert" size={16} /> {t('drv.gpsDenied')}
         </div>
       )}
 
@@ -501,6 +522,7 @@ const st = {
   tarixTugma: { background: 'var(--fill)', width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--tint)' },
   obunaBadge: { position: 'absolute', top: -3, right: -3, background: 'var(--qizil)', color: '#fff', minWidth: 18, height: 18, borderRadius: 9, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', border: '1.5px solid var(--surface)' },
   ogohlantirish: { margin: '12px 16px 0', padding: 12, background: 'rgba(255,149,0,0.14)', color: 'var(--amber)', borderRadius: 'var(--r-md)', fontSize: 14, cursor: 'pointer', fontWeight: 500 },
+  gpsOgoh: { display: 'flex', alignItems: 'flex-start', gap: 8, margin: '12px 16px 0', padding: 12, background: 'rgba(255,59,48,0.12)', color: 'var(--qizil)', borderRadius: 'var(--r-md)', fontSize: 14, fontWeight: 500 },
   statusTugma: { color: '#fff', padding: '8px 18px', borderRadius: 'var(--r-full)', fontWeight: 600, fontSize: 14 },
   daromad: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '16px', padding: 18, background: 'var(--surface)', borderRadius: 'var(--r-lg)', boxShadow: 'var(--shadow-1)' },
   faolSafar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 16px 10px', padding: 16, background: 'var(--yashil)', borderRadius: 'var(--r-lg)', color: '#fff', gap: 8 },

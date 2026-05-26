@@ -104,6 +104,7 @@ export default {
   'drv.endRide':         'Tugatish',
   'drv.gpsOn':           'GPS',
   'drv.gpsWait':         'GPS...',
+  'drv.gpsDenied':       'GPS oʻchiq — yoʻlovchi jonli joylashuvingizni koʻrmaydi. Brauzer yoki Telegram sozlamasidan joylashuvga ruxsat bering.',
   'drv.carInfoEmpty':    'Mashina maʼlumotlari toʻldirilmagan. Yoʻlovchilar buni koʻrishi kerak — {link}',
   'drv.carInfoFill':     'toʻldirish',
   'drv.minute':          'min',

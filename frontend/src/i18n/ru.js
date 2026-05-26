@@ -104,6 +104,7 @@ export default {
   'drv.endRide':         'Завершить',
   'drv.gpsOn':           'GPS',
   'drv.gpsWait':         'GPS...',
+  'drv.gpsDenied':       'GPS выключен — пассажир не видит вашу геопозицию. Разрешите доступ к локации в настройках браузера или Telegram.',
   'drv.carInfoEmpty':    'Данные машины не заполнены. Пассажиры должны их видеть — {link}',
   'drv.carInfoFill':     'заполнить',
   'drv.minute':          'мин',
