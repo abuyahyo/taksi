@@ -20,6 +20,7 @@ const geocodeRoutes = require('./routes/geocodeRoutes');
 const heatmapRoutes = require('./routes/heatmapRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const pushRoutes = require('./routes/pushRoutes');
+const telegramRoutes = require('./routes/telegramRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -54,6 +55,7 @@ app.use('/api/geocode', geocodeRoutes);
 app.use('/api/heatmap', heatmapRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/push', pushRoutes);
+app.use('/api/telegram', telegramRoutes);
 
 // Мос келмаган API йўли — HTML эмас, JSON 404 қайтарамиз
 app.use('/api', (req, res) => {
