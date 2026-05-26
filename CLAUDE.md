@@ -16,7 +16,7 @@ inDrive услубидаги такси веб-дастур. Тошкент уч
    - Файл: `backend/src/controllers/subscriptionController.js` — нархлар шу ерда.
 2. **Бренд ранги — бирюза (#0E9384), сариқ эмас.** Сариқ = Yandex Go ассоциацияси. CSS'да `--sariq` номи қолдирилди (эски кодга мос), қиймати **бирюза**. Янги код учун `--asosiy`.
 3. **Шаффоф блоклаш** — биздан ўйлаб топилди. Admin блок қилмоқчи бўлса сабаб **мажбурий** (backend `400` қайтаради), фойдаланувчи login қилганда сабабни кўради. Бу архитектурада маҳкам, шунчаки UI эмас. Янги функция қўшганда **шу тамойилни сақланг**: фойдаланувчи учун шаффофлик.
-4. **Карта (банк карти) талаб қилмаймиз.** Render/Koyeb/Fly карта талаб қилади → улар йўқолди. Cloudflare Tunnel + Supabase бепул план + Nominatim бепул. **Google Maps мумкин эмас** (Billing талаб қилади). MapBox/OSM мумкин.
+4. **Карта (банк карти) талаб қилмаймиз.** Render/Koyeb/Fly карта талаб қилади → улар йўқолди. ngrok (барқарор домен, бепул) + Supabase бепул план + Nominatim бепул. **Google Maps мумкин эмас** (Billing талаб қилади). MapBox/OSM мумкин.
 5. **inDrive услуби.** Йўловчи нархни ўзи белгилайди, ҳайдовчи рози бўлади ёки **ўз нархи**ни таклиф қилади. Surge pricing йўқ.
 6. **Бошқа иловалардаги муаммоларни тузатишга стратегиямиз.** "Келди" алдаш → GPS текширув (200м). Манзил кўринмайди → йўловчи юлдузли превью. Хавфсизлик йўқ → SOS тугмаси, сафарни улашиш линки. Қўнғироқ кераксиз → чат.
 
@@ -60,6 +60,22 @@ C:\taxi-app\
 └── REJA.md
 ```
 
+## Telegram Mini App
+
+Илова Telegram Mini App сифатида ҳам ишлайди (бот: `t.me/manzil_taksi_bot`).
+
+- **Кириш:** `POST /api/auth/telegram` — `initData`'ни HMAC-SHA256 билан текширади
+  (`backend/src/utils/telegram.js`), `telegram_id` бўйича юзер топади/яратади, JWT беради.
+  `TELEGRAM_BOT_TOKEN` `.env`'да бўлмаса 503 (fail-closed).
+- **Авто-кириш:** `frontend/src/services/telegram.js` — Telegram ичида ўзи киради.
+  Telegram'дан ташқарида no-op (оддий веб оқими ўзгармайди).
+- **Бот хабарномалари:** `backend/src/controllers/telegramBotController.js` —
+  янги буюртма (ҳайдовчига), таклиф/ҳолат/чат (йўловчига), SOS (админга). web push билан ёнма-ён.
+- **DB:** `users.telegram_id` (UNIQUE); `telefon`/`parol_hash` NULL бўлиши мумкин.
+  Миграциялар: `add_telegram.sql`, `add_obuna_tolov.sql`.
+- **`.env`:** `TELEGRAM_BOT_TOKEN=...` (GIT'га ёзилмайди).
+- **BotFather:** Menu Button URL = `https://overwrite-pursuant-junkie.ngrok-free.dev`.
+
 ## Базани миграция қилиш
 
 Барча миграциялар Supabase'да аллақачон қилинган. Янги ўзгариш керак бўлса:
@@ -79,20 +95,18 @@ C:\taxi-app\
 
 ## Қандай ишга тушириш (компьютер ёқилгач)
 
-Бизда **қайтариладиган скрипт йўқ** — қўлда. Лекин қадамлар содда:
+**Launcher:** `Desktop\taxi-start-all.bat` — backend ва ngrok'ни бирга кўтаради.
+Қўлда:
 
 ```powershell
-# 1. Backend
 cd C:\taxi-app\backend
 npm run dev        # http://localhost:5000
-
-# 2. Cloudflare Tunnel (бошқа ойнада)
-cloudflared tunnel --url http://localhost:5000
-# URL чиқади — масалан https://abc-def.trycloudflare.com
-# Уни $env:TEMP\tunnel_url.txt'га сақланг (визуал тест скриптлари шу ердан ўқийди)
+# Бошқа ойнада — БАРҚАРОР ngrok домени:
+ngrok http --domain=overwrite-pursuant-junkie.ngrok-free.dev 5000
 ```
 
-URL **ҳар сафар ўзгаради** (бепул quick tunnel). Барқарор URL керак бўлса Cloudflare аккаунти + домен (карта мажбурий) — биз қилмаймиз.
+URL **ўзгармайди**: `https://overwrite-pursuant-junkie.ngrok-free.dev`.
+Шу URL Telegram Mini App (BotFather → Menu Button) учун ишлатилади.
 
 ## Синов аккаунтлари
 
@@ -147,7 +161,7 @@ npm install playwright-core socket.io-client axios --no-save
 ## Билиш керак бўлганлар
 
 - **Boshqa AI** хабарларини юборганда — у машинага улaнмаган, ZIP ярата олмайди, файлларни кўра олмайди. Сиз эса машинада ишлашингиз мумкин. Унинг хабарини контекст сифатида ўқинг, лекин сиз ҳақиқий ишни қилинг.
-- **Тоннел URL ҳар сафар ўзгаради** — Cloudflare quick tunnel шундай. Қайта ишга туширилса янги URL чиқади.
+- **Тоннел — ngrok, барқарор домен** `overwrite-pursuant-junkie.ngrok-free.dev` (ўзгармайди). Cloudflared эмас.
 - **`node --watch` .env'ни тингламайди.** `.env` ўзгарганда қўлда `npm run dev`'ни қайта ишга тушуринг.
 - **PowerShell ва Cyrillic**: `Invoke-RestMethod`'нинг `-Body` ишлатганда UTF-8 яхши ишламайди — кириллча текст `?????`'га айланиши мумкин. SQL орқали ишланиши керак бўлса, файлга UTF-8'да ёзинг ва `psql -f`'нинг ишлатинг.
 - **GitHub repo**: `abuyahyo/taksi`. Бренд номи Tez Taxi → Safar Taksi → **Manzil**'га ўзгарди (repo номи ўзгармаслиги мумкин — атайлаб).
