@@ -486,24 +486,32 @@ export default function YolovchiSahifa() {
 
         {bosqich === 'safar' && haydovchiInfo && (
           <>
-            <h2 style={st.sarlavha}>
-              {haydovchiInfo.holati === 'yetib_keldi' ? t('wait.driverHere')
-               : haydovchiInfo.holati === 'yolda' ? t('pass.inRide')
-               : t('wait.driverComing')}
-            </h2>
-            {/* Келиш вақти (ETA) — ҳайдовчи йўлда бўлганда */}
-            {haydovchiInfo.holati !== 'yetib_keldi' && haydovchiInfo.holati !== 'yolda' && kelishVaqti() && (
-              <div style={st.eta}><Ikonka nom="car" size={16} /> {t('wait.etaMin', { min: kelishVaqti() })}</div>
-            )}
-            <div style={st.haydovchi}>
-              <div style={st.avatar}>{haydovchiInfo.ism[0]}</div>
-              <div style={{ flex: 1 }}>
+            {/* Ҳолат пилюласи — Uber услуби */}
+            <div style={st.statusPill}>
+              <span style={st.statusNuqta} />
+              <span style={{ flex: 1 }}>
+                {haydovchiInfo.holati === 'yetib_keldi' ? t('wait.driverHere')
+                 : haydovchiInfo.holati === 'yolda' ? t('pass.inRide')
+                 : t('wait.driverComing')}
+              </span>
+              {haydovchiInfo.holati !== 'yetib_keldi' && haydovchiInfo.holati !== 'yolda' && kelishVaqti() && (
+                <span style={st.statusEta}>{t('wait.etaMin', { min: kelishVaqti() })}</span>
+              )}
+            </div>
+
+            {/* Ҳайдовчи картаси — Uber услуби */}
+            <div style={st.drvKarta}>
+              <div style={st.avatarKatta}>{haydovchiInfo.ism[0]}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={st.hIsm}>
                   {haydovchiInfo.ism}
                   {haydovchiInfo.tasdiqlangan && <span style={st.tasdiqBelgi} title={t('verify.badge')}>✓</span>}
-                  {' '}<Ikonka nom="star" size={13} /> {haydovchiInfo.reyting}
                 </div>
-                <div style={st.hMashina}>{haydovchiInfo.mashina} · {Number(haydovchiInfo.narx).toLocaleString()}</div>
+                <div style={st.hReyting}><Ikonka nom="star" size={13} /> {haydovchiInfo.reyting}</div>
+              </div>
+              <div style={st.drvMashinaBox}>
+                <div style={st.drvMashinaMatn}>{haydovchiInfo.mashina}</div>
+                <div style={st.drvNarxBadge}>{Number(haydovchiInfo.narx).toLocaleString()}</div>
               </div>
             </div>
 
@@ -541,11 +549,21 @@ export default function YolovchiSahifa() {
                 {t('wait.feeAdded')}: <b>+{Number(haydovchiInfo.kutish_haqi).toLocaleString()}</b>
               </div>
             )}
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button style={{ ...st.tugma, flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }} onClick={() => setChatOchiq(true)}><Ikonka nom="chat" size={18} /> {t('pass.chatWithDriver')}</button>
-              <button style={st.tolovTugma} onClick={() => setTolovOchiq(true)}>{t('pay.open')}</button>
+            {/* Амал тугмалари — Uber услуби (иконкали қатор) */}
+            <div style={st.amalQator}>
+              <button style={st.amalTugma} onClick={() => setChatOchiq(true)}>
+                <span style={st.amalIkon}><Ikonka nom="chat" size={20} /></span>
+                {t('pass.actChat')}
+              </button>
+              <button style={st.amalTugma} onClick={() => setTolovOchiq(true)}>
+                <span style={st.amalIkon}><Ikonka nom="card" size={20} /></span>
+                {t('pass.actPay')}
+              </button>
+              <button style={st.amalTugma} onClick={() => setUlashishOchiq(true)}>
+                <span style={st.amalIkon}><Ikonka nom="share" size={20} /></span>
+                {t('pass.actShare')}
+              </button>
             </div>
-            <button style={st.ulashishTugma} onClick={() => setUlashishOchiq(true)}>{t('share.open')}</button>
             <div style={{ marginTop: 8 }}>
               <SOS rideId={rideId} />
             </div>
@@ -559,7 +577,11 @@ export default function YolovchiSahifa() {
           <>
             {takliflar.length === 0 ? (
               <div style={st.kutish}>
-                <div style={st.spinner} />
+                <div style={st.radar}>
+                  <span style={st.radarHalqa} />
+                  <span style={{ ...st.radarHalqa, animationDelay: '0.8s' }} />
+                  <span style={st.radarMarkaz}><Ikonka nom="car" size={26} /></span>
+                </div>
                 <h2 style={st.sarlavha}>{t('pass.searching')}</h2>
                 <p style={st.izoh}>{narx.toLocaleString()} · {masofa()} км</p>
                 <button style={st.bekor} onClick={bekorQilish}>{t('common.cancel')}</button>
@@ -703,4 +725,27 @@ const st = {
   pinLabel: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.9)', marginBottom: 10 },
   pinRaqam: { display: 'flex', justifyContent: 'center', gap: 8 },
   pinXona: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 42, height: 50, borderRadius: 'var(--r-md)', background: 'rgba(255,255,255,0.22)', color: '#fff', fontSize: 26, fontWeight: 700 },
+
+  // Uber услуби — қидириш радари
+  radar: { position: 'relative', width: 96, height: 96, margin: '4px auto 18px', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  radarHalqa: { position: 'absolute', width: 96, height: 96, borderRadius: '50%', background: 'var(--tint)', animation: 'radar 1.6s ease-out infinite' },
+  radarMarkaz: { position: 'relative', width: 56, height: 56, borderRadius: '50%', background: 'var(--tint)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 },
+
+  // Uber услуби — ҳолат пилюласи
+  statusPill: { display: 'flex', alignItems: 'center', gap: 8, background: 'var(--tint-fill)', color: 'var(--tint)', padding: '10px 14px', borderRadius: 'var(--r-full)', fontSize: 15, fontWeight: 600, marginBottom: 12 },
+  statusNuqta: { width: 9, height: 9, borderRadius: '50%', background: 'var(--tint)', flexShrink: 0, animation: 'pulse 1.4s ease-in-out infinite' },
+  statusEta: { fontWeight: 700, fontVariantNumeric: 'tabular-nums' },
+
+  // Uber услуби — ҳайдовчи картаси
+  drvKarta: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--surface)', padding: 14, borderRadius: 'var(--r-lg)', boxShadow: 'var(--shadow-1)', marginBottom: 12 },
+  avatarKatta: { width: 52, height: 52, borderRadius: '50%', background: 'var(--tint)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 22, flexShrink: 0 },
+  hReyting: { display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 13, color: 'var(--secondary-label)', marginTop: 2 },
+  drvMashinaBox: { textAlign: 'right', maxWidth: 130, flexShrink: 0 },
+  drvMashinaMatn: { fontSize: 13, color: 'var(--secondary-label)', lineHeight: 1.25 },
+  drvNarxBadge: { fontSize: 18, fontWeight: 700, color: 'var(--label)', marginTop: 2, fontVariantNumeric: 'tabular-nums' },
+
+  // Uber услуби — иконкали амал қатори
+  amalQator: { display: 'flex', gap: 8, marginBottom: 12 },
+  amalTugma: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, background: 'var(--fill)', color: 'var(--tint)', padding: '12px 6px', borderRadius: 'var(--r-md)', fontSize: 13, fontWeight: 600 },
+  amalIkon: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center' },
 };
