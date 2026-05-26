@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import { useT } from '../i18n';
 import Ikonka from './Ikonka';
+import Sheet from './Sheet';
 
 export default function Ulashish({ rideId, onYopish }) {
   const { t } = useT();
@@ -35,9 +36,7 @@ export default function Ulashish({ rideId, onYopish }) {
   const waUrl = `https://wa.me/?text=${encodeURIComponent(t('share.waMatn') + '\n' + link)}`;
 
   return (
-    <div style={st.fon} onClick={onYopish}>
-      <div style={st.modal} className="glass slide-up-modal" onClick={(e) => e.stopPropagation()}>
-        <div style={st.grabber} />
+    <Sheet onYopish={onYopish} zIndex={3700} panelStyle={{ padding: '0 20px 20px' }}>
         <div style={st.header}>
           <div style={st.sarlavha}>{t('share.title')}</div>
           <button style={st.yopish} onClick={onYopish}><Ikonka nom="x" size={16} /></button>
@@ -72,16 +71,12 @@ export default function Ulashish({ rideId, onYopish }) {
         )}
 
         <button style={st.bekor} onClick={onYopish}>{t('common.close')}</button>
-      </div>
-    </div>
+    </Sheet>
   );
 }
 
 const st = {
-  fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 3700, padding: 0, backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)' },
-  modal: { width: '100%', maxWidth: 480, borderRadius: '14px 14px 0 0', padding: '8px 20px 20px' },
-  grabber: { width: 36, height: 5, borderRadius: 3, background: 'var(--fill-strong)', margin: '0 auto 12px' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, marginTop: 8 },
   sarlavha: { fontSize: 20, fontWeight: 600 },
   yopish: { width: 30, height: 30, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   izoh: { fontSize: 15, color: 'var(--secondary-label)', marginBottom: 16, lineHeight: 1.4 },

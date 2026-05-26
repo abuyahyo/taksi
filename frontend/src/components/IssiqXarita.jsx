@@ -3,11 +3,16 @@ import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Circle, useMap } from 'react-leaflet';
 import { api } from '../services/api';
 import { useT } from '../i18n';
+import { useTema } from '../theme';
 import { parseLatLng } from '../utils/geo';
 import Ikonka from './Ikonka';
 import 'leaflet/dist/leaflet.css';
 
 const TOSHKENT = [41.2995, 69.2401];
+const PLITKA = {
+  light: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+  dark:  'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+};
 
 function ToshkentMarkazi() {
   const map = useMap();
@@ -17,6 +22,7 @@ function ToshkentMarkazi() {
 
 export default function IssiqXarita({ onYopish }) {
   const { t } = useT();
+  const { tema } = useTema();
   const [sahifalar, setSahifalar] = useState([]);
   const [yuklanmoqda, setYuklanmoqda] = useState(true);
 
@@ -51,7 +57,12 @@ export default function IssiqXarita({ onYopish }) {
 
         <div style={st.harita}>
           <MapContainer center={TOSHKENT} zoom={12} style={{ width: '100%', height: '100%' }} zoomControl={false}>
-            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <TileLayer
+              url={tema === 'dark' ? PLITKA.dark : PLITKA.light}
+              attribution='© OpenStreetMap © CARTO'
+              subdomains="abcd"
+              detectRetina
+            />
             <ToshkentMarkazi />
             {sahifalar.map((r) => {
               const nuqta = parseLatLng(r.boshlanish_manzil);
