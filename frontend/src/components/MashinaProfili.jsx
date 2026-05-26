@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import { useT } from '../i18n';
 import Ikonka from './Ikonka';
+import KycHujjatlar from './KycHujjatlar';
 
 export default function MashinaProfili({ onYopish, onSaqlandi }) {
   const { t } = useT();
@@ -96,6 +97,8 @@ export default function MashinaProfili({ onYopish, onSaqlandi }) {
             </button>
           </form>
         )}
+
+        {!yuklanmoqda && <KycHujjatlar />}
       </div>
     </div>
   );
@@ -110,7 +113,7 @@ export function mashinaMatn(profil) {
 
 const st = {
   fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3500, padding: 24, backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)' },
-  modal: { width: '100%', maxWidth: 420, borderRadius: 'var(--r-xl)', padding: 24 },
+  modal: { width: '100%', maxWidth: 420, borderRadius: 'var(--r-xl)', padding: 24, maxHeight: '90dvh', overflowY: 'auto' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 },
   sarlavha: { fontSize: 20, fontWeight: 600 },
   yopish: { width: 30, height: 30, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center' },

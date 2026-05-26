@@ -13,7 +13,7 @@ import SOS from '../components/SOS';
 import NarxTarkibi from '../components/NarxTarkibi';
 import { tavsiyaHisobi, ASOSIY, PER_KM, TARIFLAR } from '../utils/narx';
 import { masofaKm } from '../utils/geo';
-import { api } from '../services/api';
+import { api, yolHisobla } from '../services/api';
 import { useSocket } from '../services/useSocket';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
 import { pushObunaBol } from '../services/push';
@@ -34,6 +34,7 @@ export default function YolovchiSahifa() {
   const [tugashManzil, setTugashManzil] = useState('');
   const [tanlovRejimi, setTanlovRejimi] = useState('boshlanish');
   const [oraliqlar, setOraliqlar] = useState([]); // [{ nuqta:[lat,lng], manzil }] — манзил(лар), охиргиси якуний
+  const [aniqYol, setAniqYol] = useState(null); // { masofa_km, davomiylik_min, yol_chizigi, taxminiy } — OSRM реал йўл
   // Yandex услуби — харита маркази (пин остидаги нуқта ва манзил)
   const [markazNuqta, setMarkazNuqta] = useState(null);
   const [markazManzil, setMarkazManzil] = useState('');
@@ -83,7 +84,7 @@ export default function YolovchiSahifa() {
     },
     yangi_taklif: (taklif) => {
       setTakliflar((oldin) => [...oldin, taklif]);
-      bildir('💰 Янги таклиф', `${taklif.haydovchi_ism} · ${Number(taklif.haydovchi_narx).toLocaleString()} сўм · ${taklif.min} мин`, { tag: 'taklif' });
+      bildir('💰 Янги таклиф', `${taklif.haydovchi_ism} · ${Number(taklif.haydovchi_narx).toLocaleString()} сўм${taklif.min != null ? ` · ${taklif.min} мин` : ''}`, { tag: 'taklif' });
     },
     // Ҳайдовчи сафар ҳолатини янгилаганда
     holat_yangilandi: (data) => {
@@ -125,6 +126,7 @@ export default function YolovchiSahifa() {
     setTugashManzil('');
     setTanlovRejimi('boshlanish');
     setOraliqlar([]);
+    setAniqYol(null);
     setMarkazManzil('');
     setSafarPin(null);
     setIzoh('');
@@ -165,17 +167,25 @@ export default function YolovchiSahifa() {
     }
   };
 
-  // "Давом этиш" — манзил(лар) танлангач нарх босқичига ўтамиз
-  const manzillarTasdiqla = () => {
+  // "Давом этиш" — манзил(лар) танлангач нарх босқичига ўтамиз.
+  // OSRM'дан реал йўл масофаси+ETA оламиз; натижа келгунча Haversine билан нархни кўрсатамиз.
+  const manzillarTasdiqla = async () => {
     if (oraliqlar.length === 0) return;
     const oxirgi = oraliqlar[oraliqlar.length - 1];
     setTugash(oxirgi.nuqta);
     setTugashManzil(oxirgi.manzil);
-    setNarx(tavsiyaHisobi(yolMasofa(), tarif));
+    setNarx(tavsiyaHisobi(yolMasofa(), tarif)); // дастлабки (тахминий) нарх
     setBosqich('narx');
+
+    const nuqtalar = [boshlanish, ...oraliqlar.map((o) => o.nuqta)].filter(Boolean);
+    const natija = await yolHisobla(nuqtalar);
+    if (natija && Number.isFinite(natija.masofa_km)) {
+      setAniqYol(natija);
+      setNarx(tavsiyaHisobi(natija.masofa_km, tarif)); // реал масофа бўйича нархни аниқлаймиз
+    }
   };
 
-  const oraliqOchir = (i) => setOraliqlar((eski) => eski.filter((_, j) => j !== i));
+  const oraliqOchir = (i) => { setAniqYol(null); setOraliqlar((eski) => eski.filter((_, j) => j !== i)); };
 
   // Тўлиқ йўл масофаси — бошланиш → манзил1 → ... → охирги
   const yolMasofa = () => {
@@ -185,7 +195,21 @@ export default function YolovchiSahifa() {
     return Math.round(jami * 100) / 100;
   };
 
-  const masofa = () => yolMasofa();
+  // Реал йўл масофаси бўлса шуни, бўлмаса Haversine захирасини ишлатамиз
+  const masofa = () => (aniqYol && Number.isFinite(aniqYol.masofa_km) ? aniqYol.masofa_km : yolMasofa());
+
+  // Сафар вақти (ETA, дақиқа) — OSRM'дан. Йўқ бўлса null.
+  const safarDaqiqa = () => (aniqYol && Number.isFinite(aniqYol.davomiylik_min) ? aniqYol.davomiylik_min : null);
+
+  // Таклифларни саралаб кўрсатамиз: арзонроқ → тезроқ (ETA) → юқори рейтинг.
+  // Йўловчи энг фойдалисини тепада кўради (Uber/Bolt услуби).
+  const saralanganTakliflar = [...takliflar].sort((a, b) => {
+    const na = Number(a.haydovchi_narx) || 0, nb = Number(b.haydovchi_narx) || 0;
+    if (na !== nb) return na - nb;
+    const ea = a.min ?? Infinity, eb = b.min ?? Infinity;
+    if (ea !== eb) return ea - eb;
+    return (Number(b.reyting) || 0) - (Number(a.reyting) || 0);
+  });
 
   // Ҳайдовчининг келиш вақти (ETA) — жонли GPS'дан пикап нуқтасигача, шаҳар ўртача тезлиги
   const kelishVaqti = () => {
@@ -227,6 +251,8 @@ export default function YolovchiSahifa() {
       reyting: 5.0,
       boshlanish: boshlanishManzil || `${boshlanish[0].toFixed(4)}, ${boshlanish[1].toFixed(4)}`,
       tugash: tugashManzil || `${tugash[0].toFixed(4)}, ${tugash[1].toFixed(4)}`,
+      boshlanish_koord: boshlanish, // [lat,lng] — ҳайдовчи ETA ва харита учун
+      tugash_koord: tugash,
       masofa: masofa(),
       narx,
       tarif,
@@ -263,6 +289,7 @@ export default function YolovchiSahifa() {
           boshlanish={boshlanish}
           tugash={tugash}
           yol={[boshlanish, ...oraliqlar.map((o) => o.nuqta)].filter(Boolean)}
+          yolChizigi={aniqYol?.yol_chizigi}
           haydovchi={haydovchiNuqta}
           markazRejim={bosqich === 'manzil'}
           markazRang={tanlovRejimi === 'boshlanish' ? '#0E9384' : '#EF4444'}
@@ -352,7 +379,7 @@ export default function YolovchiSahifa() {
                 >
                   {oraliqlar.length === 0 ? t('pass.markDest') : `+ ${t('pass.addStop')}`}
                 </button>
-                <button style={st.orqaga} onClick={() => { setTanlovRejimi('boshlanish'); setOraliqlar([]); }}>
+                <button style={st.orqaga} onClick={() => { setTanlovRejimi('boshlanish'); setOraliqlar([]); setAniqYol(null); }}>
                   <Ikonka nom="arrow-left" size={16} /> {t('common.back')}
                 </button>
               </>
@@ -382,7 +409,11 @@ export default function YolovchiSahifa() {
               })}
             </div>
 
-            <p style={st.izoh}>{t('pass.distance')}: {masofa()} км · {t('pass.recommended')}: {tavsiyaNarx.toLocaleString()}</p>
+            <p style={st.izoh}>
+              {t('pass.distance')}: {masofa()} км
+              {safarDaqiqa() != null && ` · ${aniqYol?.taxminiy ? '≈' : ''}${safarDaqiqa()} ${t('drv.minute')}`}
+              {' · '}{t('pass.recommended')}: {tavsiyaNarx.toLocaleString()}
+            </p>
             <div style={st.narxBox}>
               <button style={st.narxTugma} onClick={() => setNarx(Math.max(5000, narx - 1000))}><Ikonka nom="minus" size={20} /></button>
               <div style={st.narxMatn}>{narx.toLocaleString()}</div>
@@ -529,8 +560,8 @@ export default function YolovchiSahifa() {
               <>
                 <h2 style={st.sarlavha}>{t('pass.offers')} ({takliflar.length})</h2>
                 <div style={{ maxHeight: 260, overflowY: 'auto' }} className="royxat-anim">
-                  {takliflar.map((tk, i) => (
-                    <div key={i} style={st.haydovchi}>
+                  {saralanganTakliflar.map((tk, i) => (
+                    <div key={tk.haydovchi_id ?? i} style={st.haydovchi}>
                       <div style={st.avatar}>{tk.haydovchi_ism[0]}</div>
                       <div style={{ flex: 1 }}>
                         <div style={st.hIsm}>
@@ -538,7 +569,10 @@ export default function YolovchiSahifa() {
                           {tk.tasdiqlangan && <span style={st.tasdiqBelgi} title={t('verify.badge')}>✓</span>}
                           {' '}<Ikonka nom="star" size={13} /> {tk.reyting}
                         </div>
-                        <div style={st.hMashina}>{tk.mashina} · {tk.min} {t('drv.minute')}</div>
+                        <div style={st.hMashina}>
+                          {tk.mashina}
+                          {tk.min != null && ` · ${tk.min} ${t('drv.minute')}`}
+                        </div>
                       </div>
                       <button style={st.qabul} onClick={() => haydovchiTanla(tk)}>
                         {tk.haydovchi_narx.toLocaleString()}

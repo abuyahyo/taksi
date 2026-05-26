@@ -23,6 +23,20 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Йўл ҳисоблаш — реал йўл масофаси, ETA ва йўл чизиғи (OSRM, захира Haversine).
+// nuqtalar = [[lat,lng], ...]. Хато бўлса null қайтаради.
+export async function yolHisobla(nuqtalar) {
+  const yaroqli = (nuqtalar || []).filter((p) => Array.isArray(p) && Number.isFinite(p[0]) && Number.isFinite(p[1]));
+  if (yaroqli.length < 2) return null;
+  try {
+    const koord = yaroqli.map(([lat, lng]) => `${lat},${lng}`).join(';');
+    const { data } = await api.get('/geocode/route', { params: { koord } });
+    return data;
+  } catch {
+    return null;
+  }
+}
+
 // Socket.io — реал вақт алоқаси учун (BASE_URL бўш бўлса — same origin)
 // Ҳар улангандa токенни localStorage'дан қайта оламиз — логин/чиқишда автоматик янгиланади
 export const socket = io(BASE_URL || undefined, {

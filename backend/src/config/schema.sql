@@ -192,3 +192,20 @@ CREATE TABLE IF NOT EXISTS push_subscriptions (
   created_at TIMESTAMP DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_push_user ON push_subscriptions(user_id);
+
+-- KYC: ҳайдовчи ҳужжатлари (паспорт/ID, селфи). Расм файллари локал дискда
+-- (backend/uploads/kyc), бу ерда фақат метаданни сақлаймиз.
+ALTER TABLE drivers ADD COLUMN IF NOT EXISTS tasdiq_holati VARCHAR(20) DEFAULT 'yangi'; -- yangi | kutilmoqda | tasdiqlandi | rad
+ALTER TABLE drivers ADD COLUMN IF NOT EXISTS rad_sababi TEXT;
+
+CREATE TABLE IF NOT EXISTS driver_hujjatlar (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  turi VARCHAR(20) NOT NULL,            -- passport | selfie
+  fayl VARCHAR(255) NOT NULL,           -- дискдаги файл номи
+  holat VARCHAR(20) DEFAULT 'kutilmoqda', -- kutilmoqda | tasdiqlandi | rad
+  rad_sababi TEXT,
+  yuklangan TIMESTAMP DEFAULT NOW(),
+  UNIQUE(user_id, turi)
+);
+CREATE INDEX IF NOT EXISTS idx_hujjat_user ON driver_hujjatlar(user_id);

@@ -1,7 +1,7 @@
 // Ҳайдовчи саҳифаси — socket билан реал вақтда уланган
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../services/api';
+import { api, yolHisobla } from '../services/api';
 import { useSocket } from '../services/useSocket';
 import Kirish from '../components/Kirish';
 import Chat from '../components/Chat';
@@ -57,6 +57,7 @@ function Ichki({ user, onChiqish }) {
   const [obunaOchiq, setObunaOchiq] = useState(false);
   const [obuna, setObuna] = useState(null); // faol subscription
   const [joylashuvOchiqmi, setJoylashuvOchiqmi] = useState(false); // GPS таклиф қилинганми
+  const joriyJoyRef = useRef(null); // [lat,lng] — ҳайдовчининг жорий жойи (таклифда ETA ҳисоблаш учун)
 
   const statsYukla = async () => {
     try {
@@ -95,6 +96,7 @@ function Ichki({ user, onChiqish }) {
     const watchId = navigator.geolocation.watchPosition(
       (pos) => {
         setJoylashuvOchiqmi(true);
+        joriyJoyRef.current = [pos.coords.latitude, pos.coords.longitude];
         yubor('joylashuv', { rideId: faolSafar.rideId, lat: pos.coords.latitude, lng: pos.coords.longitude });
       },
       (err) => { console.warn('Geolocation:', err.message); setJoylashuvOchiqmi(false); },
@@ -103,6 +105,26 @@ function Ichki({ user, onChiqish }) {
     return () => navigator.geolocation.clearWatch(watchId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [faolSafar]);
+
+  // Онлайн (сафарсиз) — жорий жойни кузатамиз, токи таклифда пикапгача ETA ҳисобланса
+  useEffect(() => {
+    if (!onlayn || faolSafar || !('geolocation' in navigator)) return;
+    const watchId = navigator.geolocation.watchPosition(
+      (pos) => { joriyJoyRef.current = [pos.coords.latitude, pos.coords.longitude]; },
+      (err) => { console.warn('Geolocation:', err.message); },
+      { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
+    );
+    return () => navigator.geolocation.clearWatch(watchId);
+  }, [onlayn, faolSafar]);
+
+  // Пикапгача ETA (дақиқа) — жорий жой ва буюртма пикап координатасидан (OSRM). Йўқ бўлса null.
+  const etaHisobla = async (b) => {
+    const pos = joriyJoyRef.current;
+    const pickup = Array.isArray(b.boshlanish_koord) ? b.boshlanish_koord : parseLatLng(b.boshlanish);
+    if (!pos || !pickup) return null;
+    const r = await yolHisobla([pos, pickup]);
+    return r && Number.isFinite(r.davomiylik_min) ? r.davomiylik_min : null;
+  };
 
   const { yubor } = useSocket({
     obuna_kerak: () => {
@@ -207,18 +229,21 @@ function Ichki({ user, onChiqish }) {
     }
   };
 
-  const roziBolish = (b) => {
+  const roziBolish = async (b) => {
+    const min = await etaHisobla(b);
     yubor('narx_taklif', {
       rideId: b.id, haydovchi_ism: user.ism, haydovchi_narx: b.narx,
-      reyting: Number(user.reyting) || 5, mashina: mashinaJamiMatn, min: Math.ceil(Math.random() * 6) + 2,
+      reyting: Number(user.reyting) || 5, mashina: mashinaJamiMatn, min,
     });
     setBuyurtmalar(buyurtmalar.filter((x) => x.id !== b.id));
   };
 
-  const oznarxYuborish = () => {
+  const oznarxYuborish = async () => {
+    const b = tanlangan;
+    const min = await etaHisobla(b);
     yubor('narx_taklif', {
-      rideId: tanlangan.id, haydovchi_ism: user.ism, haydovchi_narx: oznarx,
-      reyting: Number(user.reyting) || 5, mashina: mashinaJamiMatn, min: Math.ceil(Math.random() * 6) + 2,
+      rideId: b.id, haydovchi_ism: user.ism, haydovchi_narx: oznarx,
+      reyting: Number(user.reyting) || 5, mashina: mashinaJamiMatn, min,
     });
     setTanlangan(null);
   };
@@ -373,7 +398,10 @@ function Ichki({ user, onChiqish }) {
                 <div style={st.vaqt}>{b.vaqt}</div>
               </div>
               <div style={st.haritaWrap}>
-                <HaritaPreview boshlanish={parseLatLng(b.boshlanish)} tugash={parseLatLng(b.tugash)} />
+                <HaritaPreview
+                  boshlanish={(Array.isArray(b.boshlanish_koord) && b.boshlanish_koord) || parseLatLng(b.boshlanish)}
+                  tugash={(Array.isArray(b.tugash_koord) && b.tugash_koord) || parseLatLng(b.tugash)}
+                />
               </div>
               <div style={st.yollar}>
                 <div style={st.yol}>

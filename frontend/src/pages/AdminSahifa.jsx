@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { api, socket } from '../services/api';
 import Kirish from '../components/Kirish';
+import { KycRasm } from '../components/KycHujjatlar';
 import { SkeletKarta } from '../components/Skelet';
 import { useT } from '../i18n';
 import { useToast } from '../components/Toast';
@@ -35,6 +36,9 @@ function AdminIchki({ onChiqish }) {
   const [xato, setXato] = useState('');
   const [blokModal, setBlokModal] = useState(null);
   const [sabab, setSabab] = useState('');
+  const [hujjatModal, setHujjatModal] = useState(null); // { user, data }
+  const [radFor, setRadFor] = useState(null); // рад этилаётган ҳужжат id
+  const [radSabab, setRadSabab] = useState('');
 
   const yukla = async () => {
     try {
@@ -129,6 +133,34 @@ function AdminIchki({ onChiqish }) {
     }
   };
 
+  const hujjatlarOch = async (u) => {
+    try {
+      const { data } = await api.get(`/admin/hujjatlar/${u.id}`);
+      setHujjatModal({ user: u, data });
+      setRadFor(null);
+      setRadSabab('');
+    } catch (err) {
+      toast.error(err.response?.data?.xato || t('common.error'));
+    }
+  };
+
+  const hujjatRad = async (hujjatId) => {
+    try {
+      await api.post(`/admin/hujjat/${hujjatId}/rad`, { sabab: radSabab });
+      setRadFor(null);
+      setRadSabab('');
+      if (hujjatModal) await hujjatlarOch(hujjatModal.user);
+      yukla();
+    } catch (err) {
+      toast.error(err.response?.data?.xato || t('common.error'));
+    }
+  };
+
+  const hujjatTasdiqla = async (id) => {
+    await tasdiqla(id);
+    setHujjatModal(null);
+  };
+
   return (
     <div style={st.sahifa}>
       <div style={st.header}>
@@ -199,6 +231,12 @@ function AdminIchki({ onChiqish }) {
                     {u.bloklangan && <div style={st.blokBelgi}>{t('admin.blocked', { sabab: u.blok_sababi })}</div>}
                   </div>
                   <div style={st.tugmalarUstun}>
+                    {u.rol === 'haydovchi' && (
+                      <button style={st.hujjatTugma} onClick={() => hujjatlarOch(u)}>
+                        {t('admin.docs')}{Number(u.hujjat_soni) > 0 ? ` (${u.hujjat_soni})` : ''}
+                        {u.tasdiq_holati === 'kutilmoqda' && !u.tasdiqlangan && <span style={st.kutilmoqdaNuqta} />}
+                      </button>
+                    )}
                     {u.rol === 'haydovchi' && (u.tasdiqlangan ? (
                       <button style={st.tasdiqYechTugma} onClick={() => tasdiqBekor(u.id)}>{t('admin.unverify')}</button>
                     ) : (
@@ -251,8 +289,50 @@ function AdminIchki({ onChiqish }) {
           </div>
         </div>
       )}
+
+      {hujjatModal && (
+        <div style={st.modalFon} onClick={() => setHujjatModal(null)}>
+          <div style={{ ...st.modal, maxHeight: '88dvh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
+            <h3 style={st.modalSarlavha}>{t('admin.docsTitle')}</h3>
+            <p style={st.modalIzoh}>{hujjatModal.user.ism}</p>
+
+            {hujjatModal.data.hujjatlar.length === 0 ? (
+              <Bosh matn={t('admin.noDocs')} />
+            ) : (
+              hujjatModal.data.hujjatlar.map((h) => (
+                <div key={h.id} style={st.hujjatKarta}>
+                  <KycRasm hujjatId={h.id} style={st.hujjatRasm} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={st.hujjatTur}>{t(`kyc.${h.turi}`)}</div>
+                    <div style={{ ...st.hujjatHolat, ...holatRang(h.holat) }}>{t(`kyc.st.${h.holat}`)}</div>
+                    {radFor === h.id ? (
+                      <div style={{ marginTop: 8 }}>
+                        <input style={st.radInput} placeholder={t('admin.rejectReason')} value={radSabab} onChange={(e) => setRadSabab(e.target.value)} autoFocus />
+                        <button style={{ ...st.radConfirm, opacity: radSabab.trim() ? 1 : 0.5 }} disabled={!radSabab.trim()} onClick={() => hujjatRad(h.id)}>{t('admin.rejectConfirm')}</button>
+                      </div>
+                    ) : (
+                      <button style={st.radTugma} onClick={() => { setRadFor(h.id); setRadSabab(''); }}>{t('admin.reject')}</button>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+
+            {hujjatModal.data.hujjatlar.length > 0 && !hujjatModal.data.tasdiqlangan && (
+              <button style={st.tasdiqTugmaYashil} onClick={() => hujjatTasdiqla(hujjatModal.user.id)}>{t('admin.approveDriver')}</button>
+            )}
+            <button style={st.bekorTugma} onClick={() => setHujjatModal(null)}>{t('common.cancel')}</button>
+          </div>
+        </div>
+      )}
     </div>
   );
+}
+
+function holatRang(holat) {
+  if (holat === 'tasdiqlandi') return { background: 'rgba(52,199,89,0.16)', color: 'var(--yashil)' };
+  if (holat === 'rad') return { background: 'rgba(255,59,48,0.14)', color: 'var(--qizil)' };
+  return { background: 'rgba(255,149,0,0.16)', color: 'var(--amber)' };
 }
 
 function Stat({ raqam, matn, nom, rang, keng }) {
@@ -309,6 +389,16 @@ const st = {
   tasdiqlaTugma: { background: 'var(--tint)', color: '#fff', padding: '7px 14px', borderRadius: 'var(--r-full)', fontWeight: 600, fontSize: 13, whiteSpace: 'nowrap' },
   tasdiqYechTugma: { background: 'var(--fill)', color: 'var(--label)', padding: '7px 14px', borderRadius: 'var(--r-full)', fontWeight: 600, fontSize: 13, whiteSpace: 'nowrap' },
   tasdiqMeta: { display: 'inline-block', marginLeft: 8, fontSize: 12, fontWeight: 600, color: 'var(--tint)' },
+  hujjatTugma: { position: 'relative', background: 'var(--fill)', color: 'var(--label)', padding: '7px 14px', borderRadius: 'var(--r-full)', fontWeight: 600, fontSize: 13, whiteSpace: 'nowrap' },
+  kutilmoqdaNuqta: { position: 'absolute', top: -2, right: -2, width: 10, height: 10, borderRadius: '50%', background: 'var(--amber)', border: '1.5px solid var(--surface)' },
+  hujjatKarta: { display: 'flex', gap: 12, alignItems: 'flex-start', padding: '12px 0', borderBottom: '0.5px solid var(--separator)' },
+  hujjatRasm: { width: 64, height: 64, borderRadius: 'var(--r-md)', flexShrink: 0 },
+  hujjatTur: { fontWeight: 600, fontSize: 15 },
+  hujjatHolat: { display: 'inline-block', fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 'var(--r-full)', marginTop: 4 },
+  radTugma: { display: 'block', marginTop: 8, background: 'rgba(255,59,48,0.12)', color: 'var(--qizil)', padding: '6px 12px', borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 13 },
+  radInput: { width: '100%', padding: 10, borderRadius: 'var(--r-md)', border: 'none', background: 'var(--fill)', color: 'var(--label)', fontSize: 15, marginBottom: 8 },
+  radConfirm: { background: 'var(--qizil)', color: '#fff', padding: '8px 14px', borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 14 },
+  tasdiqTugmaYashil: { width: '100%', background: 'var(--yashil)', color: '#fff', padding: 14, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 16, marginTop: 16 },
   rideKarta: { background: 'var(--surface)', padding: 14, borderRadius: 'var(--r-lg)', boxShadow: 'var(--shadow-1)' },
   rideYuqori: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   rideId: { fontWeight: 600, fontSize: 15 },
