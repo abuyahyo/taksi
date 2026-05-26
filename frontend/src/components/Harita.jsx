@@ -87,11 +87,13 @@ function MarkazKuzat({ onMarkaz }) {
 
 export default function Harita({
   markaz, boshlanish, tugash, haydovchi, onBosish,
-  markazRejim = false, markazRang = '#0E9384', onMarkaz, uchish, yol,
+  markazRejim = false, markazRang = '#0E9384', onMarkaz, uchish, yol, yolChizigi,
 }) {
   // Кўп манзил: yol = [бошланиш, ...оралиқлар]. 2+ нуқта бўлса йўлни шу бўйича чизамиз.
   const koplik = Array.isArray(yol) && yol.length >= 2;
   const oraliqlar = koplik ? yol.slice(1, -1) : [];
+  // yolChizigi — OSRM реал йўл геометрияси ([lat,lng] нуқталар). Бўлса тўғри чизиқ ўрнига шуни чизамиз.
+  const realYol = Array.isArray(yolChizigi) && yolChizigi.length >= 2 ? yolChizigi : null;
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       <MapContainer center={markaz} zoom={13} zoomControl={false}>
@@ -103,8 +105,10 @@ export default function Harita({
         {uchish && <UchishKuzat uchish={uchish} />}
         {onBosish && <BosishHodisasi onBosish={onBosish} />}
         {markazRejim && onMarkaz && <MarkazKuzat onMarkaz={onMarkaz} />}
-        {/* Йўл чизиғи — кўп манзил бўлса барча нуқталар орқали, акс ҳолда pickup ↔ манзил */}
-        {koplik ? (
+        {/* Йўл чизиғи — реал йўл (OSRM) бўлса шу бўйича, акс ҳолда тўғри чизиқ */}
+        {realYol ? (
+          <Polyline positions={realYol} pathOptions={{ color: '#0E9384', weight: 5, opacity: 0.9 }} />
+        ) : koplik ? (
           <Polyline positions={yol} pathOptions={{ color: '#0E9384', weight: 4, opacity: 0.85 }} />
         ) : boshlanish && tugash && (
           <Polyline positions={[boshlanish, tugash]} pathOptions={{ color: '#0E9384', weight: 4, opacity: 0.85 }} />
