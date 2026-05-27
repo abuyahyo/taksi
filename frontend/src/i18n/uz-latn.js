@@ -117,6 +117,11 @@ export default {
   'drv.carInfoEmpty':    'Mashina maʼlumotlari toʻldirilmagan. Yoʻlovchilar buni koʻrishi kerak — {link}',
   'drv.carInfoFill':     'toʻldirish',
   'drv.minute':          'min',
+  'drv.commTitle':       'Siz komissiya toʻlamaysiz',
+  'drv.commKept':        'Bugungi daromad — hammasi sizniki',
+  'drv.commSlider':      'Taxminiy komissiya',
+  'drv.commLost':        'Komissiyali platformada bugun yoʻqotardingiz (taxminiy)',
+  'drv.commNote':        'Bizda safardan foiz yoʻq — faqat obuna',
 
   // Mashina profili
   'car.title':           'Mashina profili',
