@@ -150,7 +150,7 @@ export default function Obuna({ onYopish, onYangilandi }) {
                       <span style={st.paketIsm}>{turi2matn[turi]}</span>
                       {tavsiya && <span style={st.tavsiyaBelgi}>{t('sub.recommended')}</span>}
                     </div>
-                    <div style={st.paketNarx}>{p.summa.toLocaleString()} <span style={st.paketSom}>{t('wait.sum')}</span></div>
+                    <div style={tavsiya ? st.paketNarxTavsiya : st.paketNarx}>{p.summa.toLocaleString()} <span style={st.paketSom}>{t('wait.sum')}</span></div>
                     <div style={st.paketKun}>{p.kun} {t('sub.days')}</div>
                   </button>
                 );
@@ -176,11 +176,12 @@ const st = {
   afzIzoh: { fontSize: 13, color: 'var(--amber)', opacity: 0.9, marginTop: 4, lineHeight: 1.4 },
   paketlar: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 },
   paket: { background: 'var(--surface)', padding: 14, borderRadius: 'var(--r-md)', textAlign: 'left', border: '0.5px solid var(--separator)' },
-  paketTavsiya: { border: '2px solid var(--tint)' },
+  paketTavsiya: { border: '2px solid var(--tint)', background: 'var(--tint-fill)' },
   paketYuqori: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
   paketIsm: { fontSize: 14, fontWeight: 600, color: 'var(--label)' },
-  tavsiyaBelgi: { background: 'var(--tint)', color: '#fff', padding: '2px 7px', borderRadius: 'var(--r-full)', fontSize: 9, fontWeight: 600 },
+  tavsiyaBelgi: { background: 'var(--tint)', color: '#fff', padding: '3px 8px', borderRadius: 'var(--r-full)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2px' },
   paketNarx: { fontSize: 20, fontWeight: 700, color: 'var(--label)' },
+  paketNarxTavsiya: { fontSize: 24, fontWeight: 700, color: 'var(--tint)' },
   paketSom: { fontSize: 12, fontWeight: 400, color: 'var(--secondary-label)' },
   paketKun: { fontSize: 13, color: 'var(--secondary-label)', marginTop: 2 },
   // Тўлов босқичи

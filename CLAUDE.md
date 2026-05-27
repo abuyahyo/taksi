@@ -88,19 +88,31 @@ C:\taxi-app\
 
 ## Базани миграция қилиш
 
-Барча миграциялар Supabase'да аллақачон қилинган. Янги ўзгариш керак бўлса:
+**МУҲИМ — Schema drift хавфи:** Миграциялар автоматик юритилмайди. `backend/migrations/*.sql` файллари бор, лекин Supabase production'да қайси-бирлари юритилмаган бўлиши мумкин. Аввал `column ... does not exist` хатоси чиққанда — миграцияни юритишни унутганлик аломати.
 
-1. SQL'ни `$env:TEMP\add_X.sql` каби вақтинча файлга ёзинг.
-2. Бажариш:
+**Барча миграцияни идемпотент юритиш** (ҳар деплойдан кейин — `IF NOT EXISTS` шарт):
+
+```js
+// backend/'дан node -e ёки скрипт сифатида
+const {Pool} = require('pg');
+const fs = require('fs');
+const pool = new Pool({connectionString: process.env.DATABASE_URL, ssl:{rejectUnauthorized:false}});
+const files = fs.readdirSync('migrations').filter(f=>f.endsWith('.sql')).sort();
+for (const f of files) await pool.query(fs.readFileSync(`migrations/${f}`, 'utf8'));
+```
+
+Янги ўзгариш керак бўлса:
+1. SQL'ни `backend/migrations/add_X.sql` га ёзинг — **доим `IF NOT EXISTS` ишлатинг** (идемпотент).
+2. `backend/src/config/schema.sql`'га ҳам қўшинг (мос келиш учун).
+3. Юритиш (қўлда ёки юқоридаги скрипт билан):
    ```powershell
    $dbPass = Get-Content "$env:TEMP\supa_db_pass.txt" -Raw
    $env:PGPASSWORD = $dbPass; $env:PGSSLMODE = "require"
    & "C:\Program Files\PostgreSQL\17\bin\psql.exe" `
      -h "aws-1-eu-central-1.pooler.supabase.com" -p 5432 `
      -U "postgres.zzucnvzoruidqjgrwzdi" -d postgres `
-     -f "$env:TEMP\add_X.sql"
+     -f "backend/migrations/add_X.sql"
    ```
-3. `backend/src/config/schema.sql`'га ҳам қўшинг (мос келиш учун).
 4. **Direct host (`db.zzucnvzoruidqjgrwzdi.supabase.co`) IPv6-only — DNS resolve бўлмайди.** Pooler (`aws-1-eu-central-1.pooler.supabase.com:5432`) сессион режимда ишлатинг.
 
 ## Қандай ишга тушириш (компьютер ёқилгач)
@@ -150,6 +162,26 @@ Invoke-RestMethod "http://localhost:5000/api/auth/login" -Method POST -Headers $
 npm install playwright-core socket.io-client axios --no-save
 ```
 
+**Тўлиқ сафар оқими E2E (socket) — синалган шаблон:**
+
+`socket.io-client + axios + pg` орқали йўловчи+ҳайдовчи симуляцияси (телефон керак эмас, тeз). 17 қадам, ҳаммаси автомат:
+1. Login (passenger admin id=1 + driver id=2) → JWT
+2. Иккита socket уланиш
+3. `haydovchi_online` + обуна текшируви (`mavjud_buyurtmalar` ёки `obuna_kerak`)
+4. `yangi_buyurtma` → `buyurtma_yaratildi` (PIN олинади) + `buyurtma_keldi` (ҳайдовчига)
+5. `narx_taklif` → `yangi_taklif`
+6. `haydovchi_tanlandi` → `tasdiqlandi` (DB'да `qabul_qilindi`)
+7. `xabar_yuborish` (чат)
+8. `safar_holati: yetib_keldi` (50м — қабул; 500м — `holat_rad`)
+9. `safar_holati: yolda` нотўғри PIN → `pin_xato`; тўғри PIN → ўтади (кутиш ҳақи + янги нарх)
+10. `sos_yuborildi` → `sos_qabul_qilindi`
+11. `safar_holati: yakunlandi`
+12. `chayovoy` → нархга қўшилади
+13. `baholash` (икки томон) → `ratings` ёзилади + `users.reyting` янгиланади
+14. DB якуний текширув: `holat=yakunlandi`, `yakun_vaqti`, ratings=2
+
+Шаблон: backend/'да temp `.js` ёзилади → юритилади → ўчирилади. Bug топилса (масалан схема drift), нима тузатилгани commit'га тушсин.
+
 ## Дизайн тамойиллари
 
 - **Тил**: фронтенда фойдаланувчи матн ҳамма жойда `t('kalit')` орқали. 3 тилда (uz/uz-latn/ru).
@@ -169,11 +201,28 @@ npm install playwright-core socket.io-client axios --no-save
 - React.lazy() route'лар (Suspense'ни ёдда тутинг).
 - `localStorage`: `token`, `user`, `til`. ҳаммаси шу учта.
 
+## Авто-янгилаш стратегияси (кэш муаммосиз)
+
+Уч техника бирга ишлайди — фойдаланувчи доим янги версияда:
+
+1. **Backend cache-control header'лари** (`server.js`):
+   - `index.html`, `sw.js`, `/` → `Cache-Control: no-cache` (ҳар сафар сервердан янги текширилади)
+   - `/assets/*` (хешланган) → `Cache-Control: public, max-age=31536000, immutable` (1 йил)
+2. **`/api/version` polling** (`services/yangilanish.js`): фронтенд `visibilitychange`/`focus`'да endpoint'ни сўрайди; жавоб `{v: "/assets/index-<hash>.js"}`. Хеш ўзгарса автомат `window.location.reload()`.
+3. **Service Worker NetworkFirst** (`vite.config.js` workbox runtimeCaching `navigateHandler`): навигатция доим аввал серверни сўрайди (3с timeout), кэш фақат оффлайн захира. "Эски шеллда ёпишиб қолиш" муаммосини олдини олади.
+
+**Эслатма:** Telegram WebView SW'ни кўпинча ишлатмайди, лекин 1+2 шу ерда ҳам ишлайди.
+
+## Маълум очиқ муаммолар (gotchas)
+
+- **`/api/auth/telegram` 401 қайтаряпти** — `initData` HMAC текшируви фейл бўляпти (бот токени тўғри, лекин имзо мос келмайди). Сабаб ноаниқ — `URLSearchParams` декодлаш билан боғлиқ бўлиши мумкин. Натижa: Telegram Mini App'да фойдаланувчи **гост сифатида** қолади (KirishSahifa role-select экранига тушади). Шу учун `KirishSahifa.jsx` манул `Yo'lovchi`/`Haydovchi` tugmalari `navigate('/yolovchi' + window.location.search)` ишлатади — гост бўлганда ҳам `?dest_lat=…` сақланиб ўтсин.
+- **ngrok бepул план "Visit Site" interstitial** — иловa "стандарт браузер" UA билан (iOS Safari/Chrome) ҳар сафар очилганда `https://overwrite-pursuant-junkie.ngrok-free.dev` олдида абуз огоҳлантириши кўрсатилади. Cookie ўрнатилгач 12 соат йўқолади. Telegram Mini App ҳам шундай. Бу **код муаммоси эмас, домен муаммоси** — ngrok paid, Cloudflare Tunnel ёки шахсий домен билан йўқолади. Bug сифатида debug қилмaнг.
+
 ## Билиш керак бўлганлар
 
 - **Boshqa AI** хабарларини юборганда — у машинага улaнмаган, ZIP ярата олмайди, файлларни кўра олмайди. Сиз эса машинада ишлашингиз мумкин. Унинг хабарини контекст сифатида ўқинг, лекин сиз ҳақиқий ишни қилинг.
 - **Тоннел — ngrok, барқарор домен** `overwrite-pursuant-junkie.ngrok-free.dev` (ўзгармайди). Cloudflared эмас.
-- **`node --watch` .env'ни тингламайди.** `.env` ўзгарганда қўлда `npm run dev`'ни қайта ишга тушуринг.
+- **`node --watch` .env'ни тингламайди.** `.env` ўзгарганда қўлда `npm run dev`'ни қайта ишга тушуринг (ёки `src/server.js`'ни `touch` қилинг — модул қайтa юкланганда `dotenv.config()` янги .env'ни ўқийди).
 - **PowerShell ва Cyrillic**: `Invoke-RestMethod`'нинг `-Body` ишлатганда UTF-8 яхши ишламайди — кириллча текст `?????`'га айланиши мумкин. SQL орқали ишланиши керак бўлса, файлга UTF-8'да ёзинг ва `psql -f`'нинг ишлатинг.
 - **GitHub repo**: `abuyahyo/taksi`. Бренд номи Tez Taxi → Safar Taksi → **Manzil**'га ўзгарди (repo номи ўзгармаслиги мумкин — атайлаб).
 

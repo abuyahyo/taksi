@@ -161,7 +161,7 @@ export default function YolovchiSahifa() {
         setQidiruvNatija(data);
       } catch { /* тинч */ }
       setQidiruvYuk(false);
-    }, 350);
+    }, 250);
     return () => clearTimeout(timer);
   }, [qidiruvMatn, qidiruvOchiq, til]);
 

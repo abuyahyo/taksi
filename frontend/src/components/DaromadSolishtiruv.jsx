@@ -28,6 +28,10 @@ export default function DaromadSolishtiruv({ daromad = 0 }) {
           style={st.slider}
           aria-label={t('drv.commSlider')}
         />
+        <div style={st.sliderChegara}>
+          <span>5%</span>
+          <span>30%</span>
+        </div>
       </div>
 
       <div style={st.yoqotish}>
@@ -49,6 +53,7 @@ const st = {
   sliderQator: { marginBottom: 10 },
   sliderLabel: { fontSize: 14, color: 'var(--label)' },
   slider: { width: '100%', marginTop: 8, accentColor: 'var(--tint)' },
+  sliderChegara: { display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--tertiary-label)', marginTop: 2 },
   yoqotish: { display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(255,149,0,0.14)', color: 'var(--amber)', padding: '10px 12px', borderRadius: 'var(--r-md)', fontSize: 14, fontWeight: 500 },
   note: { fontSize: 12, color: 'var(--secondary-label)', marginTop: 8, textAlign: 'center' },
 };

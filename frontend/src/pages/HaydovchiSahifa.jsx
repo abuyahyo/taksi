@@ -35,10 +35,10 @@ export default function HaydovchiSahifa() {
 
   if (!user) return <Kirish kerakliRol="haydovchi" sarlavhaKey="login.titleDriver" onKirildi={setUser} />;
 
-  return <Ichki user={user} onChiqish={() => { localStorage.removeItem('token'); localStorage.removeItem('user'); setUser(null); }} />;
+  return <Ichki user={user} />;
 }
 
-function Ichki({ user, onChiqish }) {
+function Ichki({ user }) {
   const navigate = useNavigate();
   const { t } = useT();
   const toast = useToast();
@@ -277,11 +277,12 @@ function Ichki({ user, onChiqish }) {
   return (
     <div style={st.sahifa}>
       <div style={st.header}>
-        <div style={st.logo}><Ikonka nom="taxi" size={18} /> {user.ism}</div>
+        <div style={st.logo}><Ikonka nom="taxi" size={18} /> <span className="driver-name">{user.ism}</span></div>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <TemaTanlovchi />
           <TilTanlovchi />
           <button
+            className="driver-header-btn"
             style={{ ...st.tarixTugma, background: obunaBormi ? 'var(--tint-fill)' : 'rgba(255,59,48,0.14)', color: obunaBormi ? 'var(--tint)' : 'var(--qizil)', position: 'relative' }}
             onClick={() => setObunaOchiq(true)}
             title={t('sub.title')}
@@ -289,11 +290,10 @@ function Ichki({ user, onChiqish }) {
             <Ikonka nom="card" />
             {obunaBormi && obunaKun < 5 && <span style={st.obunaBadge}>{obunaKun}</span>}
           </button>
-          <button style={st.tarixTugma} onClick={() => setIssiqOchiq(true)} title={t('heat.title')}><Ikonka nom="flame" /></button>
-          <button style={st.tarixTugma} onClick={() => setProfilOchiq(true)} title={t('car.title')}><Ikonka nom="car" /></button>
-          <button style={st.tarixTugma} onClick={() => navigate('/tarix')} title={t('hist.title')}><Ikonka nom="clock" /></button>
-          <button style={st.chiqish} onClick={onChiqish}>{t('common.exit')}</button>
-          <button style={{ ...st.statusTugma, background: onlayn ? 'var(--yashil)' : 'var(--fill-strong)', color: onlayn ? '#fff' : 'var(--label)' }} onClick={statusOzgartir}>
+          <button className="driver-header-btn" style={st.tarixTugma} onClick={() => setIssiqOchiq(true)} title={t('heat.title')}><Ikonka nom="flame" /></button>
+          <button className="driver-header-btn" style={st.tarixTugma} onClick={() => setProfilOchiq(true)} title={t('car.title')}><Ikonka nom="car" /></button>
+          <button className="driver-header-btn" style={st.tarixTugma} onClick={() => navigate('/tarix')} title={t('hist.title')}><Ikonka nom="clock" /></button>
+          <button className="driver-status-btn" style={{ ...st.statusTugma, background: onlayn ? 'var(--yashil)' : 'var(--fill-strong)', color: onlayn ? '#fff' : 'var(--label)' }} onClick={statusOzgartir}>
             {onlayn ? t('drv.online') : t('drv.offline')}
           </button>
         </div>
@@ -427,8 +427,13 @@ function Ichki({ user, onChiqish }) {
                       <Ikonka nom="clock" size={11} /> {new Date(b.reja_vaqt).toLocaleString(undefined, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
                     </span>
                   )}
-                  <div style={st.narx}>{Number(b.narx).toLocaleString()}</div>
-                  <div style={st.masofa}>{b.masofa} км · {b.mijoz} <Ikonka nom="star" size={12} /> {b.reyting}</div>
+                  <div style={st.narx}>{Number(b.narx).toLocaleString()} <span style={st.narxSom}>{t('wait.sum')}</span></div>
+                  <div style={st.masofa}>
+                    <span style={st.masofaItem}><Ikonka nom="road" size={12} /> {b.masofa} км</span>
+                    <span style={st.masofaSep}>·</span>
+                    <span style={st.masofaItem}>{b.mijoz}</span>
+                    <span style={st.masofaChip}><Ikonka nom="star" size={11} /> {b.reyting}</span>
+                  </div>
                 </div>
                 <div style={st.vaqt}>{b.vaqt}</div>
               </div>
@@ -528,7 +533,6 @@ const st = {
   sahifa: { width: '100%', maxWidth: 480, margin: '0 auto', minHeight: '100dvh', background: 'var(--bg)', paddingBottom: 'env(safe-area-inset-bottom)' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', paddingTop: 'calc(12px + env(safe-area-inset-top))', background: 'var(--material-bar)', backdropFilter: 'saturate(180%) blur(20px)', WebkitBackdropFilter: 'saturate(180%) blur(20px)', borderBottom: '0.5px solid var(--separator)', gap: 8, position: 'sticky', top: 0, zIndex: 50 },
   logo: { display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 600, fontSize: 15, color: 'var(--label)', flex: 1, overflow: 'hidden', whiteSpace: 'nowrap' },
-  chiqish: { background: 'transparent', padding: '6px 8px', color: 'var(--tint)', fontWeight: 400, fontSize: 15 },
   tarixTugma: { background: 'var(--fill)', width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--tint)' },
   obunaBadge: { position: 'absolute', top: -3, right: -3, background: 'var(--qizil)', color: '#fff', minWidth: 18, height: 18, borderRadius: 9, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', border: '1.5px solid var(--surface)' },
   ogohlantirish: { margin: '12px 16px 0', padding: 12, background: 'rgba(255,149,0,0.14)', color: 'var(--amber)', borderRadius: 'var(--r-md)', fontSize: 14, cursor: 'pointer', fontWeight: 500 },
@@ -556,8 +560,12 @@ const st = {
   kartaYuqori: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 },
   tarifChip: { display: 'inline-block', fontSize: 11, fontWeight: 600, color: 'var(--tint)', background: 'var(--tint-fill)', padding: '2px 8px', borderRadius: 'var(--r-full)', marginBottom: 6 },
   rejaChip: { display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 600, color: 'var(--amber)', background: 'rgba(255,149,0,0.14)', padding: '2px 8px', borderRadius: 'var(--r-full)', marginLeft: 6, marginBottom: 6, verticalAlign: 'middle' },
-  narx: { fontSize: 24, fontWeight: 700, letterSpacing: '0.3px' },
-  masofa: { display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 13, color: 'var(--secondary-label)', marginTop: 2 },
+  narx: { fontSize: 26, fontWeight: 700, letterSpacing: '0.3px', color: 'var(--label)' },
+  narxSom: { fontSize: 13, fontWeight: 500, color: 'var(--secondary-label)' },
+  masofa: { display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', fontSize: 13, color: 'var(--secondary-label)', marginTop: 4 },
+  masofaItem: { display: 'inline-flex', alignItems: 'center', gap: 3 },
+  masofaSep: { color: 'var(--tertiary-label)' },
+  masofaChip: { display: 'inline-flex', alignItems: 'center', gap: 2, padding: '1px 6px', background: 'var(--fill)', borderRadius: 'var(--r-full)', fontSize: 12, fontWeight: 500, color: 'var(--amber)' },
   vaqt: { fontSize: 13, color: 'var(--secondary-label)' },
   haritaWrap: { marginBottom: 12, borderRadius: 'var(--r-md)', overflow: 'hidden' },
   yollar: { marginBottom: 16 },
