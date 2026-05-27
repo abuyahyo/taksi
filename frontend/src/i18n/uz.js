@@ -91,6 +91,7 @@ export default {
   'pass.saveAddr':       'Манзил сақлаш',
   'pass.dest':           'Қаёққа',
   'pass.myLocation':     'Жорий жойлашув',
+  'pass.fromMap':        'Харитадан танлаш',
   'pass.gpsLive':        'Ҳайдовчи харитада кўриниб турибди',
   'pass.gpsWait':        'Жойлашув кутилмоқда...',
   'pass.rideEnded':      'Сафар тугади. Раҳмат!',

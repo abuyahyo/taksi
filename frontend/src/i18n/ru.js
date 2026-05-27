@@ -91,6 +91,7 @@ export default {
   'pass.saveAddr':       'Сохранить адрес',
   'pass.dest':           'Пункт назначения',
   'pass.myLocation':     'Моё местоположение',
+  'pass.fromMap':        'Выбрать на карте',
   'pass.gpsLive':        'Водитель виден на карте',
   'pass.gpsWait':        'Ожидание местоположения...',
   'pass.rideEnded':      'Поездка завершена. Спасибо!',
