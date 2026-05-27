@@ -174,6 +174,7 @@ html {
   -webkit-text-size-adjust: 100%;     /* iOS'да автомат катталаштирмаслик */
   text-size-adjust: 100%;
   accent-color: var(--tint);          /* нативе контроллар (datetime, checkbox) бренд рангида */
+  overscroll-behavior: none;          /* browser pull-to-refresh/bounce'ни ўчириш — нативе ҳис */
 }
 
 /* Матн танлаш ва расм/иконка тортишни ўчириш — нативе ҳис */
@@ -213,7 +214,11 @@ button {
   transition: opacity var(--t-fast), background-color var(--t-fast), transform var(--t-fast);
   user-select: none;
 }
-button:active:not(:disabled) { opacity: 0.55; }
+button:active:not(:disabled) { opacity: 0.6; }
+/* Босилганда енгил қисилиш — ҳар бир тугмага бир хил тактил ҳис (iOS) */
+@media (prefers-reduced-motion: no-preference) {
+  button:active:not(:disabled) { transform: scale(0.97); }
+}
 button:disabled { opacity: 0.35; cursor: not-allowed; }
 
 /* ===== Инпутлар ===== */
