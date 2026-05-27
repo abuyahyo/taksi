@@ -287,6 +287,7 @@ export default {
   'geo.noResults':         'Не найдено',
   'geo.modeStart':         'Выбираем начало',
   'geo.modeEnd':           'Выбираем место назначения',
+  'geo.locateMe':          'Найти меня',
 
   // Поделиться поездкой
   'share.open':          'Поделиться с близкими',

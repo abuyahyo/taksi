@@ -287,6 +287,7 @@ export default {
   'geo.noResults':         'Топилмади',
   'geo.modeStart':         'Бошланиш танлаймиз',
   'geo.modeEnd':           'Манзил танлаймиз',
+  'geo.locateMe':          'Мени топ',
 
   // Сафарни улашиш
   'share.open':          'Сафарни оилага юбориш',
