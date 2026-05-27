@@ -38,6 +38,18 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/api/, /^\/socket\.io/],
         runtimeCaching: [
           {
+            // Навигация (илова кириш нуқтаси) — доим аввал сервердан (NetworkFirst).
+            // Шунда янги деплой дарҳол кўринади; кэш фақат оффлайн захира.
+            // "Ёпишиб қолган эски шелл" муаммосини олдини олади.
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'html-shell',
+              networkTimeoutSeconds: 3,
+              expiration: { maxEntries: 4 },
+            },
+          },
+          {
             // CARTO харита плиткалари — тез юклаш ва оффлайн учун кешлаймиз
             urlPattern: /^https:\/\/(?:[a-z]+)\.basemaps\.cartocdn\.com\//,
             handler: 'CacheFirst',

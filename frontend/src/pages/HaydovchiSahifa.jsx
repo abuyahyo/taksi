@@ -13,6 +13,7 @@ import { useToast } from '../components/Toast';
 import IssiqXarita from '../components/IssiqXarita';
 import SOS from '../components/SOS';
 import Obuna from '../components/Obuna';
+import DaromadSolishtiruv from '../components/DaromadSolishtiruv';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
 import { tebrat, TEBRANISH } from '../services/haptika';
 import { pushObunaBol } from '../services/push';
@@ -320,6 +321,9 @@ function Ichki({ user, onChiqish }) {
           <div style={st.daromadMatn}>{t('drv.rides')}</div>
         </div>
       </div>
+
+      {/* Даромад солиштируви — комиссиясизлик устунлиги */}
+      <DaromadSolishtiruv daromad={stats.daromad} />
 
       {/* Қабул қилинган сафар — 3 та босқич: kelmoqda → yetib_keldi → yolda */}
       {faolSafar && (
