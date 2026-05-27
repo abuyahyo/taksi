@@ -43,6 +43,22 @@ app.use(express.json({ limit: '1mb' }));
 // io объектини routes ичида ишлатиш учун
 app.set('io', io);
 
+// Frontend dist йўли (версия текшируви ва static хизмат учун)
+const distPath = path.join(__dirname, '..', '..', 'frontend', 'dist');
+
+// Жорий деплой версияси — index.html'даги асосий JS хеши. Service worker буни
+// ТУТМАЙДИ (/api денилист), шунинг учun frontend янги версияни ишончли сезади.
+app.get('/api/version', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  try {
+    const html = fs.readFileSync(path.join(distPath, 'index.html'), 'utf8');
+    const m = html.match(/\/assets\/index-[\w-]+\.js/);
+    res.json({ v: m ? m[0] : null });
+  } catch {
+    res.json({ v: null });
+  }
+});
+
 // API йўллари
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
@@ -63,7 +79,6 @@ app.use('/api', (req, res) => {
 });
 
 // Health check (frontend build йўқлигида)
-const distPath = path.join(__dirname, '..', '..', 'frontend', 'dist');
 const hasFrontend = fs.existsSync(path.join(distPath, 'index.html'));
 
 if (!hasFrontend) {
