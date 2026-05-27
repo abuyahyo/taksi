@@ -90,4 +90,56 @@ const songgiManzillar = async (req, res) => {
   }
 };
 
-module.exports = { me, updateMe, songgiManzillar };
+// GET /api/passenger/addresses — фойдаланувчи сақлаган ихтиёрий манзиллар
+const manzillar = async (req, res) => {
+  try {
+    const r = await query(
+      `SELECT id, nom, manzil, lat, lng FROM saqlangan_manzillar
+        WHERE user_id = $1 ORDER BY yaratilgan DESC`,
+      [req.user.id]
+    );
+    res.json(r.rows);
+  } catch (err) {
+    console.error('passenger manzillar xato:', err.message);
+    res.status(500).json({ xato: 'Сервер хатоси' });
+  }
+};
+
+// POST /api/passenger/addresses — янги манзил сақлаш { nom, manzil, lat, lng }
+const manzilQosh = async (req, res) => {
+  try {
+    const nom = (typeof req.body.nom === 'string') ? req.body.nom.trim().slice(0, 60) : '';
+    const manzil = (typeof req.body.manzil === 'string') ? req.body.manzil.trim().slice(0, 200) : '';
+    if (!nom || !manzil) return res.status(400).json({ xato: 'Ном ва манзил киритинг' });
+    const lat = req.body.lat != null ? Number(req.body.lat) : null;
+    const lng = req.body.lng != null ? Number(req.body.lng) : null;
+    const r = await query(
+      `INSERT INTO saqlangan_manzillar (user_id, nom, manzil, lat, lng)
+       VALUES ($1, $2, $3, $4, $5) RETURNING id, nom, manzil, lat, lng`,
+      [req.user.id, nom, manzil, Number.isFinite(lat) ? lat : null, Number.isFinite(lng) ? lng : null]
+    );
+    res.status(201).json(r.rows[0]);
+  } catch (err) {
+    console.error('passenger manzilQosh xato:', err.message);
+    res.status(500).json({ xato: 'Сервер хатоси' });
+  }
+};
+
+// DELETE /api/passenger/addresses/:id — фақат ўз манзилини ўчира олади
+const manzilOchir = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isFinite(id)) return res.status(400).json({ xato: 'Нотўғри id' });
+    const r = await query(
+      `DELETE FROM saqlangan_manzillar WHERE id = $1 AND user_id = $2`,
+      [id, req.user.id]
+    );
+    if (r.rowCount === 0) return res.status(404).json({ xato: 'Топилмади' });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('passenger manzilOchir xato:', err.message);
+    res.status(500).json({ xato: 'Сервер хатоси' });
+  }
+};
+
+module.exports = { me, updateMe, songgiManzillar, manzillar, manzilQosh, manzilOchir };

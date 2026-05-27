@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import Kirish from '../components/Kirish';
+import Pastki from '../components/Pastki';
 import { SkeletKarta } from '../components/Skelet';
 import { useT } from '../i18n';
 import Ikonka from '../components/Ikonka';
@@ -14,9 +15,14 @@ export default function SafarTarixi() {
     catch { return null; }
   });
 
-  if (!user) return <Kirish sarlavhaKey="login.titleHistory" onKirildi={setUser} />;
+  if (!user) return (
+    <div style={st.sahifa}>
+      <Kirish sarlavhaKey="login.titleHistory" onKirildi={setUser} />
+      <Pastki faol="tarix" />
+    </div>
+  );
 
-  return <Ichki user={user} onOrqaga={() => navigate(-1)} onChiqish={() => { localStorage.removeItem('token'); localStorage.removeItem('user'); setUser(null); }} />;
+  return <Ichki user={user} onOrqaga={() => navigate('/yolovchi')} onChiqish={() => { localStorage.removeItem('token'); localStorage.removeItem('user'); setUser(null); }} />;
 }
 
 function Ichki({ user, onOrqaga, onChiqish }) {
@@ -106,6 +112,7 @@ function Ichki({ user, onOrqaga, onChiqish }) {
           </div>
         )}
       </div>
+      <Pastki faol="tarix" />
     </div>
   );
 }
@@ -116,7 +123,7 @@ const st = {
   orqaga: { width: 36, height: 36, borderRadius: '50%', background: 'var(--fill)', color: 'var(--tint)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   sarlavha: { flex: 1, fontWeight: 600, fontSize: 17, textAlign: 'center', color: 'var(--label)' },
   chiqish: { background: 'transparent', color: 'var(--tint)', padding: '6px 8px', fontSize: 15, fontWeight: 400 },
-  kontent: { padding: 16 },
+  kontent: { padding: '16px 16px calc(96px + env(safe-area-inset-bottom))' },
   xato: { background: 'rgba(255,59,48,0.12)', color: 'var(--qizil)', padding: 12, borderRadius: 'var(--r-md)', marginBottom: 12, fontSize: 14 },
   bosh: { textAlign: 'center', padding: 60, color: 'var(--secondary-label)' },
   boshIkon: { display: 'inline-flex', color: 'var(--tertiary-label)' },
