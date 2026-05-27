@@ -74,6 +74,21 @@
   --kok:          #007AFF;
   --kok-light:    #DBEAFE;
 
+  /* ===== Uber-симон семантик ранглар (минималист CTA + actionable) =====
+     ИШЛАТИШ ҚОИДАСИ:
+     - --tint (бирюза): бренд асосий tugma'лар, кириш нуқтаси ("Order", "Continue")
+     - --ink: иккиламчи CTA, "Где to?" услуби (қора-оқ), кучли акцент
+     - --accept (Uber яшил): "Go Online", "Accept", "Confirm" — actionable green
+     - --decline (Uber қизил): "Cancel", "Reject", destructive
+     Қора матн — `--label`'дан ишлатинг (Uber #141414 каби). */
+  --ink:          #000000;
+  --ink-press:    #1F1F1F;
+  --ink-fill:     rgba(0, 0, 0, 0.06);
+  --accept:       #06C167;
+  --accept-press: #04A057;
+  --decline:      #E11900;
+  --decline-press: #B81400;
+
   --border:       var(--separator);
 
   /* ===== Spacing шкаласи (4px база) ===== */
@@ -156,6 +171,15 @@
   --qizil:       #FF453A;
   --amber:       #FF9F0A;
   --kok:         #0A84FF;
+
+  /* Uber-симон семантик ранглар (dark): ink тескари — оқ */
+  --ink:           #FFFFFF;
+  --ink-press:     #EAEAEA;
+  --ink-fill:      rgba(255, 255, 255, 0.10);
+  --accept:        #30D158;
+  --accept-press:  #5BE578;
+  --decline:       #FF453A;
+  --decline-press: #FF6C63;
 
   --sariq-surface:  #0C1517;
   --asosiy-surface: #0C1517;
@@ -327,6 +351,14 @@ button.ios-row:active:not(:disabled) { opacity: 1; background: var(--fill); }
 .ios-btn--plain  { color: var(--tint); background: transparent; padding: 12px; }
 .ios-btn--block  { width: 100%; }
 .ios-btn--large  { padding: 16px 20px; font-size: 17px; border-radius: var(--r-xl); }
+
+/* Uber-симон CTA вариантлари — иккиламчи акцент учун. */
+.ios-btn--ink    { background: var(--ink); color: #fff; }
+.ios-btn--ink:active:not(:disabled) { background: var(--ink-press); }
+.ios-btn--accept { background: var(--accept); color: #fff; }
+.ios-btn--accept:active:not(:disabled) { background: var(--accept-press); }
+.ios-btn--decline { background: var(--decline); color: #fff; }
+.ios-btn--decline:active:not(:disabled) { background: var(--decline-press); }
 
 /* ---- Свич (toggle) ---- */
 .ios-switch {

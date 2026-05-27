@@ -348,6 +348,7 @@ export default {
   'lang.uz':             'Ўзбекча',
   'lang.uz-latn':        'Oʻzbekcha',
   'lang.ru':             'Русский',
+  'lang.en':             'English',
 
   // Навигация ва янги саҳифалар (Сервислар / Аккаунт)
   'nav.home':            'Бош',

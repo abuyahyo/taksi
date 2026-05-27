@@ -3,14 +3,16 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import uz from './uz';
 import uzLatn from './uz-latn';
 import ru from './ru';
+import en from './en';
 
-const TILLAR = { uz, 'uz-latn': uzLatn, ru };
+const TILLAR = { uz, 'uz-latn': uzLatn, ru, en };
 const I18nCtx = createContext(null);
 
 function brauserTil() {
   if (typeof navigator === 'undefined') return 'uz';
   const l = (navigator.language || '').toLowerCase();
   if (l.startsWith('ru')) return 'ru';
+  if (l.startsWith('en')) return 'en';
   // uz-latn brauzer тилидан осон аниқлаб бўлмайди, шунинг учун дефолт uz (кирилл)
   return 'uz';
 }
@@ -55,16 +57,17 @@ export function useT() {
   return ctx;
 }
 
-// "Кир / Lat / Рус" свитчер — iOS segmented control
+// "Кир / Lat / Рус / EN" свитчер — iOS segmented control
 export function TilTanlovchi({ style }) {
   const { til, setTil } = useT();
   const tugmalar = [
     ['uz',      'Кир'],
     ['uz-latn', 'Lat'],
     ['ru',      'Рус'],
+    ['en',      'EN'],
   ];
   return (
-    <div className="ios-segmented" style={{ width: 132, ...style }}>
+    <div className="ios-segmented" style={{ width: 168, ...style }}>
       {tugmalar.map(([k, label]) => (
         <button key={k} className="ios-seg" data-on={til === k} onClick={() => setTil(k)}>{label}</button>
       ))}
