@@ -8,7 +8,6 @@ import Tolov from '../components/Tolov';
 import Kirish from '../components/Kirish';
 import YolovchiProfili from '../components/YolovchiProfili';
 import Ulashish from '../components/Ulashish';
-import ManzilQidirish from '../components/ManzilQidirish';
 import SOS from '../components/SOS';
 import NarxTarkibi from '../components/NarxTarkibi';
 import { tavsiyaHisobi, ASOSIY, PER_KM, TARIFLAR } from '../utils/narx';
@@ -102,21 +101,90 @@ export default function YolovchiSahifa() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Харита марказини фойдаланувчи жойига кўчирамиз (Telegram LocationManager ёки
-  // браузер geolocation). Рухсат берилмаса дефолт марказ (Тошкент) қолади.
+  // ===== Uber услуби — қидирув-биринчи оқим =====
+  const [qidiruvOchiq, setQidiruvOchiq] = useState(false);
+  const [qidiruvMaydon, setQidiruvMaydon] = useState('tugash'); // 'boshlanish' | 'tugash'
+  const [qidiruvMatn, setQidiruvMatn] = useState('');
+  const [qidiruvNatija, setQidiruvNatija] = useState([]);
+  const [qidiruvYuk, setQidiruvYuk] = useState(false);
+  const [joyYuklanmoqda, setJoyYuklanmoqda] = useState(false);
+
+  // pickup (boshlanish)'ни манзилга реверс-геокод қилиб ёзамиз
+  const pickupYoz = async (p) => {
+    setBoshlanish(p);
+    setUchish(p);
+    try {
+      const { data } = await api.get(`/geocode/reverse?lat=${p[0]}&lng=${p[1]}&til=${til}`);
+      if (data.manzil) setBoshlanishManzil(data.manzil);
+    } catch { /* координата қолади */ }
+  };
+
+  // Уй очилганда — pickup'ни GPS'дан автомат (Uber услуби)
   useEffect(() => {
     let bekor = false;
-    joylashuvOl().then((p) => { if (!bekor && p) setUchish(p); });
+    joylashuvOl().then((p) => { if (!bekor && p) pickupYoz(p); });
     return () => { bekor = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // "Мени топ" — жорий жойга қайтиш (қўлда)
-  const [joyYuklanmoqda, setJoyYuklanmoqda] = useState(false);
+  // "Мени топ" — жорий жойни pickup қилиб олиш
   const meniTop = async () => {
     setJoyYuklanmoqda(true);
     const p = await joylashuvOl();
-    if (p) setUchish([p[0], p[1]]);
+    if (p) await pickupYoz(p);
     setJoyYuklanmoqda(false);
+  };
+
+  // Қидирув debounce (Nominatim)
+  useEffect(() => {
+    if (!qidiruvOchiq) return;
+    const q = qidiruvMatn.trim();
+    if (q.length < 2) { setQidiruvNatija([]); return; }
+    const timer = setTimeout(async () => {
+      setQidiruvYuk(true);
+      try {
+        const { data } = await api.get(`/geocode?q=${encodeURIComponent(q)}&til=${til}`);
+        setQidiruvNatija(data);
+      } catch { /* тинч */ }
+      setQidiruvYuk(false);
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [qidiruvMatn, qidiruvOchiq, til]);
+
+  const qidiruvAch = (maydon) => { setQidiruvMaydon(maydon); setQidiruvMatn(''); setQidiruvNatija([]); setQidiruvOchiq(true); };
+
+  // Масофа матни pickup'дан (км/м)
+  const masofaMatn = (nuqta) => {
+    if (!boshlanish || !nuqta) return '';
+    const km = masofaKm(boshlanish, nuqta);
+    if (!km) return '';
+    return km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`;
+  };
+
+  // recent манзилни [lat,lng]'га ажратиш
+  const recentNuqta = (s) => { const x = String(s).match(/(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/); return x ? [parseFloat(x[1]), parseFloat(x[2])] : null; };
+
+  // Қидирувда манзил танланди (актив майдонга қараб pickup ёки dest)
+  const qidiruvTanla = async (nuqta, manzil) => {
+    if (qidiruvMaydon === 'boshlanish') {
+      setBoshlanish(nuqta); setBoshlanishManzil(manzil || ''); setUchish(nuqta);
+      setQidiruvOchiq(false);
+      return;
+    }
+    await safargaOt(nuqta, manzil);
+  };
+
+  // Манзил танлангач — нарх босқичига (pickup = GPS/танланган)
+  const safargaOt = async (destNuqta, destManzil) => {
+    if (!boshlanish) { qidiruvAch('boshlanish'); return; } // pickup йўқ — аввал уни сўраймиз
+    const manzil = destManzil || `${destNuqta[0].toFixed(4)}, ${destNuqta[1].toFixed(4)}`;
+    setTugash(destNuqta); setTugashManzil(manzil);
+    setOraliqlar([{ nuqta: destNuqta, manzil }]);
+    setQidiruvOchiq(false);
+    setNarx(tavsiyaHisobi(masofaKm(boshlanish, destNuqta), tarif));
+    setBosqich('narx');
+    const natija = await yolHisobla([boshlanish, destNuqta]);
+    if (natija && Number.isFinite(natija.masofa_km)) { setAniqYol(natija); setNarx(tavsiyaHisobi(natija.masofa_km, tarif)); }
   };
 
   const { yubor } = useSocket({
@@ -167,11 +235,12 @@ export default function YolovchiSahifa() {
 
   const boshlanishigaQayt = () => {
     setBosqich('manzil');
-    setBoshlanish(null);
+    // pickup (boshlanish) сақланади — фойдаланувчи яна қидиришда қайта киритмасин
     setTugash(null);
-    setBoshlanishManzil('');
     setTugashManzil('');
     setTanlovRejimi('boshlanish');
+    setQidiruvOchiq(false);
+    setQidiruvMatn('');
     setOraliqlar([]);
     setAniqYol(null);
     setMarkazManzil('');
@@ -332,6 +401,129 @@ export default function YolovchiSahifa() {
 
   return (
     <div style={st.sahifa}>
+      {bosqich === 'manzil' ? (
+        <div style={st.uberEkran}>
+          <div style={st.uberHeader}>
+            <div style={st.uberLogo}><Ikonka nom="taxi" size={20} /> Manzil</div>
+            <div style={st.uberHeaderOng}>
+              <TemaTanlovchi />
+              <TilTanlovchi />
+              <button style={st.uberIkonTugma} className="press" onClick={() => user ? setProfilOchiq(true) : setKirishOchiq(true)} title={user ? t('prof.title') : t('login.title')}><Ikonka nom={user ? 'user' : 'key'} /></button>
+              <button style={st.uberIkonTugma} className="press" onClick={() => navigate('/tarix')} title={t('hist.title')}><Ikonka nom="clock" /></button>
+            </div>
+          </div>
+
+          {qidiruvOchiq ? (
+            <div style={st.uberBody}>
+              <button style={st.qidirOrqa} className="press" onClick={() => setQidiruvOchiq(false)}><Ikonka nom="arrow-left" size={18} /> {t('common.back')}</button>
+
+              <div style={st.maydonKarta}>
+                <button style={st.maydonQator} className="bosiladi" onClick={() => qidiruvAch('boshlanish')}>
+                  <span style={{ ...st.maydonNuqta, background: 'var(--tint)' }} />
+                  <span style={st.maydonIchi}>
+                    <span style={st.maydonLabel}>{t('pass.fromWhere')}</span>
+                    {qidiruvMaydon === 'boshlanish'
+                      ? <input style={st.maydonInput} autoFocus value={qidiruvMatn} onChange={(e) => setQidiruvMatn(e.target.value)} placeholder={t('pass.myLocation')} />
+                      : <span style={st.maydonQiymat}>{boshlanishManzil || t('pass.myLocation')}</span>}
+                  </span>
+                </button>
+                <div style={st.maydonChiziq} />
+                <div style={st.maydonQator} onClick={() => qidiruvMaydon !== 'tugash' && setQidiruvMaydon('tugash')}>
+                  <span style={{ ...st.maydonNuqta, ...st.maydonKvadrat }} />
+                  <span style={st.maydonIchi}>
+                    <span style={st.maydonLabel}>{t('pass.dest')}</span>
+                    {qidiruvMaydon === 'tugash'
+                      ? <input style={st.maydonInput} autoFocus value={qidiruvMatn} onChange={(e) => setQidiruvMatn(e.target.value)} placeholder={t('pass.toWhere')} />
+                      : <span style={st.maydonQiymatBosh}>{t('pass.toWhere')}</span>}
+                  </span>
+                  {qidiruvMatn && qidiruvMaydon === 'tugash' && <button style={st.maydonTozala} onClick={() => setQidiruvMatn('')}><Ikonka nom="x" size={14} /></button>}
+                </div>
+              </div>
+
+              <div style={st.qidirRoyxat} className="royxat-anim">
+                {qidiruvYuk && <div style={st.qidirYuk}><span className="spinner" /></div>}
+                {qidiruvNatija.map((n, i) => (
+                  <button key={i} style={st.taklifQator} className="bosiladi" onClick={() => qidiruvTanla([n.lat, n.lng], n.manzil)}>
+                    <span style={st.taklifIkon}><Ikonka nom="pin" size={18} /></span>
+                    <span style={st.taklifMatn}>{n.manzil}</span>
+                    <span style={st.taklifMasofa}>{masofaMatn([n.lat, n.lng])}</span>
+                  </button>
+                ))}
+                {qidiruvMatn.trim().length < 2 && (
+                  <>
+                    {profil?.home_lat && (
+                      <button style={st.taklifQator} className="bosiladi" onClick={() => qidiruvTanla([Number(profil.home_lat), Number(profil.home_lng)], t('prof.useHome'))}>
+                        <span style={st.taklifIkon}><Ikonka nom="home" size={18} /></span>
+                        <span style={st.taklifMatn}>{t('prof.useHome')}</span>
+                        <span style={st.taklifMasofa}>{masofaMatn([Number(profil.home_lat), Number(profil.home_lng)])}</span>
+                      </button>
+                    )}
+                    {profil?.ish_lat && (
+                      <button style={st.taklifQator} className="bosiladi" onClick={() => qidiruvTanla([Number(profil.ish_lat), Number(profil.ish_lng)], t('prof.useWork'))}>
+                        <span style={st.taklifIkon}><Ikonka nom="work" size={18} /></span>
+                        <span style={st.taklifMatn}>{t('prof.useWork')}</span>
+                        <span style={st.taklifMasofa}>{masofaMatn([Number(profil.ish_lat), Number(profil.ish_lng)])}</span>
+                      </button>
+                    )}
+                    {songgiManzillar.slice(0, 5).map((m, i) => {
+                      const p = recentNuqta(m.manzil);
+                      if (!p) return null;
+                      return (
+                        <button key={`r${i}`} style={st.taklifQator} className="bosiladi" onClick={() => qidiruvTanla(p, m.manzil)}>
+                          <span style={st.taklifIkon}><Ikonka nom="clock" size={18} /></span>
+                          <span style={st.taklifMatn}>{m.manzil}</span>
+                          <span style={st.taklifMasofa}>{masofaMatn(p)}</span>
+                        </button>
+                      );
+                    })}
+                  </>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div style={st.uberBody}>
+              <button style={st.qayergaTugma} className="press" onClick={() => qidiruvAch('tugash')}>
+                <Ikonka nom="search" size={20} />
+                <span>{t('pass.toWhere')}</span>
+              </button>
+
+              <div style={st.bolimSarlavha}>{t('pass.quickAccess')}</div>
+              <div style={st.uberSection}>
+                {profil?.home_lat && (
+                  <button style={st.uberRow} className="bosiladi" onClick={() => safargaOt([Number(profil.home_lat), Number(profil.home_lng)], t('prof.useHome'))}>
+                    <span style={st.uberRowIkon}><Ikonka nom="home" size={18} /></span>
+                    <span style={st.uberRowMatn}>{t('prof.useHome')}</span>
+                    <span style={st.uberRowMasofa}>{masofaMatn([Number(profil.home_lat), Number(profil.home_lng)])}</span>
+                  </button>
+                )}
+                {profil?.ish_lat && (
+                  <button style={st.uberRow} className="bosiladi" onClick={() => safargaOt([Number(profil.ish_lat), Number(profil.ish_lng)], t('prof.useWork'))}>
+                    <span style={st.uberRowIkon}><Ikonka nom="work" size={18} /></span>
+                    <span style={st.uberRowMatn}>{t('prof.useWork')}</span>
+                    <span style={st.uberRowMasofa}>{masofaMatn([Number(profil.ish_lat), Number(profil.ish_lng)])}</span>
+                  </button>
+                )}
+                {songgiManzillar.slice(0, 3).map((m, i) => {
+                  const p = recentNuqta(m.manzil);
+                  if (!p) return null;
+                  return (
+                    <button key={i} style={st.uberRow} className="bosiladi" onClick={() => safargaOt(p, m.manzil)}>
+                      <span style={st.uberRowIkon}><Ikonka nom="clock" size={18} /></span>
+                      <span style={st.uberRowMatn}>{m.manzil}</span>
+                      <span style={st.uberRowMasofa}>{masofaMatn(p)}</span>
+                    </button>
+                  );
+                })}
+                <button style={st.uberRow} className="bosiladi" onClick={() => user ? setProfilOchiq(true) : setKirishOchiq(true)}>
+                  <span style={{ ...st.uberRowIkon, background: 'var(--fill)', color: 'var(--secondary-label)' }}><Ikonka nom="plus" size={18} /></span>
+                  <span style={st.uberRowMatn}>{t('pass.saveAddr')}</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+      <>
       <div style={st.harita}>
         <Harita
           markaz={TOSHKENT}
@@ -340,114 +532,15 @@ export default function YolovchiSahifa() {
           yol={[boshlanish, ...oraliqlar.map((o) => o.nuqta)].filter(Boolean)}
           yolChizigi={aniqYol?.yol_chizigi}
           haydovchi={haydovchiNuqta}
-          markazRejim={bosqich === 'manzil'}
-          markazRang={tanlovRejimi === 'boshlanish' ? '#0E9384' : '#EF4444'}
+          markazRejim={false}
           onMarkaz={markazKuzat}
           uchish={uchish}
         />
       </div>
       <div style={st.logo} className="glass-tugma"><Ikonka nom="taxi" size={18} /> Manzil</div>
-      <div style={st.tilWrap}><TemaTanlovchi /><TilTanlovchi /></div>
-      <button
-        style={st.profilTugma}
-        className="glass-tugma"
-        onClick={() => user ? setProfilOchiq(true) : setKirishOchiq(true)}
-        title={user ? t('prof.title') : t('login.title')}
-      ><Ikonka nom={user ? 'user' : 'key'} /></button>
-      <button style={st.tarixTugma} className="glass-tugma" onClick={() => navigate('/tarix')} title={t('hist.title')}><Ikonka nom="clock" /></button>
-      <div style={st.yordam} className="glass-tugma">{t('common.help')}</div>
-
-      {bosqich === 'manzil' && (
-        <button
-          style={st.meniTop}
-          className="glass-tugma press"
-          onClick={meniTop}
-          disabled={joyYuklanmoqda}
-          title={t('geo.locateMe')}
-          aria-label={t('geo.locateMe')}
-        >
-          {joyYuklanmoqda ? <span style={st.miniSpinner} /> : <Ikonka nom="pin" size={20} />}
-        </button>
-      )}
 
       <div style={st.panel} className="glass slide-up">
         <div style={st.grabber} />
-        {bosqich === 'manzil' && (
-          <>
-            <h2 style={st.sarlavha}>{tanlovRejimi === 'boshlanish' ? t('pass.fromWhere') : t('pass.toWhere')}</h2>
-
-            {/* Манзил қидириш — топилган нуқтага харитани кўчиради */}
-            <ManzilQidirish
-              rejimMatn={tanlovRejimi === 'boshlanish' ? t('geo.modeStart') : t('geo.modeEnd')}
-              onTanlandi={(nuqta) => setUchish([nuqta[0], nuqta[1]])}
-            />
-
-            {/* Танланган манзиллар рўйхати (кўп манзил) */}
-            {oraliqlar.length > 0 && (
-              <div style={st.oraliqRoyxat}>
-                {oraliqlar.map((o, i) => (
-                  <div key={i} style={st.oraliqQator}>
-                    <span style={{ ...st.nuqta, background: i === oraliqlar.length - 1 ? 'var(--qizil)' : 'var(--tint)' }} />
-                    <span style={st.oraliqMatn}>{o.manzil || `${o.nuqta[0].toFixed(3)}, ${o.nuqta[1].toFixed(3)}`}</span>
-                    <button style={st.oraliqOchir} onClick={() => oraliqOchir(i)}><Ikonka nom="x" size={14} /></button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Пин остидаги жонли манзил */}
-            <div style={st.markazManzilQator}>
-              <span style={{ ...st.nuqta, background: tanlovRejimi === 'boshlanish' ? 'var(--yashil)' : 'var(--qizil)' }} />
-              <div style={st.markazManzilMatn}>
-                {markazManzilYuk ? t('common.loading') : (markazManzil || t('pass.movePin'))}
-              </div>
-            </div>
-
-            {/* Сақланган манзиллар — харитани ўша жойга кўчиради */}
-            {(profil?.home_lat || profil?.ish_lat || songgiManzillar.length > 0) && (
-              <div style={st.tezManzillar}>
-                {profil?.home_lat && (
-                  <button style={st.tezTugma} onClick={() => setUchish([Number(profil.home_lat), Number(profil.home_lng)])}>{t('prof.useHome')}</button>
-                )}
-                {profil?.ish_lat && (
-                  <button style={st.tezTugma} onClick={() => setUchish([Number(profil.ish_lat), Number(profil.ish_lng)])}>{t('prof.useWork')}</button>
-                )}
-                {songgiManzillar.slice(0, 3).map((m, i) => {
-                  const parse = (s) => { const x = s.match(/(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/); return x ? [parseFloat(x[1]), parseFloat(x[2])] : null; };
-                  const p = parse(m.manzil);
-                  if (!p) return null;
-                  return (
-                    <button key={i} style={st.tezTugma} className="bosiladi" onClick={() => setUchish([p[0], p[1]])}><Ikonka nom="clock" size={14} /> {p[0].toFixed(2)}, {p[1].toFixed(2)}</button>
-                  );
-                })}
-              </div>
-            )}
-
-            {tanlovRejimi === 'boshlanish' ? (
-              <button style={{ ...st.tugma, opacity: markazNuqta ? 1 : 0.5 }} onClick={markaznidanTanla} disabled={!markazNuqta}>
-                {t('pass.confirmStart')}
-              </button>
-            ) : (
-              <>
-                {oraliqlar.length > 0 && (
-                  <button style={st.tugma} onClick={manzillarTasdiqla}>
-                    {t('common.continue')}
-                  </button>
-                )}
-                <button
-                  style={{ ...(oraliqlar.length === 0 ? st.tugma : st.qoshTugma), opacity: markazNuqta ? 1 : 0.5 }}
-                  onClick={markaznidanTanla}
-                  disabled={!markazNuqta}
-                >
-                  {oraliqlar.length === 0 ? t('pass.markDest') : `+ ${t('pass.addStop')}`}
-                </button>
-                <button style={st.orqaga} onClick={() => { setTanlovRejimi('boshlanish'); setOraliqlar([]); setAniqYol(null); }}>
-                  <Ikonka nom="arrow-left" size={16} /> {t('common.back')}
-                </button>
-              </>
-            )}
-          </>
-        )}
 
         {bosqich === 'narx' && (
           <>
@@ -670,6 +763,8 @@ export default function YolovchiSahifa() {
           </>
         )}
       </div>
+      </>
+      )}
 
       {chatOchiq && rideId && (
         <Chat rideId={rideId} meId={meId} hamrohIsm={haydovchiInfo?.ism || t('home.driver')} onClose={() => setChatOchiq(false)} />
@@ -804,4 +899,37 @@ const st = {
   amalQator: { display: 'flex', gap: 8, marginBottom: 12 },
   amalTugma: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, background: 'var(--fill)', color: 'var(--tint)', padding: '12px 6px', borderRadius: 'var(--r-md)', fontSize: 13, fontWeight: 600 },
   amalIkon: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center' },
+
+  // ===== Uber услуби — бош/қидирув саҳифа =====
+  uberEkran: { position: 'absolute', inset: 0, zIndex: 1200, display: 'flex', flexDirection: 'column', background: 'var(--bg)', paddingTop: 'env(safe-area-inset-top)' },
+  uberHeader: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px 8px', gap: 8 },
+  uberLogo: { display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 20, color: 'var(--label)' },
+  uberHeaderOng: { display: 'flex', alignItems: 'center', gap: 8 },
+  uberIkonTugma: { width: 36, height: 36, borderRadius: '50%', background: 'var(--fill)', color: 'var(--tint)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  uberBody: { flex: 1, overflowY: 'auto', padding: '8px 16px calc(24px + env(safe-area-inset-bottom))' },
+  qayergaTugma: { width: '100%', display: 'flex', alignItems: 'center', gap: 12, background: 'var(--fill)', color: 'var(--secondary-label)', padding: '16px 18px', borderRadius: 'var(--r-lg)', fontSize: 18, fontWeight: 500, marginBottom: 22, textAlign: 'left' },
+  bolimSarlavha: { fontSize: 22, fontWeight: 700, color: 'var(--label)', margin: '4px 4px 12px' },
+  uberSection: { background: 'var(--surface)', borderRadius: 'var(--r-lg)', overflow: 'hidden', boxShadow: 'var(--shadow-1)' },
+  uberRow: { width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', background: 'transparent', borderBottom: '0.5px solid var(--separator)', textAlign: 'left' },
+  uberRowIkon: { width: 38, height: 38, borderRadius: 10, background: 'var(--tint-fill)', color: 'var(--tint)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  uberRowMatn: { flex: 1, minWidth: 0, fontSize: 16, fontWeight: 600, color: 'var(--label)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  uberRowMasofa: { fontSize: 13, color: 'var(--secondary-label)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' },
+  qidirOrqa: { display: 'inline-flex', alignItems: 'center', gap: 4, background: 'transparent', color: 'var(--tint)', fontSize: 16, fontWeight: 500, marginBottom: 12, padding: '4px 0' },
+  maydonKarta: { background: 'var(--surface)', borderRadius: 'var(--r-lg)', padding: '4px 14px', boxShadow: 'var(--shadow-1)', marginBottom: 16 },
+  maydonQator: { width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', background: 'transparent', textAlign: 'left', position: 'relative' },
+  maydonNuqta: { width: 10, height: 10, borderRadius: '50%', flexShrink: 0 },
+  maydonKvadrat: { borderRadius: 2, background: 'var(--label)' },
+  maydonIchi: { display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 },
+  maydonLabel: { fontSize: 11, color: 'var(--secondary-label)', fontWeight: 500 },
+  maydonInput: { border: 'none', background: 'transparent', fontSize: 16, color: 'var(--label)', outline: 'none', padding: 0, marginTop: 1 },
+  maydonQiymat: { fontSize: 16, color: 'var(--label)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 1 },
+  maydonQiymatBosh: { fontSize: 16, color: 'var(--tertiary-label)', marginTop: 1 },
+  maydonChiziq: { height: '0.5px', background: 'var(--separator)', marginLeft: 22 },
+  maydonTozala: { width: 24, height: 24, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  qidirRoyxat: { display: 'flex', flexDirection: 'column' },
+  qidirYuk: { display: 'flex', justifyContent: 'center', padding: 20 },
+  taklifQator: { width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '13px 4px', background: 'transparent', borderBottom: '0.5px solid var(--separator)', textAlign: 'left' },
+  taklifIkon: { width: 34, height: 34, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  taklifMatn: { flex: 1, minWidth: 0, fontSize: 15, color: 'var(--label)', lineHeight: 1.3, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' },
+  taklifMasofa: { fontSize: 13, color: 'var(--secondary-label)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' },
 };
