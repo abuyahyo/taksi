@@ -47,6 +47,7 @@ export default {
   'login.submit':        'Войти',
   'login.wrongRole':     'Эта страница только для {rol}',
   'login.noAccount':     'Нет аккаунта? Зарегистрируйтесь',
+  'login.or':            'или',
   'login.haveAccount':   'Уже есть аккаунт? Войдите',
 
   // Пассажир
