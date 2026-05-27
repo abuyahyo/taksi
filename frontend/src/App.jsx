@@ -14,6 +14,8 @@ const YolovchiSahifa   = lazy(() => import('./pages/YolovchiSahifa'));
 const HaydovchiSahifa  = lazy(() => import('./pages/HaydovchiSahifa'));
 const AdminSahifa      = lazy(() => import('./pages/AdminSahifa'));
 const SafarTarixi      = lazy(() => import('./pages/SafarTarixi'));
+const XizmatlarSahifa  = lazy(() => import('./pages/XizmatlarSahifa'));
+const AkkauntSahifa    = lazy(() => import('./pages/AkkauntSahifa'));
 const UlashilganSahifa = lazy(() => import('./pages/UlashilganSahifa'));
 
 function Yuklanmoqda() {
@@ -38,6 +40,8 @@ export default function App() {
             <Route path="/haydovchi" element={<HaydovchiSahifa />} />
             <Route path="/admin" element={<AdminSahifa />} />
             <Route path="/tarix" element={<SafarTarixi />} />
+            <Route path="/xizmatlar" element={<XizmatlarSahifa />} />
+            <Route path="/akkaunt" element={<AkkauntSahifa />} />
             <Route path="/k/:kalit" element={<UlashilganSahifa />} />
           </Routes>
         </Suspense>

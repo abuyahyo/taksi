@@ -82,6 +82,14 @@ export default function Ikonka({ nom, size = 20 }) {
       return <svg {...p}><path d="M4 11l8-6 8 6" /><path d="M6 10v9h12v-9" /></svg>;
     case 'work':
       return <svg {...p}><rect x="3" y="7" width="18" height="13" rx="2" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>;
+    case 'grid':
+      return <svg {...p}><circle cx="5" cy="5" r="1.4" fill="currentColor" stroke="none" /><circle cx="12" cy="5" r="1.4" fill="currentColor" stroke="none" /><circle cx="19" cy="5" r="1.4" fill="currentColor" stroke="none" /><circle cx="5" cy="12" r="1.4" fill="currentColor" stroke="none" /><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none" /><circle cx="19" cy="12" r="1.4" fill="currentColor" stroke="none" /><circle cx="5" cy="19" r="1.4" fill="currentColor" stroke="none" /><circle cx="12" cy="19" r="1.4" fill="currentColor" stroke="none" /><circle cx="19" cy="19" r="1.4" fill="currentColor" stroke="none" /></svg>;
+    case 'wallet':
+      return <svg {...p}><rect x="3" y="6" width="18" height="13" rx="2" /><path d="M16 12h.01M3 9h18" /></svg>;
+    case 'gift':
+      return <svg {...p}><rect x="4" y="9" width="16" height="11" rx="1" /><path d="M4 13h16M12 9v11M12 9S9 4 6.5 6 9 9 12 9zM12 9s3-5 5.5-3S15 9 12 9z" /></svg>;
+    case 'settings':
+      return <svg {...p}><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" /></svg>;
     default:
       return null;
   }

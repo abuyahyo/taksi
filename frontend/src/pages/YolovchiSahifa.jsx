@@ -20,11 +20,19 @@ import { pushObunaBol } from '../services/push';
 import { useT, TilTanlovchi } from '../i18n';
 import { TemaTanlovchi } from '../theme';
 import Ikonka from '../components/Ikonka';
+import Pastki from '../components/Pastki';
 import { joylashuvOl } from '../services/telegram';
 
 if (typeof window !== 'undefined') ruxsatSora();
 
 const TOSHKENT = [41.2995, 69.2401];
+
+// datetime-local форматига ўгириш (маҳаллий вақт) — модул даражасида (TDZ'сиз)
+const localInput = (d) => {
+  const p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+};
+const urlParam = (k) => { try { return new URLSearchParams(window.location.search).get(k); } catch { return null; } };
 
 export default function YolovchiSahifa() {
   const navigate = useNavigate();
@@ -44,11 +52,15 @@ export default function YolovchiSahifa() {
   const [safarPin, setSafarPin] = useState(null); // машина PIN-коди
   const reverseTimerRef = useRef(null);
   const [narx, setNarx] = useState(15000);
-  const [tarif, setTarif] = useState('ekonom');
+  // Сервислар саҳифасидан келганда — тариф/олдиндан буюртма query орқали олдиндан танланади
+  const [tarif, setTarif] = useState(() => {
+    const tr = urlParam('tarif');
+    return TARIFLAR.some((x) => x.kod === tr) ? tr : 'ekonom';
+  });
   const [izoh, setIzoh] = useState('');
   const [boshqaUchun, setBoshqaUchun] = useState(false);
   const [yuk, setYuk] = useState(false);
-  const [rejaVaqt, setRejaVaqt] = useState(''); // datetime-local; '' = ҳозир
+  const [rejaVaqt, setRejaVaqt] = useState(() => urlParam('reja') === '1' ? localInput(new Date(Date.now() + 3600000)) : ''); // datetime-local; '' = ҳозир
   const [bosqich, setBosqich] = useState('manzil');
   const [takliflar, setTakliflar] = useState([]);
   const [rideId, setRideId] = useState(null);
@@ -66,6 +78,7 @@ export default function YolovchiSahifa() {
   });
   const [profil, setProfil] = useState(null);
   const [songgiManzillar, setSonggiManzillar] = useState([]);
+  const [saqlanganlar, setSaqlanganlar] = useState([]); // фойдаланувчи номлаган манзиллар
 
   const meId = user?.id || null;
 
@@ -75,6 +88,7 @@ export default function YolovchiSahifa() {
     ruxsatSora().then((ok) => { if (ok) pushObunaBol(); });
     api.get('/passenger/me').then(({ data }) => setProfil(data)).catch(() => {});
     api.get('/passenger/recent').then(({ data }) => setSonggiManzillar(data)).catch(() => {});
+    api.get('/passenger/addresses').then(({ data }) => setSaqlanganlar(data)).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
@@ -359,10 +373,7 @@ export default function YolovchiSahifa() {
   };
 
   // datetime-local форматига ўгириш (маҳаллий вақт)
-  const toLocalInput = (d) => {
-    const p = (n) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
-  };
+  const toLocalInput = localInput;
   const rejaMin = toLocalInput(new Date());
   const rejaMatn = (s) => {
     try { return new Date(s).toLocaleString(undefined, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }); }
@@ -521,6 +532,13 @@ export default function YolovchiSahifa() {
                     <span style={st.uberRowMasofa}>{masofaMatn([Number(profil.ish_lat), Number(profil.ish_lng)])}</span>
                   </button>
                 )}
+                {saqlanganlar.filter((m) => m.lat != null && m.lng != null).map((m) => (
+                  <button key={`s${m.id}`} style={st.uberRow} className="bosiladi" onClick={() => safargaOt([Number(m.lat), Number(m.lng)], m.manzil)}>
+                    <span style={st.uberRowIkon}><Ikonka nom="pin" size={18} /></span>
+                    <span style={st.uberRowMatn}>{m.nom}</span>
+                    <span style={st.uberRowMasofa}>{masofaMatn([Number(m.lat), Number(m.lng)])}</span>
+                  </button>
+                ))}
                 {songgiManzillar.slice(0, 3).map((m, i) => {
                   const p = recentNuqta(m.manzil);
                   if (!p) return null;
@@ -539,6 +557,7 @@ export default function YolovchiSahifa() {
               </div>
             </div>
           )}
+          {!qidiruvOchiq && <Pastki faol="home" />}
         </div>
       ) : (
       <>
@@ -953,7 +972,7 @@ const st = {
   uberLogo: { display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 20, color: 'var(--label)' },
   uberHeaderOng: { display: 'flex', alignItems: 'center', gap: 8 },
   uberIkonTugma: { width: 36, height: 36, borderRadius: '50%', background: 'var(--fill)', color: 'var(--tint)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  uberBody: { flex: 1, overflowY: 'auto', padding: '8px 16px calc(24px + env(safe-area-inset-bottom))' },
+  uberBody: { flex: 1, overflowY: 'auto', padding: '8px 16px calc(92px + env(safe-area-inset-bottom))' },
   qayergaTugma: { width: '100%', display: 'flex', alignItems: 'center', gap: 12, background: 'var(--fill)', color: 'var(--secondary-label)', padding: '16px 18px', borderRadius: 'var(--r-lg)', fontSize: 18, fontWeight: 500, marginBottom: 22, textAlign: 'left' },
   bolimSarlavha: { fontSize: 22, fontWeight: 700, color: 'var(--label)', margin: '4px 4px 12px' },
   uberSection: { background: 'var(--surface)', borderRadius: 'var(--r-lg)', overflow: 'hidden', boxShadow: 'var(--shadow-1)' },
