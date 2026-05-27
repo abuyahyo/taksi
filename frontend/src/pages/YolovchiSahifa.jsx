@@ -848,10 +848,13 @@ export default function YolovchiSahifa() {
       )}
 
       {kirishOchiq && (
-        <Kirish
-          kerakliRol="mijoz"
-          onKirildi={(u) => { setUser(u); setKirishOchiq(false); }}
-        />
+        <div style={st.kirishOverlay}>
+          <button style={st.kirishYopish} className="press" onClick={() => setKirishOchiq(false)} aria-label={t('common.close')}><Ikonka nom="x" size={20} /></button>
+          <Kirish
+            kerakliRol="mijoz"
+            onKirildi={(u) => { setUser(u); setKirishOchiq(false); }}
+          />
+        </div>
       )}
     </div>
   );
@@ -982,4 +985,6 @@ const st = {
   xaritaOverlay: { position: 'absolute', inset: 0, zIndex: 1600, background: 'var(--bg)' },
   xaritaOrqa: { position: 'absolute', top: 'calc(16px + env(safe-area-inset-top))', left: 16, zIndex: 1700, width: 40, height: 40, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--tint)' },
   xaritaPanel: { position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 1700, maxWidth: 480, margin: '0 auto', borderRadius: '14px 14px 0 0', padding: '18px 20px calc(20px + env(safe-area-inset-bottom))' },
+  kirishOverlay: { position: 'fixed', inset: 0, zIndex: 4000, background: 'var(--bg)', overflowY: 'auto' },
+  kirishYopish: { position: 'absolute', top: 'calc(14px + env(safe-area-inset-top))', left: 16, zIndex: 4001, width: 40, height: 40, borderRadius: '50%', background: 'var(--fill)', color: 'var(--label)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
 };
