@@ -91,6 +91,7 @@ export default {
   'pass.saveAddr':       'Manzil saqlash',
   'pass.dest':           'Qayoqqa',
   'pass.myLocation':     'Joriy joylashuv',
+  'pass.fromMap':        'Xaritadan tanlash',
   'pass.gpsLive':        'Haydovchi xaritada koʻrinib turibdi',
   'pass.gpsWait':        'Joylashuv kutilmoqda...',
   'pass.rideEnded':      'Safar tugadi. Rahmat!',

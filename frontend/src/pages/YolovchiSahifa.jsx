@@ -108,6 +108,20 @@ export default function YolovchiSahifa() {
   const [qidiruvNatija, setQidiruvNatija] = useState([]);
   const [qidiruvYuk, setQidiruvYuk] = useState(false);
   const [joyYuklanmoqda, setJoyYuklanmoqda] = useState(false);
+  const [xaritaTanlov, setXaritaTanlov] = useState(false); // харитадан танлаш overlay
+
+  // Харитадан танланган нуқтани тасдиқлаш (актив майдонга қараб)
+  const xaritadanTasdiqla = () => {
+    if (!markazNuqta) return;
+    setXaritaTanlov(false);
+    if (qidiruvMaydon === 'boshlanish') {
+      setBoshlanish(markazNuqta);
+      setBoshlanishManzil(markazManzil || '');
+      setUchish(markazNuqta);
+    } else {
+      safargaOt(markazNuqta, markazManzil);
+    }
+  };
 
   // pickup (boshlanish)'ни манзилга реверс-геокод қилиб ёзамиз
   const pickupYoz = async (p) => {
@@ -440,6 +454,10 @@ export default function YolovchiSahifa() {
                 </div>
               </div>
 
+              <button style={st.xaritadanTugma} className="bosiladi" onClick={() => setXaritaTanlov(true)}>
+                <Ikonka nom="pin" size={18} /> {t('pass.fromMap')}
+              </button>
+
               <div style={st.qidirRoyxat} className="royxat-anim">
                 {qidiruvYuk && <div style={st.qidirYuk}><span className="spinner" /></div>}
                 {qidiruvNatija.map((n, i) => (
@@ -766,6 +784,32 @@ export default function YolovchiSahifa() {
       </>
       )}
 
+      {xaritaTanlov && (
+        <div style={st.xaritaOverlay}>
+          <div style={st.harita}>
+            <Harita
+              markaz={boshlanish || TOSHKENT}
+              markazRejim={true}
+              markazRang={qidiruvMaydon === 'boshlanish' ? '#0E9384' : '#EF4444'}
+              onMarkaz={markazKuzat}
+              uchish={uchish}
+            />
+          </div>
+          <button style={st.xaritaOrqa} className="glass-tugma press" onClick={() => setXaritaTanlov(false)} aria-label={t('common.back')}>
+            <Ikonka nom="arrow-left" size={20} />
+          </button>
+          <div style={st.xaritaPanel} className="glass slide-up">
+            <div style={st.markazManzilQator}>
+              <span style={{ ...st.nuqta, background: qidiruvMaydon === 'boshlanish' ? 'var(--yashil)' : 'var(--qizil)' }} />
+              <div style={st.markazManzilMatn}>{markazManzilYuk ? t('common.loading') : (markazManzil || t('pass.movePin'))}</div>
+            </div>
+            <button style={{ ...st.tugma, opacity: markazNuqta ? 1 : 0.5 }} disabled={!markazNuqta} onClick={xaritadanTasdiqla}>
+              {t('common.confirm')}
+            </button>
+          </div>
+        </div>
+      )}
+
       {chatOchiq && rideId && (
         <Chat rideId={rideId} meId={meId} hamrohIsm={haydovchiInfo?.ism || t('home.driver')} onClose={() => setChatOchiq(false)} />
       )}
@@ -932,4 +976,10 @@ const st = {
   taklifIkon: { width: 34, height: 34, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   taklifMatn: { flex: 1, minWidth: 0, fontSize: 15, color: 'var(--label)', lineHeight: 1.3, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' },
   taklifMasofa: { fontSize: 13, color: 'var(--secondary-label)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' },
+  xaritadanTugma: { width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'var(--fill)', color: 'var(--tint)', padding: 13, borderRadius: 'var(--r-md)', fontSize: 15, fontWeight: 600, marginBottom: 14 },
+
+  // Харитадан танлаш overlay
+  xaritaOverlay: { position: 'absolute', inset: 0, zIndex: 1600, background: 'var(--bg)' },
+  xaritaOrqa: { position: 'absolute', top: 'calc(16px + env(safe-area-inset-top))', left: 16, zIndex: 1700, width: 40, height: 40, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--tint)' },
+  xaritaPanel: { position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 1700, maxWidth: 480, margin: '0 auto', borderRadius: '14px 14px 0 0', padding: '18px 20px calc(20px + env(safe-area-inset-bottom))' },
 };
