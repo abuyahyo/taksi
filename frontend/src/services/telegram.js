@@ -19,6 +19,46 @@ export function tgTayyorla() {
   try { w.ready(); w.expand(); } catch { /* эски клиент */ }
 }
 
+// Браузер geolocation — Promise<[lat,lng]|null>
+function webGeo() {
+  return new Promise((resolve) => {
+    if (typeof navigator === 'undefined' || !('geolocation' in navigator)) { resolve(null); return; }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => resolve([pos.coords.latitude, pos.coords.longitude]),
+      () => resolve(null),
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+    );
+  });
+}
+
+// Жорий жойлашувни олиш — Telegram LocationManager (Mini App, ишончли) ёки
+// браузер geolocation (захира). Promise<[lat,lng]> ёки null (рухсат йўқ/хато).
+export function joylashuvOl() {
+  return new Promise((resolve) => {
+    const w = tgWebApp();
+    const lm = w && w.LocationManager;
+    if (lm && typeof lm.getLocation === 'function') {
+      try {
+        lm.init(() => {
+          if (!lm.isLocationAvailable) { webGeo().then(resolve); return; }
+          lm.getLocation((data) => {
+            if (data && typeof data.latitude === 'number') resolve([data.latitude, data.longitude]);
+            else resolve(null);
+          });
+        });
+        return;
+      } catch { /* fall through */ }
+    }
+    webGeo().then(resolve);
+  });
+}
+
+// Telegram'да LocationManager созламасини очиш (рухсат рад этилган бўлса)
+export function joylashuvSozlama() {
+  const lm = tgWebApp()?.LocationManager;
+  try { lm?.openSettings?.(); } catch { /* */ }
+}
+
 // Telegram'да линкни чатга улашиш (share sheet). Telegram'да эмас → false.
 export function tgUlash(url, matn) {
   const w = tgWebApp();

@@ -287,6 +287,7 @@ export default {
   'geo.noResults':         'Topilmadi',
   'geo.modeStart':         'Boshlanish tanlaymiz',
   'geo.modeEnd':           'Manzil tanlaymiz',
+  'geo.locateMe':          'Meni top',
 
   // Safarni ulashish
   'share.open':          'Safarni oilaga yuborish',

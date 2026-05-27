@@ -21,6 +21,7 @@ import { pushObunaBol } from '../services/push';
 import { useT, TilTanlovchi } from '../i18n';
 import { TemaTanlovchi } from '../theme';
 import Ikonka from '../components/Ikonka';
+import { joylashuvOl } from '../services/telegram';
 
 if (typeof window !== 'undefined') ruxsatSora();
 
@@ -101,16 +102,22 @@ export default function YolovchiSahifa() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Харита марказини фойдаланувчи жойига кўчирамиз (глобал — Тошкентга боғланмаган).
-  // Рухсат берилмаса дефолт марказ (Тошкент) қолади.
+  // Харита марказини фойдаланувчи жойига кўчирамиз (Telegram LocationManager ёки
+  // браузер geolocation). Рухсат берилмаса дефолт марказ (Тошкент) қолади.
   useEffect(() => {
-    if (!('geolocation' in navigator)) return;
-    navigator.geolocation.getCurrentPosition(
-      (pos) => setUchish([pos.coords.latitude, pos.coords.longitude]),
-      () => {},
-      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
-    );
+    let bekor = false;
+    joylashuvOl().then((p) => { if (!bekor && p) setUchish(p); });
+    return () => { bekor = true; };
   }, []);
+
+  // "Мени топ" — жорий жойга қайтиш (қўлда)
+  const [joyYuklanmoqda, setJoyYuklanmoqda] = useState(false);
+  const meniTop = async () => {
+    setJoyYuklanmoqda(true);
+    const p = await joylashuvOl();
+    if (p) setUchish([p[0], p[1]]);
+    setJoyYuklanmoqda(false);
+  };
 
   const { yubor } = useSocket({
     // Қайта уланганда фаол сафар хонасига қайта қўшиламиз (рўйхатдан ўтган мижоз)
@@ -349,6 +356,19 @@ export default function YolovchiSahifa() {
       ><Ikonka nom={user ? 'user' : 'key'} /></button>
       <button style={st.tarixTugma} className="glass-tugma" onClick={() => navigate('/tarix')} title={t('hist.title')}><Ikonka nom="clock" /></button>
       <div style={st.yordam} className="glass-tugma">{t('common.help')}</div>
+
+      {bosqich === 'manzil' && (
+        <button
+          style={st.meniTop}
+          className="glass-tugma press"
+          onClick={meniTop}
+          disabled={joyYuklanmoqda}
+          title={t('geo.locateMe')}
+          aria-label={t('geo.locateMe')}
+        >
+          {joyYuklanmoqda ? <span style={st.miniSpinner} /> : <Ikonka nom="pin" size={20} />}
+        </button>
+      )}
 
       <div style={st.panel} className="glass slide-up">
         <div style={st.grabber} />
@@ -706,6 +726,8 @@ const st = {
   tarixTugma: { position: 'absolute', top: 'calc(16px + env(safe-area-inset-top))', right: 116, zIndex: 1000, width: 38, height: 38, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--tint)' },
   profilTugma: { position: 'absolute', top: 'calc(16px + env(safe-area-inset-top))', right: 162, zIndex: 1000, width: 38, height: 38, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--tint)' },
   tilWrap: { position: 'absolute', top: 'calc(64px + env(safe-area-inset-top))', right: 16, zIndex: 1000, display: 'flex', alignItems: 'center', gap: 8 },
+  meniTop: { position: 'absolute', right: 16, top: '40%', zIndex: 1000, width: 46, height: 46, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--tint)' },
+  miniSpinner: { width: 20, height: 20, border: '2px solid var(--fill)', borderTopColor: 'var(--tint)', borderRadius: '50%', animation: 'aylanish 0.8s linear infinite' },
   tolovTugma: { background: 'var(--fill)', color: 'var(--tint)', padding: 14, borderRadius: 'var(--r-lg)', fontSize: 15, fontWeight: 600, whiteSpace: 'nowrap' },
   ulashishTugma: { width: '100%', background: 'var(--fill)', color: 'var(--label)', padding: 13, borderRadius: 'var(--r-lg)', fontSize: 15, fontWeight: 600, marginTop: 8 },
   tezManzillar: { display: 'flex', gap: 8, marginTop: 8, marginBottom: 8, flexWrap: 'wrap' },
