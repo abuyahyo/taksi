@@ -71,11 +71,23 @@ if (!hasFrontend) {
     res.json({ holat: 'Сервер ишламоқда ✅' });
   });
 } else {
-  // Frontend build'ни хизмат қиламиз
-  app.use(express.static(distPath));
-  // SPA fallback — React Router учун
+  // Frontend build'ни хизмат қиламиз.
+  // Хешланган ассетлар (assets/) — узоқ, ўзгармас кэш. Кириш нуқталари
+  // (index.html, sw.js, manifest) — no-cache: фойдаланувчи доим янги версияни
+  // олади (Telegram webview SW ишлатмаса ҳам — янги ассет ҳаволалари тортилади).
+  app.use(express.static(distPath, {
+    setHeaders: (res, filePath) => {
+      if (/(index\.html|sw\.js|workbox-[^/]*\.js|\.webmanifest)$/.test(filePath)) {
+        res.setHeader('Cache-Control', 'no-cache');
+      } else if (filePath.includes(`${path.sep}assets${path.sep}`)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+    },
+  }));
+  // SPA fallback — React Router учун (index.html доим янги)
   app.use((req, res, next) => {
     if (req.path.startsWith('/api') || req.path.startsWith('/socket.io')) return next();
+    res.setHeader('Cache-Control', 'no-cache');
     res.sendFile(path.join(distPath, 'index.html'));
   });
   console.log(`📂 Frontend хизмат қилмоқда: ${distPath}`);
