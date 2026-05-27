@@ -136,6 +136,6 @@ const st = {
   shablonlar: { display: 'flex', gap: 6, padding: '8px 12px', overflowX: 'auto', borderTop: '0.5px solid var(--separator)' },
   shablonTugma: { background: 'var(--fill)', padding: '7px 14px', borderRadius: 'var(--r-full)', fontSize: 14, fontWeight: 400, whiteSpace: 'nowrap', flexShrink: 0, color: 'var(--tint)' },
   kiritish: { display: 'flex', gap: 8, padding: '10px 12px calc(10px + env(safe-area-inset-bottom))', borderTop: '0.5px solid var(--separator)', alignItems: 'center' },
-  input: { flex: 1, padding: '10px 16px', borderRadius: 'var(--r-full)', border: '0.5px solid var(--separator)', background: 'var(--surface)', color: 'var(--label)', fontSize: 16 },
+  input: { flex: 1, padding: '10px 16px', borderRadius: 'var(--r-full)', border: 'none', background: 'var(--fill)', color: 'var(--label)', fontSize: 16 },
   yuborTugma: { width: 38, height: 38, borderRadius: '50%', background: 'var(--tint)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
 };

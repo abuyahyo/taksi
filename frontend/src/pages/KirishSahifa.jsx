@@ -47,7 +47,7 @@ export default function KirishSahifa() {
 
       {/* Рол танлаш — grouped рўйхат */}
       <div style={st.section}>
-        <button className="ios-row" onClick={() => navigate('/yolovchi')}>
+        <button className="ios-row" onClick={() => navigate('/yolovchi' + window.location.search)}>
           <span style={{ ...st.tile, background: 'var(--tint)' }}><Ikonka nom="passenger" size={18} /></span>
           <span className="ios-row-label">
             <div style={st.rowTitle}>{t('home.passenger')}</div>
@@ -55,7 +55,7 @@ export default function KirishSahifa() {
           </span>
           <span className="ios-chevron"><Ikonka nom="arrow-right" size={16} /></span>
         </button>
-        <button className="ios-row" onClick={() => navigate('/haydovchi')}>
+        <button className="ios-row" onClick={() => navigate('/haydovchi' + window.location.search)}>
           <span style={{ ...st.tile, background: '#1C1C1E' }}><Ikonka nom="car" size={18} /></span>
           <span className="ios-row-label">
             <div style={st.rowTitle}>{t('home.driver')}</div>

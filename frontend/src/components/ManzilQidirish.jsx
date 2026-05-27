@@ -12,7 +12,7 @@ export default function ManzilQidirish({ onTanlandi, placeholder, rejimMatn }) {
   const [yuklanmoqda, setYuklanmoqda] = useState(false);
   const refWrap = useRef(null);
 
-  // Debounce — фойдаланувчи ёзишни тугатса 350мс кейин қидириш
+  // Debounce — фойдаланувчи ёзишни тугатса 250мс кейин қидириш
   useEffect(() => {
     if (matn.trim().length < 2) { setNatijalar([]); return; }
     const timer = setTimeout(async () => {
@@ -23,7 +23,7 @@ export default function ManzilQidirish({ onTanlandi, placeholder, rejimMatn }) {
         setOchiq(true);
       } catch {/* тинч ўтиш */}
       setYuklanmoqda(false);
-    }, 350);
+    }, 250);
     return () => clearTimeout(timer);
   }, [matn, til]);
 

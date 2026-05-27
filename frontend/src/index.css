@@ -521,3 +521,10 @@ button.ios-row:active:not(:disabled) { opacity: 1; background: var(--fill); }
 
 /* ===== Декоратив фон (kerak бўлганда) ===== */
 .fon-blobs { position: relative; isolation: isolate; background: var(--bg); }
+
+/* ===== Ҳайдовчи саҳифа header — кичик экранга мослаш ===== */
+@media (max-width: 380px) {
+  .driver-name { display: none; }
+  .driver-status-btn { padding: 7px 12px !important; font-size: 13px !important; }
+  .driver-header-btn { width: 32px !important; height: 32px !important; }
+}

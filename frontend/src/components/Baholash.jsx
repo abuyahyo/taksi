@@ -46,25 +46,36 @@ export default function Baholash({ rideId, kimni, ism, narx, onYopish }) {
           </div>
         ) : (
           <>
-            <div style={st.avatar}>{(ism || '?')[0]}</div>
+            <div style={st.avatar}>
+              {ism ? ism[0] : <Ikonka nom="user" size={28} />}
+            </div>
             <div style={st.sarlavha}>{sarlavhaMatn}</div>
             <div style={st.ism}>{ism || '—'}</div>
 
             <div style={st.yulduzlar}>
-              {[1, 2, 3, 4, 5].map((n) => (
-                <button
-                  key={n}
-                  style={{ ...st.yulduz, color: n <= ball ? '#FFCC00' : 'var(--neutral-300)' }}
-                  onClick={() => setBall(n)}
-                  aria-label={`${n}`}
-                ><Ikonka nom="star" size={34} /></button>
-              ))}
+              {[1, 2, 3, 4, 5].map((n) => {
+                const tanlangan = n <= ball;
+                return (
+                  <button
+                    key={n}
+                    style={{
+                      ...st.yulduz,
+                      color: tanlangan ? '#FFCC00' : 'var(--neutral-300)',
+                      transform: tanlangan ? 'scale(1.08)' : 'scale(1)',
+                      transition: 'transform 120ms, color 120ms',
+                    }}
+                    onClick={() => setBall(n)}
+                    aria-label={`${n}`}
+                    aria-pressed={tanlangan}
+                  ><Ikonka nom="star" size={34} /></button>
+                );
+              })}
             </div>
 
             {/* Чаёвой танлови — фақат йўловчи ҳайдовчини баҳолашда */}
             {chayovoyKorinadimi && (
               <div style={st.chayovoyBolimi}>
-                <div style={st.chayovoyLabel}>{t('tip.title')}</div>
+                <div style={st.chayovoyLabel}>{t('tip.title')} <span style={st.chayovoyIxt}>{t('common.optional')}</span></div>
                 <div style={st.chayovoyTaklif}>
                   <button
                     style={{ ...st.chayovoyTugma, ...(chayovoy === 0 ? st.chayovoyFaol : {}) }}
@@ -91,6 +102,7 @@ export default function Baholash({ rideId, kimni, ism, narx, onYopish }) {
               value={izoh}
               onChange={(e) => setIzoh(e.target.value)}
             />
+            <div style={st.izohHisob}>{izoh.length}/300</div>
 
             <button
               style={{ ...st.tugma, opacity: ball ? 1 : 0.4 }}
@@ -121,8 +133,10 @@ const st = {
   chayovoyTugma: { flex: 1, padding: '9px 0', borderRadius: 'var(--r-sm)', background: 'var(--surface)', fontWeight: 600, fontSize: 15, color: 'var(--label)' },
   chayovoyFaol: { background: 'var(--tint)', color: '#fff' },
   chayovoySum: { marginTop: 8, fontSize: 14, fontWeight: 600, color: 'var(--tint)', textAlign: 'center' },
-  izoh: { width: '100%', padding: 12, borderRadius: 'var(--r-md)', border: 'none', fontSize: 15, fontFamily: 'inherit', minHeight: 70, resize: 'vertical', marginBottom: 14, background: 'var(--fill)', color: 'var(--label)' },
-  tugma: { width: '100%', background: 'var(--tint)', padding: 15, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 17, color: '#fff' },
+  izoh: { width: '100%', padding: 12, borderRadius: 'var(--r-md)', border: 'none', fontSize: 15, fontFamily: 'inherit', minHeight: 70, resize: 'vertical', marginBottom: 4, background: 'var(--fill)', color: 'var(--label)' },
+  izohHisob: { fontSize: 12, color: 'var(--tertiary-label)', textAlign: 'right', marginBottom: 12 },
+  chayovoyIxt: { fontWeight: 400, fontSize: 12, textTransform: 'none', color: 'var(--tertiary-label)' },
+  tugma: { width: '100%', background: 'var(--tint)', padding: 16, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 17, color: '#fff' },
   otkaz: { width: '100%', background: 'transparent', padding: 12, color: 'var(--tint)', fontSize: 17, fontWeight: 400, marginTop: 4 },
   tugadi: { padding: 20 },
   tugadiIkon: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 64, height: 64, borderRadius: '50%', background: 'rgba(52,199,89,0.16)', color: 'var(--yashil)', margin: '0 auto' },
