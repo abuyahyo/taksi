@@ -52,6 +52,6 @@ const st = {
     maxWidth: 460, margin: '0 auto',
   },
   matn: { flex: 1, fontSize: 15, fontWeight: 500 },
-  tugma: { background: 'var(--tint)', color: '#fff', padding: '8px 16px', borderRadius: 'var(--r-full)', fontWeight: 600, fontSize: 14 },
+  tugma: { background: 'var(--ink)', color: '#fff', padding: '8px 16px', borderRadius: 'var(--r-full)', fontWeight: 600, fontSize: 14 },
   yopish: { background: 'var(--fill)', color: 'var(--secondary-label)', width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' },
 };

@@ -293,7 +293,7 @@ function Ichki({ user }) {
           <button className="driver-header-btn" style={st.tarixTugma} onClick={() => setIssiqOchiq(true)} title={t('heat.title')}><Ikonka nom="flame" /></button>
           <button className="driver-header-btn" style={st.tarixTugma} onClick={() => setProfilOchiq(true)} title={t('car.title')}><Ikonka nom="car" /></button>
           <button className="driver-header-btn" style={st.tarixTugma} onClick={() => navigate('/tarix')} title={t('hist.title')}><Ikonka nom="clock" /></button>
-          <button className="driver-status-btn" style={{ ...st.statusTugma, background: onlayn ? 'var(--yashil)' : 'var(--fill-strong)', color: onlayn ? '#fff' : 'var(--label)' }} onClick={statusOzgartir}>
+          <button className="driver-status-btn" style={{ ...st.statusTugma, background: onlayn ? 'var(--accept)' : 'var(--fill-strong)', color: onlayn ? '#fff' : 'var(--label)' }} onClick={statusOzgartir}>
             {onlayn ? t('drv.online') : t('drv.offline')}
           </button>
         </div>
@@ -578,7 +578,7 @@ const st = {
   opsiyaIzoh: { fontSize: 13, color: 'var(--secondary-label)', flexBasis: '100%' },
   tugmalar: { display: 'flex', gap: 10 },
   oznarxTugma: { flex: 1, background: 'var(--fill)', color: 'var(--tint)', padding: 13, borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 15 },
-  roziTugma: { flex: 1.4, background: 'var(--tint)', color: '#fff', padding: 13, borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 15 },
+  roziTugma: { flex: 1.4, background: 'var(--accept)', color: '#fff', padding: 13, borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 15 },
   modalFon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 2000, backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)' },
   modal: { background: 'var(--surface-elevated)', width: '100%', maxWidth: 480, borderRadius: '14px 14px 0 0', padding: '8px 20px', paddingBottom: 'calc(20px + env(safe-area-inset-bottom))' },
   grabber: { width: 36, height: 5, borderRadius: 3, background: 'var(--fill-strong)', margin: '0 auto 14px' },
@@ -587,7 +587,7 @@ const st = {
   narxBox: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--fill)', padding: 14, borderRadius: 'var(--r-lg)', marginBottom: 16 },
   narxTugma: { width: 44, height: 44, borderRadius: '50%', background: 'var(--surface)', color: 'var(--tint)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-1)' },
   modalNarx: { fontSize: 30, fontWeight: 700, letterSpacing: '0.3px' },
-  yuborishTugma: { width: '100%', background: 'var(--tint)', color: '#fff', padding: 15, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 17 },
+  yuborishTugma: { width: '100%', background: 'var(--ink)', color: '#fff', padding: 15, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 17 },
   pinInput: { width: '100%', textAlign: 'center', letterSpacing: 14, fontSize: 32, fontWeight: 700, padding: '14px 0', borderRadius: 'var(--r-md)', border: 'none', background: 'var(--fill)', color: 'var(--label)', marginBottom: 16 },
   bekorTugma: { width: '100%', background: 'transparent', padding: 12, color: 'var(--tint)', fontSize: 17, fontWeight: 400, marginTop: 4 },
 };

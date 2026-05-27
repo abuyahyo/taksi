@@ -92,7 +92,7 @@ const st = {
   xato: { color: 'var(--qizil)', padding: 14, textAlign: 'center' },
   linkQator: { display: 'flex', gap: 8, marginBottom: 14 },
   linkInput: { flex: 1, padding: 12, borderRadius: 'var(--r-md)', border: 'none', background: 'var(--fill)', color: 'var(--label)', fontSize: 13, fontFamily: 'ui-monospace, monospace', overflow: 'hidden', textOverflow: 'ellipsis' },
-  koʻchirTugma: { background: 'var(--tint)', color: '#fff', padding: '10px 16px', borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 15, minWidth: 84, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' },
+  koʻchirTugma: { background: 'var(--ink)', color: '#fff', padding: '10px 16px', borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 15, minWidth: 84, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' },
   deepLinks: { display: 'flex', gap: 10, marginBottom: 14 },
   tashqi: { flex: 1, color: '#fff', padding: 13, borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 15, textAlign: 'center', textDecoration: 'none' },
   muddat: { fontSize: 13, color: 'var(--secondary-label)', textAlign: 'center' },
