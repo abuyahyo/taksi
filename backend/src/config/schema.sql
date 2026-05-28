@@ -229,3 +229,16 @@ CREATE TABLE IF NOT EXISTS saqlangan_manzillar (
   yaratilgan TIMESTAMPTZ DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_saqlangan_manzil_user ON saqlangan_manzillar(user_id);
+
+-- Барча public жадвалларда RLS ёқиш (Supabase авто Data API'дан ҳимоя).
+-- Backend `postgres` роли (эга/BYPASSRLS) билан уланади — таъсир йўқ; anon/authenticated = DENY.
+-- Батафсил: backend/migrations/enable_rls.sql
+DO $$
+DECLARE
+  t text;
+BEGIN
+  FOR t IN SELECT tablename FROM pg_tables WHERE schemaname = 'public'
+  LOOP
+    EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY;', t);
+  END LOOP;
+END $$;
