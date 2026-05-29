@@ -5,9 +5,15 @@ import { useT } from '../i18n';
 import Ikonka from './Ikonka';
 import KycHujjatlar from './KycHujjatlar';
 
+// Санани форма input учун ҳамюзалаймиз ("2025-05-29" формати)
+const sanaUchun = (s) => (s ? String(s).slice(0, 10) : '');
+
 export default function MashinaProfili({ onYopish, onSaqlandi }) {
   const { t } = useT();
-  const [profil, setProfil] = useState({ mashina_modeli: '', mashina_raqami: '', mashina_rangi: '' });
+  const [profil, setProfil] = useState({
+    mashina_modeli: '', mashina_raqami: '', mashina_rangi: '', mashina_yili: '',
+    tugilgan_sana: '', gpro_raqami: '', gpro_amal_qiladi: '',
+  });
   const [yuklanmoqda, setYuklanmoqda] = useState(true);
   const [saqlanmoqda, setSaqlanmoqda] = useState(false);
   const [xato, setXato] = useState('');
@@ -19,6 +25,10 @@ export default function MashinaProfili({ onYopish, onSaqlandi }) {
           mashina_modeli: data.mashina_modeli || '',
           mashina_raqami: data.mashina_raqami || '',
           mashina_rangi:  data.mashina_rangi  || '',
+          mashina_yili:   data.mashina_yili ? String(data.mashina_yili) : '',
+          tugilgan_sana:    sanaUchun(data.tugilgan_sana),
+          gpro_raqami:      data.gpro_raqami || '',
+          gpro_amal_qiladi: sanaUchun(data.gpro_amal_qiladi),
         });
         setYuklanmoqda(false);
       })
@@ -83,6 +93,49 @@ export default function MashinaProfili({ onYopish, onSaqlandi }) {
                 value={profil.mashina_rangi}
                 onChange={ozgartir('mashina_rangi')}
                 required
+              />
+            </label>
+
+            <label style={st.label}>
+              <span style={st.labelMatn}>{t('car.year')}</span>
+              <input
+                style={st.input}
+                type="number"
+                placeholder={t('car.yearPh')}
+                value={profil.mashina_yili}
+                onChange={ozgartir('mashina_yili')}
+              />
+            </label>
+
+            <div style={{ ...st.labelMatn, marginTop: 8 }}>{t('car.driverDetails')}</div>
+
+            <label style={st.label}>
+              <span style={st.labelMatn}>{t('car.dob')}</span>
+              <input
+                style={st.input}
+                type="date"
+                value={profil.tugilgan_sana}
+                onChange={ozgartir('tugilgan_sana')}
+              />
+            </label>
+
+            <label style={st.label}>
+              <span style={st.labelMatn}>{t('car.licenseNum')}</span>
+              <input
+                style={st.input}
+                placeholder={t('onb.f.licenseNumPh')}
+                value={profil.gpro_raqami}
+                onChange={ozgartir('gpro_raqami')}
+              />
+            </label>
+
+            <label style={st.label}>
+              <span style={st.labelMatn}>{t('car.licenseExp')}</span>
+              <input
+                style={st.input}
+                type="date"
+                value={profil.gpro_amal_qiladi}
+                onChange={ozgartir('gpro_amal_qiladi')}
               />
             </label>
 

@@ -12,6 +12,7 @@ import XatoChegarasi from './components/XatoChegarasi';
 const KirishSahifa     = lazy(() => import('./pages/KirishSahifa'));
 const YolovchiSahifa   = lazy(() => import('./pages/YolovchiSahifa'));
 const HaydovchiSahifa  = lazy(() => import('./pages/HaydovchiSahifa'));
+const HaydovchiUlanish = lazy(() => import('./pages/HaydovchiUlanish'));
 const AdminSahifa      = lazy(() => import('./pages/AdminSahifa'));
 const SafarTarixi      = lazy(() => import('./pages/SafarTarixi'));
 const XizmatlarSahifa  = lazy(() => import('./pages/XizmatlarSahifa'));
@@ -38,6 +39,7 @@ export default function App() {
             <Route path="/" element={<KirishSahifa />} />
             <Route path="/yolovchi" element={<YolovchiSahifa />} />
             <Route path="/haydovchi" element={<HaydovchiSahifa />} />
+            <Route path="/haydovchi/ulanish" element={<HaydovchiUlanish />} />
             <Route path="/admin" element={<AdminSahifa />} />
             <Route path="/tarix" element={<SafarTarixi />} />
             <Route path="/xizmatlar" element={<XizmatlarSahifa />} />

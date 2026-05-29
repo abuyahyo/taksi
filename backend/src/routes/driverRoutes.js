@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { authMiddleware, roleMiddleware } = require('../middleware/auth');
-const { stats, profile, updateProfile } = require('../controllers/driverController');
+const { stats, profile, updateProfile, onboarding } = require('../controllers/driverController');
 const { holatim, sotibOlish } = require('../controllers/subscriptionController');
 const { upload, yukla, royxatim, faylBer } = require('../controllers/kycController');
 
@@ -12,6 +12,7 @@ router.use(authMiddleware, roleMiddleware('haydovchi'));
 router.get('/stats', stats);
 router.get('/profile', profile);
 router.put('/profile', updateProfile);
+router.get('/onboarding', onboarding);
 router.get('/subscription', holatim);
 router.post('/subscription/buy', sotibOlish);
 // KYC — ҳужжат юклаш ва ўз рўйхатини кўриш

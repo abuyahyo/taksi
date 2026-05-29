@@ -6,7 +6,9 @@ const path = require('path');
 const multer = require('multer');
 const { query } = require('../config/db');
 
-const TURLAR = ['passport', 'selfie'];
+// Uber услубидаги уланиш — паспорт + селфидан ташқари гувоҳнома ва машина расмлари.
+// turi DB'да VARCHAR(20) — энг узуни 'mashina_plate' (13 белги), сиғади.
+const TURLAR = ['passport', 'selfie', 'license', 'mashina_old', 'mashina_plate'];
 const UPLOAD_DIR = path.join(__dirname, '..', '..', 'uploads', 'kyc');
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 

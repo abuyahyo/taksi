@@ -33,6 +33,10 @@ CREATE TABLE IF NOT EXISTS drivers (
   mashina_modeli VARCHAR(100),
   mashina_raqami VARCHAR(20),
   mashina_rangi VARCHAR(50),
+  mashina_yili INTEGER,                -- машина ишлаб чиқарилган йил (Uber услубидаги уланиш)
+  tugilgan_sana DATE,                  -- ҳайдовчининг туғилган санаси
+  gpro_raqami VARCHAR(50),             -- ҳайдовчилик гувоҳномаси рақами
+  gpro_amal_qiladi DATE,               -- гувоҳноманинг амал қилиш муддати
   tasdiqlangan BOOLEAN DEFAULT FALSE, -- админ тасдиқлаган ишончли ҳайдовчи
   holati VARCHAR(20) DEFAULT 'bosh', -- bosh, band, offline
   -- Жонли жойлашув (харита учун)

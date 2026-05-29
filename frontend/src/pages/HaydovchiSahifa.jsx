@@ -54,6 +54,7 @@ function Ichki({ user }) {
   const [hozir, setHozir] = useState(() => Date.now()); // таймер учун
   const [baholashUchun, setBaholashUchun] = useState(null); // {rideId, ism} — модаль очилади
   const [mashina, setMashina] = useState(null); // {mashina_modeli, mashina_raqami, mashina_rangi}
+  const [onb, setOnb] = useState(null); // онбординг ҳолати — {tasdiqlangan, tasdiq_holati, foiz, rad_sababi}
   const [profilOchiq, setProfilOchiq] = useState(false);
   const [issiqOchiq, setIssiqOchiq] = useState(false);
   const [obunaOchiq, setObunaOchiq] = useState(false);
@@ -91,8 +92,14 @@ function Ichki({ user }) {
       setObuna(data.faol);
     } catch {}
   };
+  const onbYukla = async () => {
+    try {
+      const { data } = await api.get('/driver/onboarding');
+      setOnb(data);
+    } catch {}
+  };
   useEffect(() => {
-    statsYukla(); profilYukla(); obunaYukla();
+    statsYukla(); profilYukla(); obunaYukla(); onbYukla();
     ruxsatSora().then((ok) => { if (ok) pushObunaBol(); });
   }, []);
 
@@ -153,6 +160,12 @@ function Ichki({ user }) {
       toast.error(t('sub.requiredToOnline'));
       setObunaOchiq(true);
       setOnlayn(false);
+    },
+    // Тасдиқ керак — KYC тугатилмаган ёки админ ҳали тасдиқламаган
+    tasdiq_kerak: () => {
+      toast.error(t('onb.gateTitle'));
+      setOnlayn(false);
+      navigate('/haydovchi/ulanish');
     },
     buyurtma_keldi: (b) => {
       setBuyurtmalar((oldin) => [...oldin, b]);
@@ -240,8 +253,12 @@ function Ichki({ user }) {
   };
   const kutish = kutishHisobi();
 
-  // Онлайн/офлайн ўзгартириш
+  // Онлайн/офлайн ўзгартириш — тасдиқланмаган бўлса визардга йўналтирамиз
   const statusOzgartir = () => {
+    if (!onb?.tasdiqlangan) {
+      navigate('/haydovchi/ulanish');
+      return;
+    }
     const yangi = !onlayn;
     setOnlayn(yangi);
     if (yangi) {
@@ -293,11 +310,38 @@ function Ichki({ user }) {
           <button className="driver-header-btn" style={st.tarixTugma} onClick={() => setIssiqOchiq(true)} title={t('heat.title')}><Ikonka nom="flame" /></button>
           <button className="driver-header-btn" style={st.tarixTugma} onClick={() => setProfilOchiq(true)} title={t('car.title')}><Ikonka nom="car" /></button>
           <button className="driver-header-btn" style={st.tarixTugma} onClick={() => navigate('/tarix')} title={t('hist.title')}><Ikonka nom="clock" /></button>
-          <button className="driver-status-btn" style={{ ...st.statusTugma, background: onlayn ? 'var(--accept)' : 'var(--fill-strong)', color: onlayn ? '#fff' : 'var(--label)' }} onClick={statusOzgartir}>
+          <button
+            className="driver-status-btn"
+            style={{
+              ...st.statusTugma,
+              background: onlayn ? 'var(--accept)' : !onb?.tasdiqlangan ? 'var(--fill)' : 'var(--fill-strong)',
+              color: onlayn ? '#fff' : !onb?.tasdiqlangan ? 'var(--tertiary-label)' : 'var(--label)',
+            }}
+            onClick={statusOzgartir}
+            title={!onb?.tasdiqlangan ? t('onb.gateTitle') : undefined}
+          >
             {onlayn ? t('drv.online') : t('drv.offline')}
           </button>
         </div>
       </div>
+
+      {/* Тасдиқ кутилмоқда / тугатилмаган уланиш — Uber услубида прогресс билан */}
+      {onb && !onb.tasdiqlangan && (
+        <div style={st.tasdiqBaner} onClick={() => navigate('/haydovchi/ulanish')}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+            <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--label)' }}>
+              {onb.tasdiq_holati === 'kutilmoqda' ? t('onb.statusPending')
+                : onb.tasdiq_holati === 'rad' ? t('onb.statusRejected')
+                : t('onb.gateTitle')}
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--tint)', fontWeight: 600 }}>{onb.foiz || 0}%</div>
+          </div>
+          <div style={st.tasdiqTrack}><div style={{ ...st.tasdiqBar, width: `${onb.foiz || 0}%` }} /></div>
+          <div style={{ fontSize: 12, color: 'var(--secondary-label)', marginTop: 6 }}>
+            {onb.tasdiq_holati === 'rad' && onb.rad_sababi ? onb.rad_sababi : t('onb.openWizard')}
+          </div>
+        </div>
+      )}
 
       {!mashinaToldirilganmi && (
         <div style={st.ogohlantirish} onClick={() => setProfilOchiq(true)}>
@@ -536,6 +580,9 @@ const st = {
   tarixTugma: { background: 'var(--fill)', width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--tint)' },
   obunaBadge: { position: 'absolute', top: -3, right: -3, background: 'var(--qizil)', color: '#fff', minWidth: 18, height: 18, borderRadius: 9, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', border: '1.5px solid var(--surface)' },
   ogohlantirish: { margin: '12px 16px 0', padding: 12, background: 'rgba(255,149,0,0.14)', color: 'var(--amber)', borderRadius: 'var(--r-md)', fontSize: 14, cursor: 'pointer', fontWeight: 500 },
+  tasdiqBaner: { margin: '12px 16px 0', padding: 14, background: 'var(--surface)', borderRadius: 'var(--r-lg)', cursor: 'pointer', border: '0.5px solid var(--separator)' },
+  tasdiqTrack: { height: 4, borderRadius: 999, background: 'var(--fill)', overflow: 'hidden' },
+  tasdiqBar:   { height: '100%', background: 'var(--tint)', transition: 'width 0.3s ease' },
   gpsOgoh: { display: 'flex', alignItems: 'flex-start', gap: 8, margin: '12px 16px 0', padding: 12, background: 'rgba(255,59,48,0.12)', color: 'var(--qizil)', borderRadius: 'var(--r-md)', fontSize: 14, fontWeight: 500 },
   statusTugma: { color: '#fff', padding: '8px 18px', borderRadius: 'var(--r-full)', fontWeight: 600, fontSize: 14 },
   daromad: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '16px', padding: 18, background: 'var(--surface)', borderRadius: 'var(--r-lg)', boxShadow: 'var(--shadow-1)' },
