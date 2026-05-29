@@ -7,7 +7,7 @@ import { useToast } from './Toast';
 import { useT } from '../i18n';
 import Ikonka from './Ikonka';
 
-const TURLAR = ['passport', 'selfie'];
+const HAMMA_TURLAR = ['passport', 'selfie', 'license', 'mashina_old', 'mashina_plate'];
 
 // Маxфий ҳужжат расми — токен билан blob олиб кўрсатамиз (<img src> токен юбора олмайди)
 export function KycRasm({ hujjatId, style }) {
@@ -28,12 +28,17 @@ export function KycRasm({ hujjatId, style }) {
   return <img src={src} alt="" style={{ ...style, objectFit: 'cover' }} />;
 }
 
-export default function KycHujjatlar() {
+// `turlar` props — қайси ҳужжат турларини кўрсатиш (визард қадамлари учун). Берилмаса — ҳаммаси.
+// `kompakt` — ҳолат банерини яширамиз (визард ўз банерини кўрсатади).
+// `onYangilandi` — ҳужжат юкланганда чақирилади (визарддан кейинги қадамни қайта ҳисоблаш учун).
+export default function KycHujjatlar({ turlar, kompakt = false, onYangilandi } = {}) {
   const { t } = useT();
   const toast = useToast();
   const [malumot, setMalumot] = useState(null);
   const [yuklanmoqda, setYuklanmoqda] = useState('');
   const inputRef = useRef({});
+
+  const KOʻRSATILADIGAN = Array.isArray(turlar) && turlar.length ? turlar : HAMMA_TURLAR;
 
   const yukla = () => api.get('/driver/hujjatlar').then(({ data }) => setMalumot(data)).catch(() => {});
   useEffect(() => { yukla(); }, []);
@@ -52,6 +57,7 @@ export default function KycHujjatlar() {
       fd.append('fayl', kichik);
       await api.post('/driver/hujjat', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       await yukla();
+      onYangilandi?.();
       toast.success(t('common.save'));
     } catch (err) {
       toast.error(err.response?.data?.xato || t('kyc.fileErr'));
@@ -66,10 +72,10 @@ export default function KycHujjatlar() {
 
   return (
     <div style={st.wrap}>
-      <div style={st.sarlavha}>{t('kyc.title')}</div>
+      {!kompakt && <div style={st.sarlavha}>{t('kyc.title')}</div>}
 
-      {/* Умумий ҳолат банери */}
-      {tasdiqlangan ? (
+      {/* Умумий ҳолат банери (визарддан ташқари) */}
+      {!kompakt && (tasdiqlangan ? (
         <div style={{ ...st.baner, ...st.banerYashil }}><Ikonka nom="check" size={15} /> {t('kyc.approved')}</div>
       ) : tasdiq_holati === 'kutilmoqda' ? (
         <div style={{ ...st.baner, ...st.banerAmber }}><Ikonka nom="clock" size={15} /> {t('kyc.pending')}</div>
@@ -77,9 +83,9 @@ export default function KycHujjatlar() {
         <div style={{ ...st.baner, ...st.banerQizil }}>{t('kyc.rejected')}{rad_sababi ? `: ${rad_sababi}` : ''}</div>
       ) : (
         <div style={st.hint}>{t('kyc.hint')}</div>
-      )}
+      ))}
 
-      {TURLAR.map((turi) => {
+      {KOʻRSATILADIGAN.map((turi) => {
         const h = topib(turi);
         const band = yuklanmoqda === turi;
         return (

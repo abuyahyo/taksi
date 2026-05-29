@@ -32,10 +32,17 @@ module.exports = (io) => {
     // (масалан, танлангач уни сафар хонасига сервер томонидан қўшиш).
     if (socket.data.userId) socket.join(`user_${socket.data.userId}`);
 
-    // ҲАЙДОВЧИ онлайн бўлади — обуна текширилади
+    // ҲАЙДОВЧИ онлайн бўлади — KYC тасдиғи ва обуна текширилади
     socket.on('haydovchi_online', async (data) => {
-      // Фаол обунасиз онлайн бўлолмайди
       if (socket.data.userId) {
+        // KYC тасдиғисиз онлайн бўлолмайди (Uber услубида — ҳужжатлар тасдиқлансин)
+        const d = await query(`SELECT tasdiqlangan, tasdiq_holati FROM drivers WHERE user_id = $1`, [socket.data.userId]);
+        if (!d.rows[0]?.tasdiqlangan) {
+          const holat = d.rows[0]?.tasdiq_holati || 'yangi';
+          socket.emit('tasdiq_kerak', { holat });
+          return;
+        }
+        // Фаол обунасиз онлайн бўлолмайди
         const obunaBor = await obunaFaolmi(socket.data.userId);
         if (!obunaBor) {
           socket.emit('obuna_kerak', { sabab: 'Обунангиз тугаган. Янги обуна сотиб олинг.' });
