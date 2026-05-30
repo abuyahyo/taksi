@@ -167,7 +167,8 @@ const googleKirish = async (req, res) => {
     const { idToken, rol } = req.body;
     const g = await googleTokenTekshir(idToken, clientId);
     if (!g.ok || !g.sub) {
-      return res.status(401).json({ xato: 'Google маълумоти нотўғри' });
+      console.warn('Google кириш рад этилди:', g.sabab || 'noma\'lum');
+      return res.status(401).json({ xato: 'Google маълумоти нотўғри', sabab: g.sabab });
     }
 
     const foydalanuvchiRol = rol === 'haydovchi' ? 'haydovchi' : 'mijoz';
@@ -192,6 +193,21 @@ const googleKirish = async (req, res) => {
       // Ҳайдовчи бўлса — drivers ёзуви + 7 кунлик trial обуна (register каби)
       if (foydalanuvchiRol === 'haydovchi') {
         await query('INSERT INTO drivers (user_id) VALUES ($1)', [user.id]);
+        await query(
+          `INSERT INTO obunalar (user_id, turi, summa, tugash_sana)
+           VALUES ($1, 'trial', 0, NOW() + INTERVAL '7 days')`,
+          [user.id]
+        );
+      }
+    } else if (foydalanuvchiRol === 'haydovchi' && user.rol === 'mijoz') {
+      // Mavjud мижоз Google орқали ҳайдовчи сифатида кирмоқчи — ролни кўтарамиз
+      // ва drivers/trial обунани яратамиз (агар йўқ бўлса)
+      await query(`UPDATE users SET rol = 'haydovchi' WHERE id = $1`, [user.id]);
+      user.rol = 'haydovchi';
+      const d = await query(`SELECT 1 FROM drivers WHERE user_id = $1`, [user.id]);
+      if (d.rowCount === 0) await query(`INSERT INTO drivers (user_id) VALUES ($1)`, [user.id]);
+      const ob = await query(`SELECT 1 FROM obunalar WHERE user_id = $1 LIMIT 1`, [user.id]);
+      if (ob.rowCount === 0) {
         await query(
           `INSERT INTO obunalar (user_id, turi, summa, tugash_sana)
            VALUES ($1, 'trial', 0, NOW() + INTERVAL '7 days')`,
