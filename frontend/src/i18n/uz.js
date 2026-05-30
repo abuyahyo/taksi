@@ -436,4 +436,6 @@ export default {
   'akkaunt.settings':    'Созламалар',
   'akkaunt.theme':       'Кўриниш',
   'akkaunt.lang':        'Тил',
+  'theme.light':         'Ёруғ',
+  'theme.dark':          'Тунги',
 };

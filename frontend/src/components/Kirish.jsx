@@ -1,8 +1,8 @@
 // Логин/Регистрация формаси — admin/haydovchi/mijoz саҳифалари учун
 import { useState, useEffect, useRef } from 'react';
 import { api } from '../services/api';
-import { useT, TilTanlovchi } from '../i18n';
-import { TemaTanlovchi } from '../theme';
+import { useT } from '../i18n';
+import SozlamalarTugma from './SozlamalarTugma';
 import Ikonka from './Ikonka';
 import { tgIchidami } from '../services/telegram';
 import { googleYoqilgan, googleTayyor, googleRender } from '../services/google';
@@ -81,7 +81,7 @@ export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
 
   return (
     <div style={st.fon}>
-      <div style={st.topbar}><TemaTanlovchi /><TilTanlovchi /></div>
+      <div style={st.topbar}><SozlamalarTugma /></div>
 
       <form style={st.karta} className="slide-up" onSubmit={yubor}>
         <img src="/logo.png" alt="Manzil" style={st.logoBadge} />

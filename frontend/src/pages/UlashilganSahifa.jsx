@@ -6,8 +6,8 @@ import { socket } from '../services/api';
 import Harita from '../components/Harita';
 import HaritaPreview from '../components/HaritaPreview';
 import { parseLatLng } from '../utils/geo';
-import { useT, TilTanlovchi } from '../i18n';
-import { TemaTanlovchi } from '../theme';
+import { useT } from '../i18n';
+import SozlamalarTugma from '../components/SozlamalarTugma';
 import Ikonka from '../components/Ikonka';
 
 const TOSHKENT = [41.2995, 69.2401];
@@ -79,7 +79,7 @@ export default function UlashilganSahifa() {
       </div>
 
       <div style={st.logo} className="glass-tugma"><Ikonka nom="taxi" size={17} /> Manzil</div>
-      <div style={st.tilWrap}><TemaTanlovchi /><TilTanlovchi /></div>
+      <div style={st.tilWrap}><SozlamalarTugma /></div>
 
       <div style={st.panel}>
         <div style={st.sarlavhaBolimi}>

@@ -6,8 +6,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useToast } from '../components/Toast';
-import { useT, TilTanlovchi } from '../i18n';
-import { TemaTanlovchi } from '../theme';
+import { useT } from '../i18n';
+import SozlamalarTugma from '../components/SozlamalarTugma';
 import Ikonka from '../components/Ikonka';
 import Kirish from '../components/Kirish';
 import KycHujjatlar from '../components/KycHujjatlar';
@@ -123,7 +123,7 @@ function Ichki() {
       <div style={st.topbar}>
         <button style={st.yopish} onClick={() => navigate('/haydovchi')} aria-label={t('common.close')}><Ikonka nom="x" size={18} /></button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <TemaTanlovchi /><TilTanlovchi />
+          <SozlamalarTugma />
         </div>
       </div>
 
