@@ -363,6 +363,9 @@ export default {
   // PWA — yangi versiya bildirishnomasi
   'pwa.newVersion':      'Yangi versiya mavjud',
   'pwa.update':          'Yangilash',
+  'install.title':       'Ilovani oʻrnatish',
+  'install.body':        'Manzil'+'ni telefoningizga oʻrnating — tezroq ochiladi va oflayn ham ishlaydi.',
+  'install.action':      'Oʻrnatish',
 
   // 💳 Obuna
   'sub.title':             'Obunam',
