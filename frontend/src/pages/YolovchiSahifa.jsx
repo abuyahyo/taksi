@@ -7,6 +7,7 @@ import Baholash from '../components/Baholash';
 import Tolov from '../components/Tolov';
 import Kirish from '../components/Kirish';
 import YolovchiProfili from '../components/YolovchiProfili';
+import ManzilSaqlash from '../components/ManzilSaqlash';
 import Ulashish from '../components/Ulashish';
 import SOS from '../components/SOS';
 import NarxTarkibi from '../components/NarxTarkibi';
@@ -21,6 +22,7 @@ import { useT, TilTanlovchi } from '../i18n';
 import { TemaTanlovchi } from '../theme';
 import Ikonka from '../components/Ikonka';
 import Pastki from '../components/Pastki';
+import { useToast } from '../components/Toast';
 import { joylashuvOl } from '../services/telegram';
 
 if (typeof window !== 'undefined') ruxsatSora();
@@ -37,6 +39,7 @@ const urlParam = (k) => { try { return new URLSearchParams(window.location.searc
 export default function YolovchiSahifa() {
   const navigate = useNavigate();
   const { t, til } = useT();
+  const toast = useToast();
   const [boshlanish, setBoshlanish] = useState(null);
   const [tugash, setTugash] = useState(null);
   const [boshlanishManzil, setBoshlanishManzil] = useState('');
@@ -79,6 +82,7 @@ export default function YolovchiSahifa() {
   const [profil, setProfil] = useState(null);
   const [songgiManzillar, setSonggiManzillar] = useState([]);
   const [saqlanganlar, setSaqlanganlar] = useState([]); // фойдаланувчи номлаган манзиллар
+  const [saqlashOchiq, setSaqlashOchiq] = useState(null); // null | {turi: 'home'|'ish'|'custom', tahrirla?}
 
   const meId = user?.id || null;
 
@@ -91,6 +95,25 @@ export default function YolovchiSahifa() {
     api.get('/passenger/addresses').then(({ data }) => setSaqlanganlar(data)).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
+
+  // Сақланган манзилни ўчириш — confirm билан
+  const manzilOchir = async (m) => {
+    if (!window.confirm(t('addr.deleteConfirm', { nom: m.nom }))) return;
+    try {
+      await api.delete(`/passenger/addresses/${m.id}`);
+      setSaqlanganlar((eski) => eski.filter((x) => x.id !== m.id));
+      toast.success(t('common.save'));
+    } catch (err) {
+      toast.error(err.response?.data?.xato || t('common.error'));
+    }
+  };
+
+  // Манзил сақлангандан кейин рўйхатларни янгилаймиз. Profile обектида
+  // 'home_manzil' калити доим бор (NULL ёки матн); кастом манзилда йўқ.
+  const saqlashYakuni = (yangi) => {
+    if (yangi && 'home_manzil' in yangi) setProfil(yangi);
+    else if (yangi?.id && yangi.nom) setSaqlanganlar((eski) => [yangi, ...eski.filter((x) => x.id !== yangi.id)]);
+  };
 
   // Telegram локация тугмасидан кирганда — URL'даги манзилни олдиндан қўямиз.
   // Фойдаланувчи фақат "Қаердан?" (пикап)ни танлаб, давом этади.
@@ -511,34 +534,88 @@ export default function YolovchiSahifa() {
             </div>
           ) : (
             <div style={st.uberBody}>
-              <button style={st.qayergaTugma} className="press" onClick={() => qidiruvAch('tugash')}>
-                <Ikonka nom="search" size={20} />
-                <span>{t('pass.toWhere')}</span>
-              </button>
+              {/* Қидирув + Харитадан тугмалари ёнма-ён */}
+              <div style={st.qidirvaXarita}>
+                <button style={{ ...st.qayergaTugma, flex: 1, marginBottom: 0 }} className="press" onClick={() => qidiruvAch('tugash')}>
+                  <Ikonka nom="search" size={20} />
+                  <span>{t('pass.toWhere')}</span>
+                </button>
+                <button
+                  style={st.xaritaChip}
+                  className="press"
+                  onClick={() => { setQidiruvMaydon('tugash'); setXaritaTanlov(true); }}
+                  title={t('pass.openMap')}
+                  aria-label={t('pass.openMap')}
+                >
+                  <Ikonka nom="pin" size={18} />
+                </button>
+              </div>
 
               <div style={st.bolimSarlavha}>{t('pass.quickAccess')}</div>
               <div style={st.uberSection}>
-                {profil?.home_lat && (
-                  <button style={st.uberRow} className="bosiladi" onClick={() => safargaOt([Number(profil.home_lat), Number(profil.home_lng)], t('prof.useHome'))}>
-                    <span style={st.uberRowIkon}><Ikonka nom="home" size={18} /></span>
-                    <span style={st.uberRowMatn}>{t('prof.useHome')}</span>
-                    <span style={st.uberRowMasofa}>{masofaMatn([Number(profil.home_lat), Number(profil.home_lng)])}</span>
+                {/* Уй — ҳар доим кўрсатамиз; бўш бўлса "қўшинг" такfлифи */}
+                {profil?.home_lat ? (
+                  <div style={st.uberRowKonteyner}>
+                    <button style={st.uberRow} className="bosiladi" onClick={() => safargaOt([Number(profil.home_lat), Number(profil.home_lng)], t('prof.useHome'))}>
+                      <span style={st.uberRowIkon}><Ikonka nom="home" size={18} /></span>
+                      <span style={st.uberRowMatn}>{t('prof.useHome')}</span>
+                      <span style={st.uberRowMasofa}>{masofaMatn([Number(profil.home_lat), Number(profil.home_lng)])}</span>
+                    </button>
+                    <button
+                      style={st.qatorAmal}
+                      onClick={() => user ? setSaqlashOchiq({ turi: 'home' }) : setKirishOchiq(true)}
+                      aria-label={t('addr.edit')}
+                      title={t('addr.edit')}
+                    ><Ikonka nom="edit" size={14} /></button>
+                  </div>
+                ) : (
+                  <button style={{ ...st.uberRow, color: 'var(--secondary-label)' }} className="bosiladi" onClick={() => user ? setSaqlashOchiq({ turi: 'home' }) : setKirishOchiq(true)}>
+                    <span style={{ ...st.uberRowIkon, background: 'var(--fill)', color: 'var(--secondary-label)' }}><Ikonka nom="home" size={18} /></span>
+                    <span style={st.uberRowMatn}>{t('addr.addHome')}</span>
+                    <span style={st.uberRowQoshish}><Ikonka nom="plus" size={14} /></span>
                   </button>
                 )}
-                {profil?.ish_lat && (
-                  <button style={st.uberRow} className="bosiladi" onClick={() => safargaOt([Number(profil.ish_lat), Number(profil.ish_lng)], t('prof.useWork'))}>
-                    <span style={st.uberRowIkon}><Ikonka nom="work" size={18} /></span>
-                    <span style={st.uberRowMatn}>{t('prof.useWork')}</span>
-                    <span style={st.uberRowMasofa}>{masofaMatn([Number(profil.ish_lat), Number(profil.ish_lng)])}</span>
+
+                {/* Иш — ҳар доим кўрсатамиз */}
+                {profil?.ish_lat ? (
+                  <div style={st.uberRowKonteyner}>
+                    <button style={st.uberRow} className="bosiladi" onClick={() => safargaOt([Number(profil.ish_lat), Number(profil.ish_lng)], t('prof.useWork'))}>
+                      <span style={st.uberRowIkon}><Ikonka nom="work" size={18} /></span>
+                      <span style={st.uberRowMatn}>{t('prof.useWork')}</span>
+                      <span style={st.uberRowMasofa}>{masofaMatn([Number(profil.ish_lat), Number(profil.ish_lng)])}</span>
+                    </button>
+                    <button
+                      style={st.qatorAmal}
+                      onClick={() => user ? setSaqlashOchiq({ turi: 'ish' }) : setKirishOchiq(true)}
+                      aria-label={t('addr.edit')}
+                      title={t('addr.edit')}
+                    ><Ikonka nom="edit" size={14} /></button>
+                  </div>
+                ) : (
+                  <button style={{ ...st.uberRow, color: 'var(--secondary-label)' }} className="bosiladi" onClick={() => user ? setSaqlashOchiq({ turi: 'ish' }) : setKirishOchiq(true)}>
+                    <span style={{ ...st.uberRowIkon, background: 'var(--fill)', color: 'var(--secondary-label)' }}><Ikonka nom="work" size={18} /></span>
+                    <span style={st.uberRowMatn}>{t('addr.addWork')}</span>
+                    <span style={st.uberRowQoshish}><Ikonka nom="plus" size={14} /></span>
                   </button>
                 )}
+
+                {/* Кастом сақланган манзиллар — ҳар бирида ўчириш тугмаси */}
                 {saqlanganlar.filter((m) => m.lat != null && m.lng != null).map((m) => (
-                  <button key={`s${m.id}`} style={st.uberRow} className="bosiladi" onClick={() => safargaOt([Number(m.lat), Number(m.lng)], m.manzil)}>
-                    <span style={st.uberRowIkon}><Ikonka nom="pin" size={18} /></span>
-                    <span style={st.uberRowMatn}>{m.nom}</span>
-                    <span style={st.uberRowMasofa}>{masofaMatn([Number(m.lat), Number(m.lng)])}</span>
-                  </button>
+                  <div key={`s${m.id}`} style={st.uberRowKonteyner}>
+                    <button style={st.uberRow} className="bosiladi" onClick={() => safargaOt([Number(m.lat), Number(m.lng)], m.manzil)}>
+                      <span style={st.uberRowIkon}><Ikonka nom="pin" size={18} /></span>
+                      <span style={st.uberRowMatn}>{m.nom}</span>
+                      <span style={st.uberRowMasofa}>{masofaMatn([Number(m.lat), Number(m.lng)])}</span>
+                    </button>
+                    <button
+                      style={st.qatorAmal}
+                      onClick={() => manzilOchir(m)}
+                      aria-label={t('addr.delete')}
+                      title={t('addr.delete')}
+                    ><Ikonka nom="x" size={14} /></button>
+                  </div>
                 ))}
+
                 {songgiManzillar.slice(0, 3).map((m, i) => {
                   const p = recentNuqta(m.manzil);
                   if (!p) return null;
@@ -550,7 +627,9 @@ export default function YolovchiSahifa() {
                     </button>
                   );
                 })}
-                <button style={st.uberRow} className="bosiladi" onClick={() => user ? setProfilOchiq(true) : setKirishOchiq(true)}>
+
+                {/* + Янги манзил сақлаш — Uber услубида кастом ном билан */}
+                <button style={st.uberRow} className="bosiladi" onClick={() => user ? setSaqlashOchiq({ turi: 'custom' }) : setKirishOchiq(true)}>
                   <span style={{ ...st.uberRowIkon, background: 'var(--fill)', color: 'var(--secondary-label)' }}><Ikonka nom="plus" size={18} /></span>
                   <span style={st.uberRowMatn}>{t('pass.saveAddr')}</span>
                 </button>
@@ -866,6 +945,16 @@ export default function YolovchiSahifa() {
         />
       )}
 
+      {saqlashOchiq && (
+        <ManzilSaqlash
+          turi={saqlashOchiq.turi}
+          tahrirla={saqlashOchiq.tahrirla}
+          profil={profil}
+          onYopish={() => setSaqlashOchiq(null)}
+          onSaqlandi={saqlashYakuni}
+        />
+      )}
+
       {kirishOchiq && (
         <div style={st.kirishOverlay}>
           <button style={st.kirishYopish} className="press" onClick={() => setKirishOchiq(false)} aria-label={t('common.close')}><Ikonka nom="x" size={20} /></button>
@@ -980,6 +1069,11 @@ const st = {
   uberRowIkon: { width: 38, height: 38, borderRadius: 10, background: 'var(--tint-fill)', color: 'var(--tint)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   uberRowMatn: { flex: 1, minWidth: 0, fontSize: 16, fontWeight: 600, color: 'var(--label)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   uberRowMasofa: { fontSize: 13, color: 'var(--secondary-label)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' },
+  uberRowKonteyner: { display: 'flex', alignItems: 'stretch', borderBottom: '0.5px solid var(--separator)' },
+  qatorAmal: { display: 'flex', alignItems: 'center', justifyContent: 'center', width: 38, color: 'var(--secondary-label)', background: 'transparent', flexShrink: 0, borderLeft: '0.5px solid var(--separator)' },
+  uberRowQoshish: { display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, borderRadius: '50%', background: 'var(--tint-fill)', color: 'var(--tint)', flexShrink: 0 },
+  qidirvaXarita: { display: 'flex', gap: 8, marginBottom: 22 },
+  xaritaChip: { display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: 54, background: 'var(--fill)', color: 'var(--label)', borderRadius: 'var(--r-lg)' },
   qidirOrqa: { display: 'inline-flex', alignItems: 'center', gap: 4, background: 'transparent', color: 'var(--tint)', fontSize: 16, fontWeight: 500, marginBottom: 12, padding: '4px 0' },
   maydonKarta: { background: 'var(--surface)', borderRadius: 'var(--r-lg)', padding: '4px 14px', boxShadow: 'var(--shadow-1)', marginBottom: 16 },
   maydonQator: { width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', background: 'transparent', textAlign: 'left', position: 'relative' },
