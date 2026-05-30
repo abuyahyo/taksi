@@ -101,7 +101,7 @@ const tasdiqBekor = async (req, res) => {
   }
 };
 
-// Ҳайдовчи ҳужжатлари рўйхати (админ кўради)
+// Ҳайдовчи ҳужжатлари рўйхати + профил маълумоти (админ ҳужжатни маълумотга солиштириши учун)
 const hujjatlar = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -112,18 +112,52 @@ const hujjatlar = async (req, res) => {
     );
     const d = await query(
       `SELECT COALESCE(tasdiqlangan, FALSE) AS tasdiqlangan,
-              COALESCE(tasdiq_holati, 'yangi') AS tasdiq_holati, rad_sababi
+              COALESCE(tasdiq_holati, 'yangi') AS tasdiq_holati,
+              rad_sababi,
+              mashina_modeli, mashina_raqami, mashina_rangi, mashina_yili,
+              tugilgan_sana, gpro_raqami, gpro_amal_qiladi
        FROM drivers WHERE user_id = $1`,
       [userId]
     );
+    const u = await query(`SELECT ism, telefon FROM users WHERE id = $1`, [userId]);
+    const profil = d.rows[0] || {};
     res.json({
       hujjatlar: h.rows,
-      tasdiqlangan: d.rows[0]?.tasdiqlangan || false,
-      tasdiq_holati: d.rows[0]?.tasdiq_holati || 'yangi',
-      rad_sababi: d.rows[0]?.rad_sababi || null,
+      tasdiqlangan:  profil.tasdiqlangan || false,
+      tasdiq_holati: profil.tasdiq_holati || 'yangi',
+      rad_sababi:    profil.rad_sababi || null,
+      profil: {
+        ism: u.rows[0]?.ism, telefon: u.rows[0]?.telefon,
+        mashina_modeli: profil.mashina_modeli, mashina_raqami: profil.mashina_raqami,
+        mashina_rangi: profil.mashina_rangi,   mashina_yili: profil.mashina_yili,
+        tugilgan_sana: profil.tugilgan_sana,
+        gpro_raqami: profil.gpro_raqami,       gpro_amal_qiladi: profil.gpro_amal_qiladi,
+      },
     });
   } catch (err) {
     console.error('admin hujjatlar xato:', err.message);
+    res.status(500).json({ xato: 'Сервер хатоси' });
+  }
+};
+
+// Тасдиқ кутилаётган ҳайдовчилар очерети — янги аризалар тез топилсин
+const kycOcheret = async (_req, res) => {
+  try {
+    const r = await query(
+      `SELECT u.id, u.ism, u.telefon, u.yaratilgan,
+              d.tasdiq_holati, d.rad_sababi,
+              d.mashina_modeli, d.mashina_raqami, d.mashina_yili,
+              d.gpro_raqami, d.gpro_amal_qiladi, d.tugilgan_sana,
+              (SELECT COUNT(*) FROM driver_hujjatlar dh WHERE dh.user_id = u.id) AS hujjat_soni
+       FROM users u JOIN drivers d ON d.user_id = u.id
+       WHERE u.rol = 'haydovchi'
+         AND COALESCE(d.tasdiqlangan, FALSE) = FALSE
+         AND COALESCE(d.tasdiq_holati, 'yangi') IN ('kutilmoqda', 'rad')
+       ORDER BY (d.tasdiq_holati = 'kutilmoqda') DESC, u.yaratilgan DESC`
+    );
+    res.json(r.rows);
+  } catch (err) {
+    console.error('admin kycOcheret xato:', err.message);
     res.status(500).json({ xato: 'Сервер хатоси' });
   }
 };
@@ -171,4 +205,4 @@ const buyurtmalar = async (req, res) => {
   }
 };
 
-module.exports = { statistika, foydalanuvchilar, bloklash, blokniYechish, buyurtmalar, tasdiqlash, tasdiqBekor, hujjatlar, hujjatRad };
+module.exports = { statistika, foydalanuvchilar, bloklash, blokniYechish, buyurtmalar, tasdiqlash, tasdiqBekor, hujjatlar, hujjatRad, kycOcheret };

@@ -4,7 +4,7 @@ const router = express.Router();
 const { authMiddleware, roleMiddleware } = require('../middleware/auth');
 const {
   statistika, foydalanuvchilar, bloklash, blokniYechish, buyurtmalar, tasdiqlash, tasdiqBekor,
-  hujjatlar, hujjatRad,
+  hujjatlar, hujjatRad, kycOcheret,
 } = require('../controllers/adminController');
 
 // Барча админ йўллари токен + админ роли талаб қилади
@@ -17,6 +17,7 @@ router.post('/blok-yechish/:id', blokniYechish);
 router.post('/tasdiqlash/:id', tasdiqlash);
 router.post('/tasdiq-bekor/:id', tasdiqBekor);
 router.get('/hujjatlar/:userId', hujjatlar);
+router.get('/kyc-queue', kycOcheret);
 router.post('/hujjat/:id/rad', hujjatRad);
 router.get('/buyurtmalar', buyurtmalar);
 
