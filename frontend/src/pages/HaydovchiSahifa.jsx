@@ -17,8 +17,8 @@ import DaromadSolishtiruv from '../components/DaromadSolishtiruv';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
 import { tebrat, TEBRANISH } from '../services/haptika';
 import { pushObunaBol } from '../services/push';
-import { useT, TilTanlovchi } from '../i18n';
-import { TemaTanlovchi } from '../theme';
+import { useT } from '../i18n';
+import SozlamalarTugma from '../components/SozlamalarTugma';
 import Ikonka from '../components/Ikonka';
 
 export default function HaydovchiSahifa() {
@@ -296,8 +296,7 @@ function Ichki({ user }) {
       <div style={st.header}>
         <div style={st.logo}><Ikonka nom="taxi" size={18} /> <span className="driver-name">{user.ism}</span></div>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-          <TemaTanlovchi />
-          <TilTanlovchi />
+          <SozlamalarTugma />
           <button
             className="driver-header-btn"
             style={{ ...st.tarixTugma, background: obunaBormi ? 'var(--tint-fill)' : 'rgba(255,59,48,0.14)', color: obunaBormi ? 'var(--tint)' : 'var(--qizil)', position: 'relative' }}

@@ -59,7 +59,7 @@ export function useT() {
 }
 
 // Тил тугмаси — глобус ва жорий тил қисқартмаси, босилганда поповер ичида 4 та танлов.
-const TILLAR_RUYXAT = [
+export const TILLAR_RUYXAT = [
   ['uz',      'Кир',  'Ўзбек (кирилл)'],
   ['uz-latn', 'Lat',  'Oʻzbek (lotin)'],
   ['ru',      'Рус',  'Русский'],

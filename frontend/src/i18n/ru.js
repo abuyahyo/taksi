@@ -428,4 +428,6 @@ export default {
   'akkaunt.settings':    'Настройки',
   'akkaunt.theme':       'Тема',
   'akkaunt.lang':        'Язык',
+  'theme.light':         'Светлая',
+  'theme.dark':          'Тёмная',
 };

@@ -1,8 +1,8 @@
 // Бошланғич саҳифа — рол танлаш (iOS услуби)
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useT, TilTanlovchi } from '../i18n';
-import { TemaTanlovchi } from '../theme';
+import { useT } from '../i18n';
+import SozlamalarTugma from '../components/SozlamalarTugma';
 import Ikonka from '../components/Ikonka';
 import { tgIchidami, tgTayyorla, tgAvtoKirish } from '../services/telegram';
 
@@ -36,7 +36,7 @@ export default function KirishSahifa() {
 
   return (
     <div style={st.sahifa}>
-      <div style={st.topbar}><TemaTanlovchi /><TilTanlovchi /></div>
+      <div style={st.topbar}><SozlamalarTugma /></div>
 
       {/* Hero — app icon */}
       <div style={st.hero} className="fade-in">

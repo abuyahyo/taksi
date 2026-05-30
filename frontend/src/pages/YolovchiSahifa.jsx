@@ -18,8 +18,8 @@ import { useSocket } from '../services/useSocket';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
 import { tebrat, TEBRANISH } from '../services/haptika';
 import { pushObunaBol } from '../services/push';
-import { useT, TilTanlovchi } from '../i18n';
-import { TemaTanlovchi } from '../theme';
+import { useT } from '../i18n';
+import SozlamalarTugma from '../components/SozlamalarTugma';
 import Ikonka from '../components/Ikonka';
 import Pastki from '../components/Pastki';
 import { useToast } from '../components/Toast';
@@ -454,8 +454,7 @@ export default function YolovchiSahifa() {
           <div style={st.uberHeader}>
             <div style={st.uberLogo}><Ikonka nom="taxi" size={20} /> Manzil</div>
             <div style={st.uberHeaderOng}>
-              <TemaTanlovchi />
-              <TilTanlovchi />
+              <SozlamalarTugma />
               <button style={st.uberIkonTugma} className="press" onClick={() => user ? setProfilOchiq(true) : setKirishOchiq(true)} title={user ? t('prof.title') : t('login.title')}><Ikonka nom={user ? 'user' : 'key'} /></button>
               <button style={st.uberIkonTugma} className="press" onClick={() => navigate('/tarix')} title={t('hist.title')}><Ikonka nom="clock" /></button>
             </div>

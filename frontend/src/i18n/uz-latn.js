@@ -428,4 +428,6 @@ export default {
   'akkaunt.settings':    'Sozlamalar',
   'akkaunt.theme':       'Koʻrinish',
   'akkaunt.lang':        'Til',
+  'theme.light':         'Yorugʻ',
+  'theme.dark':          'Tungi',
 };
