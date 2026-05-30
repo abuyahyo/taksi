@@ -43,7 +43,9 @@ export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
           localStorage.setItem('user', JSON.stringify(data.user));
           onKirildi?.(data.user);
         } catch (err) {
-          setXato(err.response?.data?.xato || t('common.error'));
+          const xabar = err.response?.data?.xato || t('common.error');
+          const sabab = err.response?.data?.sabab ? ` (${err.response.data.sabab})` : '';
+          setXato(xabar + sabab);
           setYuklanmoqda(false);
         }
       });
