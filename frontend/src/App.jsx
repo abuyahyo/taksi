@@ -5,6 +5,7 @@ import { I18nProvider } from './i18n';
 import { TemaProvider } from './theme';
 import { ToastProvider } from './components/Toast';
 import YangilanishBanner from './components/YangilanishBanner';
+import OrnatishBanner from './components/OrnatishBanner';
 import XatoChegarasi from './components/XatoChegarasi';
 
 // Route-based code splitting — ҳар саҳифа алоҳида chunk
@@ -49,6 +50,7 @@ export default function App() {
         </Suspense>
         </XatoChegarasi>
         <YangilanishBanner />
+        <OrnatishBanner />
       </BrowserRouter>
       </ToastProvider>
       </TemaProvider>
