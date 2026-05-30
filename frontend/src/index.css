@@ -120,14 +120,17 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --tint:            #2DD4BF;
-  --tint-pressed:    #5EEAD4;
-  --tint-fill:       rgba(45, 212, 191, 0.16);
+  /* Tunda бирюза илгари teal-300 (#2DD4BF) эди — паст контраст ҳамда "юваш"
+     ҳис берарди. Сатурацияли teal-400 (#14B8A6) — қора бг'да контраст ~8.0
+     (AAA), брендга яқинроқ. Press ҳолатда олдинги шафтол кўринсин. */
+  --tint:            #14B8A6;
+  --tint-pressed:    #2DD4BF;
+  --tint-fill:       rgba(20, 184, 166, 0.20);
   --sariq:           var(--tint);
-  --sariq-light:     #5EEAD4;
+  --sariq-light:     #2DD4BF;
   --sariq-dark:      #5EEAD4;
   --asosiy:          var(--tint);
-  --asosiy-light:    #5EEAD4;
+  --asosiy-light:    #2DD4BF;
   --asosiy-dark:     #5EEAD4;
 
   --label:            #FFFFFF;
