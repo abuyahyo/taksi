@@ -83,6 +83,9 @@ export default function YolovchiSahifa() {
   const [songgiManzillar, setSonggiManzillar] = useState([]);
   const [saqlanganlar, setSaqlanganlar] = useState([]); // фойдаланувчи номлаган манзиллар
   const [saqlashOchiq, setSaqlashOchiq] = useState(null); // null | {turi: 'home'|'ish'|'custom', tahrirla?}
+  const [oxirgiSafar, setOxirgiSafar] = useState(null); // {tugash_manzil, tugash_lat, tugash_lng, kelishilgan_narx, ...}
+  const [qidiruvBoshlandi, setQidiruvBoshlandi] = useState(0); // 'kutish' bosqichi бошланган мс
+  const [hozirSek, setHozirSek] = useState(0); // ҳар сонияда таймер
 
   const meId = user?.id || null;
 
@@ -93,8 +96,15 @@ export default function YolovchiSahifa() {
     api.get('/passenger/me').then(({ data }) => setProfil(data)).catch(() => {});
     api.get('/passenger/recent').then(({ data }) => setSonggiManzillar(data)).catch(() => {});
     api.get('/passenger/addresses').then(({ data }) => setSaqlanganlar(data)).catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    api.get('/passenger/last-ride').then(({ data }) => setOxirgiSafar(data)).catch(() => {});
   }, [user?.id]);
+
+  // Қидирув таймери (Uber услуби — фойдаланувчи қанча кутаётганини кўриш)
+  useEffect(() => {
+    if (bosqich !== 'kutish' || !qidiruvBoshlandi) { setHozirSek(0); return; }
+    const id = setInterval(() => setHozirSek(Math.floor((Date.now() - qidiruvBoshlandi) / 1000)), 1000);
+    return () => clearInterval(id);
+  }, [bosqich, qidiruvBoshlandi]);
 
   // Сақланган манзилни ўчириш — confirm билан
   const manzilOchir = async (m) => {
@@ -409,6 +419,7 @@ export default function YolovchiSahifa() {
     const taklifId = Date.now(); // вақтинча — сервер DB id'ни қайтариб buyurtma_yaratildi'да юборади
     setRideId(null);
     setTakliflar([]);
+    setQidiruvBoshlandi(Date.now()); // Uber услубида сонияни ҳисоблаш учун
     setBosqich('kutish');
     yubor('yangi_buyurtma', {
       id: taklifId,
@@ -549,6 +560,25 @@ export default function YolovchiSahifa() {
                   <Ikonka nom="pin" size={18} />
                 </button>
               </div>
+
+              {/* Сўнгги сафар — "Қайтариш" карточкаси (Uber услубида) */}
+              {oxirgiSafar?.tugash_lat && oxirgiSafar?.tugash_lng && (
+                <button
+                  style={st.oxirgiKarta}
+                  className="bosiladi"
+                  onClick={() => safargaOt([Number(oxirgiSafar.tugash_lat), Number(oxirgiSafar.tugash_lng)], oxirgiSafar.tugash_manzil)}
+                >
+                  <span style={st.oxirgiIkon}><Ikonka nom="clock" size={18} /></span>
+                  <span style={st.oxirgiMatnWrap}>
+                    <span style={st.oxirgiSarlavha}>{t('pass.lastRide')}</span>
+                    <span style={st.oxirgiManzil}>{oxirgiSafar.tugash_manzil}</span>
+                    {oxirgiSafar.kelishilgan_narx != null && (
+                      <span style={st.oxirgiNarx}>{Number(oxirgiSafar.kelishilgan_narx).toLocaleString()} {t('wait.sum')} · {t('pass.lastPaid')}</span>
+                    )}
+                  </span>
+                  <span style={st.oxirgiKnopka}>{t('pass.repeatRide')}</span>
+                </button>
+              )}
 
               <div style={st.bolimSarlavha}>{t('pass.quickAccess')}</div>
               <div style={st.uberSection}>
@@ -846,31 +876,45 @@ export default function YolovchiSahifa() {
                 </div>
                 <h2 style={st.sarlavha}>{t('pass.searching')}</h2>
                 <p style={st.izoh}>{narx.toLocaleString()} · {masofa()} км</p>
+                {hozirSek > 0 && (
+                  <p style={st.qidirvaqt}>{Math.floor(hozirSek / 60)}:{String(hozirSek % 60).padStart(2, '0')}</p>
+                )}
                 <button style={st.bekor} onClick={bekorQilish}>{t('common.cancel')}</button>
               </div>
             ) : (
               <>
-                <h2 style={st.sarlavha}>{t('pass.offers')} ({takliflar.length})</h2>
-                <div style={{ maxHeight: 260, overflowY: 'auto' }} className="royxat-anim">
-                  {saralanganTakliflar.map((tk, i) => (
-                    <div key={tk.haydovchi_id ?? i} style={st.haydovchi}>
-                      <div style={st.avatar}>{tk.haydovchi_ism[0]}</div>
-                      <div style={{ flex: 1 }}>
-                        <div style={st.hIsm}>
-                          {tk.haydovchi_ism}
-                          {tk.tasdiqlangan && <span style={st.tasdiqBelgi} title={t('verify.badge')}>✓</span>}
-                          {' '}<Ikonka nom="star" size={13} /> {tk.reyting}
+                <div style={st.takliflarHeader}>
+                  <h2 style={st.sarlavha}>{t('pass.offers')} ({takliflar.length})</h2>
+                  {hozirSek > 0 && (
+                    <span style={st.qidirvaqtChip}>{Math.floor(hozirSek / 60)}:{String(hozirSek % 60).padStart(2, '0')}</span>
+                  )}
+                </div>
+                <div style={{ maxHeight: 280, overflowY: 'auto' }} className="royxat-anim">
+                  {saralanganTakliflar.map((tk, i) => {
+                    const tavsiya = i === 0;
+                    const sizdanArzon = Number(tk.haydovchi_narx) <= Number(narx);
+                    return (
+                      <div key={tk.haydovchi_id ?? i} style={{ ...st.haydovchi, ...(tavsiya ? st.haydovchiTavsiya : {}) }}>
+                        <div style={st.avatar}>{tk.haydovchi_ism[0]}</div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={st.hIsm}>
+                            {tk.haydovchi_ism}
+                            {tk.tasdiqlangan && <span style={st.tasdiqBelgi} title={t('verify.badge')}>✓</span>}
+                            {' '}<Ikonka nom="star" size={13} /> {tk.reyting}
+                            {tavsiya && <span style={st.tavsiyaChip}>{t('sub.recommended')}</span>}
+                          </div>
+                          <div style={st.hMashina}>
+                            {tk.mashina}
+                            {tk.min != null && ` · ${tk.min} ${t('drv.minute')}`}
+                            {sizdanArzon && <span style={st.arzonChip}>{t('pass.matchPrice')}</span>}
+                          </div>
                         </div>
-                        <div style={st.hMashina}>
-                          {tk.mashina}
-                          {tk.min != null && ` · ${tk.min} ${t('drv.minute')}`}
-                        </div>
+                        <button style={st.qabul} onClick={() => haydovchiTanla(tk)}>
+                          {tk.haydovchi_narx.toLocaleString()}
+                        </button>
                       </div>
-                      <button style={st.qabul} onClick={() => haydovchiTanla(tk)}>
-                        {tk.haydovchi_narx.toLocaleString()}
-                      </button>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
                 <button style={st.bekor} onClick={bekorQilish}>{t('common.cancel')}</button>
               </>
@@ -1019,6 +1063,12 @@ const st = {
   spinner: { width: 40, height: 40, margin: '0 auto 16px', border: '3px solid var(--fill)', borderTop: '3px solid var(--tint)', borderRadius: '50%', animation: 'aylanish 0.9s linear infinite' },
   bekor: { width: '100%', background: 'var(--fill)', color: 'var(--qizil)', padding: 14, borderRadius: 'var(--r-lg)', fontSize: 17, fontWeight: 500, marginTop: 8 },
   haydovchi: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--fill)', padding: 12, borderRadius: 'var(--r-md)', marginBottom: 10 },
+  haydovchiTavsiya: { background: 'var(--tint-fill)', outline: '1px solid var(--tint)' },
+  tavsiyaChip: { display: 'inline-block', marginLeft: 8, padding: '2px 8px', borderRadius: 'var(--r-full)', background: 'var(--tint)', color: '#fff', fontSize: 10, fontWeight: 700, letterSpacing: '0.3px', verticalAlign: 'middle' },
+  arzonChip: { display: 'inline-block', marginLeft: 8, padding: '2px 8px', borderRadius: 'var(--r-full)', background: 'rgba(52,199,89,0.18)', color: 'var(--yashil)', fontSize: 10, fontWeight: 700, letterSpacing: '0.3px' },
+  takliflarHeader: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
+  qidirvaqt: { fontSize: 22, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: 'var(--tint)', marginTop: 6 },
+  qidirvaqtChip: { padding: '4px 10px', borderRadius: 'var(--r-full)', background: 'var(--fill)', color: 'var(--secondary-label)', fontSize: 12, fontWeight: 600, fontVariantNumeric: 'tabular-nums' },
   avatar: { width: 44, height: 44, borderRadius: '50%', background: 'var(--tint)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: 18, flexShrink: 0 },
   hIsm: { display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap', fontWeight: 600, fontSize: 16 },
   tasdiqBelgi: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 16, height: 16, borderRadius: '50%', background: 'var(--tint)', color: '#fff', fontSize: 10, fontWeight: 700, marginLeft: 4 },
@@ -1073,6 +1123,13 @@ const st = {
   uberRowQoshish: { display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, borderRadius: '50%', background: 'var(--tint-fill)', color: 'var(--tint)', flexShrink: 0 },
   qidirvaXarita: { display: 'flex', gap: 8, marginBottom: 22 },
   xaritaChip: { display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: 54, background: 'var(--fill)', color: 'var(--label)', borderRadius: 'var(--r-lg)' },
+  oxirgiKarta: { width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', marginBottom: 18, borderRadius: 'var(--r-lg)', background: 'var(--surface)', boxShadow: 'var(--shadow-1)', textAlign: 'left' },
+  oxirgiIkon: { width: 38, height: 38, borderRadius: 10, background: 'var(--tint-fill)', color: 'var(--tint)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  oxirgiMatnWrap: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 2 },
+  oxirgiSarlavha: { fontSize: 11, fontWeight: 600, color: 'var(--secondary-label)', textTransform: 'uppercase', letterSpacing: '0.4px' },
+  oxirgiManzil: { fontSize: 15, fontWeight: 600, color: 'var(--label)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  oxirgiNarx: { fontSize: 12, color: 'var(--secondary-label)' },
+  oxirgiKnopka: { flexShrink: 0, padding: '8px 14px', borderRadius: 'var(--r-full)', background: 'var(--tint-fill)', color: 'var(--tint)', fontSize: 13, fontWeight: 600 },
   qidirOrqa: { display: 'inline-flex', alignItems: 'center', gap: 4, background: 'transparent', color: 'var(--tint)', fontSize: 16, fontWeight: 500, marginBottom: 12, padding: '4px 0' },
   maydonKarta: { background: 'var(--surface)', borderRadius: 'var(--r-lg)', padding: '4px 14px', boxShadow: 'var(--shadow-1)', marginBottom: 16 },
   maydonQator: { width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', background: 'transparent', textAlign: 'left', position: 'relative' },

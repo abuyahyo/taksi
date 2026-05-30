@@ -142,4 +142,24 @@ const manzilOchir = async (req, res) => {
   }
 };
 
-module.exports = { me, updateMe, songgiManzillar, manzillar, manzilQosh, manzilOchir };
+// GET /api/passenger/last-ride — сўнгги якунланган сафар (Uber услубида "Қайтариш" карточкаси учун)
+const oxirgiSafar = async (req, res) => {
+  try {
+    const r = await query(
+      `SELECT id, tugash_manzil, tugash_lat, tugash_lng,
+              boshlanish_manzil, boshlanish_lat, boshlanish_lng,
+              kelishilgan_narx, tarif, yakun_vaqti
+       FROM rides
+       WHERE mijoz_id = $1 AND holat = 'yakunlandi'
+       ORDER BY yakun_vaqti DESC NULLS LAST
+       LIMIT 1`,
+      [req.user.id]
+    );
+    res.json(r.rows[0] || null);
+  } catch (err) {
+    console.error('passenger oxirgiSafar xato:', err.message);
+    res.status(500).json({ xato: 'Сервер хатоси' });
+  }
+};
+
+module.exports = { me, updateMe, songgiManzillar, oxirgiSafar, manzillar, manzilQosh, manzilOchir };
