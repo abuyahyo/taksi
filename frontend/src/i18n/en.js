@@ -1,5 +1,22 @@
 // English translations
 export default {
+  // Favorite drivers (direct call)
+  'fav.call':        'Call someone you know',
+  'fav.willCall':    'Will call {ism}',
+  'fav.callBtn':     'Call {ism}',
+  'fav.waiting':     'Waiting for {ism}...',
+  'fav.busyTitle':   'Driver is busy now',
+  'fav.offline':     '{ism} is offline now.',
+  'fav.noAnswer':    '{ism} did not respond.',
+  'fav.declined':    '{ism} declined.',
+  'fav.openAll':     'Open to all drivers',
+  'fav.added':       'Added to favorites',
+  'fav.removed':     'Removed from favorites',
+  'fav.add':         'Add to favorites',
+  'fav.forYou':      'For you',
+  'fav.forYouOrder': 'Order for you',
+  'fav.decline':     'Decline',
+
   // Common
   'common.app':          'Manzil',
   'common.continue':     'Continue',

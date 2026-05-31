@@ -1,17 +1,38 @@
 // Баҳолаш модали + чаёвой танлови
 import { useState } from 'react';
-import { socket } from '../services/api';
+import { socket, api } from '../services/api';
 import { useT } from '../i18n';
 import { useToast } from './Toast';
 import Ikonka from './Ikonka';
 
-export default function Baholash({ rideId, kimni, ism, narx, onYopish }) {
+export default function Baholash({ rideId, kimni, ism, narx, haydovchiId, sevimliMi, onSevimliOzgardi, onYopish }) {
   const { t } = useT();
   const toast = useToast();
   const [ball, setBall] = useState(0);
   const [izoh, setIzoh] = useState('');
   const [chayovoy, setChayovoy] = useState(0); // фоиз
   const [yuborildi, setYuborildi] = useState(false);
+  const [sevimli, setSevimli] = useState(!!sevimliMi);
+  const [sevimliBand, setSevimliBand] = useState(false);
+
+  // Севимли ҳайдовчига қўшиш/олиб ташлаш — кейинги сафар тўғридан-тўғри чақириш учун
+  const sevimliToggle = async () => {
+    if (!haydovchiId || sevimliBand) return;
+    setSevimliBand(true);
+    const yangi = !sevimli;
+    setSevimli(yangi); // оптимистик
+    try {
+      if (yangi) await api.post('/passenger/favorites', { haydovchi_id: haydovchiId });
+      else await api.delete(`/passenger/favorites/${haydovchiId}`);
+      toast.success(yangi ? t('fav.added') : t('fav.removed'));
+      onSevimliOzgardi?.();
+    } catch (err) {
+      setSevimli(!yangi); // қайтариш
+      toast.error(err.response?.data?.xato || t('common.error'));
+    } finally {
+      setSevimliBand(false);
+    }
+  };
 
   const taklif = [
     { foiz: 5,  belgi: '5%' },
@@ -51,6 +72,17 @@ export default function Baholash({ rideId, kimni, ism, narx, onYopish }) {
             </div>
             <div style={st.sarlavha}>{sarlavhaMatn}</div>
             <div style={st.ism}>{ism || '—'}</div>
+
+            {/* Севимлига қўшиш — фақат йўловчи ҳайдовчини баҳолашда */}
+            {kimni === 'driver' && haydovchiId && (
+              <button
+                style={{ ...st.sevimliTugma, ...(sevimli ? st.sevimliTugmaFaol : {}) }}
+                onClick={sevimliToggle}
+                disabled={sevimliBand}
+              >
+                <Ikonka nom="star" size={16} /> {sevimli ? t('fav.added') : t('fav.add')}
+              </button>
+            )}
 
             <div style={st.yulduzlar}>
               {[1, 2, 3, 4, 5].map((n) => {
@@ -124,7 +156,9 @@ const st = {
   modal: { width: '100%', maxWidth: 360, borderRadius: 'var(--r-xl)', padding: 24, textAlign: 'center' },
   avatar: { width: 64, height: 64, borderRadius: '50%', background: 'var(--tint)', margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 600, color: '#fff' },
   sarlavha: { fontSize: 15, fontWeight: 400, color: 'var(--secondary-label)' },
-  ism: { fontSize: 22, fontWeight: 600, marginTop: 4, marginBottom: 20 },
+  ism: { fontSize: 22, fontWeight: 600, marginTop: 4, marginBottom: 12 },
+  sevimliTugma: { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 'var(--r-full)', background: 'var(--fill)', color: 'var(--label)', fontSize: 14, fontWeight: 500, marginBottom: 16 },
+  sevimliTugmaFaol: { background: 'var(--tint)', color: '#fff' },
   yulduzlar: { display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 18 },
   yulduz: { width: 44, height: 44, background: 'transparent', padding: 0, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' },
   chayovoyBolimi: { background: 'var(--fill)', borderRadius: 'var(--r-md)', padding: 14, marginBottom: 14 },

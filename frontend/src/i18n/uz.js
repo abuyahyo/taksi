@@ -1,5 +1,22 @@
 // Ўзбек тилидаги матнлар (асосий)
 export default {
+  // Севимли ҳайдовчилар (тўғридан-тўғри чақириш)
+  'fav.call':        'Танишни чақириш',
+  'fav.willCall':    '{ism} чақирилади',
+  'fav.callBtn':     '{ism}ни чақириш',
+  'fav.waiting':     '{ism}ни кутмоқдамиз...',
+  'fav.busyTitle':   'Ҳайдовчи ҳозир банд',
+  'fav.offline':     '{ism} ҳозир онлайн эмас.',
+  'fav.noAnswer':    '{ism} жавоб бермади.',
+  'fav.declined':    '{ism} рад этди.',
+  'fav.openAll':     'Барча ҳайдовчиларга очиш',
+  'fav.added':       'Севимлига қўшилди',
+  'fav.removed':     'Севимлидан олинди',
+  'fav.add':         'Севимлига қўшиш',
+  'fav.forYou':      'Сизга атаб',
+  'fav.forYouOrder': 'Сизга атаб буюртма',
+  'fav.decline':     'Рад этиш',
+
   // Умумий
   'common.app':          'Manzil',
   'common.continue':     'Давом этиш',

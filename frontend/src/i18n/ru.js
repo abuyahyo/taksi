@@ -1,5 +1,22 @@
 // Русские переводы
 export default {
+  // Избранные водители (прямой вызов)
+  'fav.call':        'Вызвать знакомого',
+  'fav.willCall':    'Вызовем {ism}',
+  'fav.callBtn':     'Вызвать {ism}',
+  'fav.waiting':     'Ждём {ism}...',
+  'fav.busyTitle':   'Водитель сейчас занят',
+  'fav.offline':     '{ism} сейчас не в сети.',
+  'fav.noAnswer':    '{ism} не ответил.',
+  'fav.declined':    '{ism} отклонил.',
+  'fav.openAll':     'Открыть всем водителям',
+  'fav.added':       'Добавлен в избранное',
+  'fav.removed':     'Удалён из избранного',
+  'fav.add':         'В избранное',
+  'fav.forYou':      'Для вас',
+  'fav.forYouOrder': 'Заказ для вас',
+  'fav.decline':     'Отклонить',
+
   // Общие
   'common.app':          'Manzil',
   'common.continue':     'Продолжить',
