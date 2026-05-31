@@ -2,8 +2,20 @@
 // кимошдида сотилади. Биз фоиз олмаймиз; обуна + реклама — даромад.
 // Реклама ТЎЛОВСИЗ кўрсатилмайди: ғолиб Payme/Click тўлагач (reklamaFaollashtir) фаоллашади.
 const { query } = require('../config/db');
+const { yuborFoydalanuvchiga } = require('./pushController');
+const { botFoydalanuvchiga } = require('./telegramBotController');
 
-const SNIPING_SOAT = 6; // охирги шунча соатда таклиф келса — кимошди узаяди
+const SNIPING_SOAT = 6;       // охирги шунча соатда таклиф келса — кимошди узаяди
+const TOLOV_GRACE_SOAT = 24;  // ғолиб шунча соат ичида тўласин, акс ҳолда иккинчига ўтади
+
+// Рекламачига хабар — web push + Telegram бот (fire-and-forget)
+function reklamaXabar(userId, title, body) {
+  if (!userId) return;
+  try {
+    yuborFoydalanuvchiga(userId, { title, body, tag: 'reklama', url: '/reklama' });
+    botFoydalanuvchiga(userId, `${title}\n${body}`);
+  } catch (e) { console.error('reklama xabar xato:', e.message); }
+}
 
 // Ой ёрлиғи + ёпилиш вақти (siljish=1 → келаси ой)
 function oyHisob(siljish = 1) {
@@ -13,33 +25,73 @@ function oyHisob(siljish = 1) {
   return { oy, tugash: d };
 }
 
-// Кимошдиларни текшириш: тугаганларни ёпиб ғолибни аниқлаймиз ва келаси ой
-// учун очиқ кимошди мавжудлигини таъминлаймиз. Лозим — server.js setInterval'дан.
+// Кимошди ғолибини аниқлаш — тасдиқланган кампаниялар орасидан энг юқори таклиф,
+// "ўтказилган" (тўламаган) кампаниялар ҳисобга олинмайди.
+async function golibniAniqla(auksionId, otkazilgan = []) {
+  const r = await query(
+    `SELECT t.kampaniya_id, t.summa, k.user_id
+       FROM reklama_takliflar t JOIN reklama_kampaniyalar k ON k.id = t.kampaniya_id
+      WHERE t.auksion_id = $1 AND k.holat = 'tasdiqlangan'
+        AND NOT (t.kampaniya_id = ANY($2::int[]))
+      ORDER BY t.summa DESC, t.id ASC LIMIT 1`,
+    [auksionId, otkazilgan]
+  );
+  return r.rows[0] || null;
+}
+
+// Кимошдиларни текшириш: ёпиш+ғолиб, тўламаган ғолибни иккинчига ўтказиш,
+// келаси ой учун очиқ кимошди. Лозим — server.js setInterval'дан (соатлик + лазий).
 async function auksionlarniTekshir() {
   try {
-    // 1) Тугаган очиқ кимошдиларни ёпамиз
+    // 1) Тугаган очиқ кимошдиларни ёпиб ғолибни аниқлаймиз
     const tugagan = await query(
-      `SELECT id, reserve_narx FROM reklama_auksionlar WHERE holat = 'ochiq' AND tugash <= NOW()`
+      `SELECT id FROM reklama_auksionlar WHERE holat = 'ochiq' AND tugash <= NOW()`
     );
     for (const a of tugagan.rows) {
-      // Reserve'дан паст таклифлар қабул қилинмаган (таклиф пайтида текширилган)
-      const top = await query(
-        `SELECT kampaniya_id, summa FROM reklama_takliflar
-          WHERE auksion_id = $1 ORDER BY summa DESC, id ASC LIMIT 1`,
-        [a.id]
-      );
-      if (top.rows[0]) {
+      const g = await golibniAniqla(a.id, []);
+      if (g) {
         await query(
           `UPDATE reklama_auksionlar
-              SET holat = 'yopilgan', golib_kampaniya_id = $2, golib_summa = $3
+              SET holat = 'yopilgan', golib_kampaniya_id = $2, golib_summa = $3,
+                  tolov_muddati = NOW() + ($4 || ' hours')::INTERVAL
             WHERE id = $1`,
-          [a.id, top.rows[0].kampaniya_id, top.rows[0].summa]
+          [a.id, g.kampaniya_id, g.summa, TOLOV_GRACE_SOAT]
         );
+        reklamaXabar(g.user_id, '🏆 Кимошдида ютдингиз',
+          `${Number(g.summa).toLocaleString()} сўм — ${TOLOV_GRACE_SOAT} соат ичида тўланг, акс ҳолда жой иккинчига ўтади.`);
       } else {
         await query(`UPDATE reklama_auksionlar SET holat = 'yopilgan' WHERE id = $1`, [a.id]);
       }
     }
-    // 2) Келаси ой учун очиқ кимошди бўлсин
+    // 2) Ғолиб муддатида тўламади — жойни иккинчи ўриндагига ўтказамиз
+    const muddati = await query(
+      `SELECT id, golib_kampaniya_id, otkazilgan FROM reklama_auksionlar
+        WHERE holat = 'yopilgan' AND tolandi = FALSE
+          AND golib_kampaniya_id IS NOT NULL AND tolov_muddati <= NOW()`
+    );
+    for (const a of muddati.rows) {
+      const otkazilgan = [...(a.otkazilgan || []), a.golib_kampaniya_id];
+      const g = await golibniAniqla(a.id, otkazilgan);
+      if (g) {
+        await query(
+          `UPDATE reklama_auksionlar
+              SET golib_kampaniya_id = $2, golib_summa = $3, otkazilgan = $4::int[],
+                  tolov_muddati = NOW() + ($5 || ' hours')::INTERVAL
+            WHERE id = $1`,
+          [a.id, g.kampaniya_id, g.summa, otkazilgan, TOLOV_GRACE_SOAT]
+        );
+        reklamaXabar(g.user_id, '🏆 Кимошди жойи сизга ўтди',
+          `Олдинги ғолиб тўламади. ${Number(g.summa).toLocaleString()} сўм — ${TOLOV_GRACE_SOAT} соат ичида тўланг.`);
+      } else {
+        // Бошқа таклиф йўқ — жой бўш қолади
+        await query(
+          `UPDATE reklama_auksionlar SET golib_kampaniya_id = NULL, golib_summa = NULL,
+                  otkazilgan = $2::int[], tolov_muddati = NULL WHERE id = $1`,
+          [a.id, otkazilgan]
+        );
+      }
+    }
+    // 3) Келаси ой учун очиқ кимошди бўлсин
     const { oy, tugash } = oyHisob(1);
     await query(
       `INSERT INTO reklama_auksionlar (oy, tugash) VALUES ($1, $2) ON CONFLICT (oy) DO NOTHING`,
@@ -155,7 +207,7 @@ const auksionHolati = async (req, res) => {
     );
     // Ютуқлар — ёпилган, мени ғолиб қилган, ҳали тўланмаган кимошдилар
     const yutuqlar = await query(
-      `SELECT a.id, a.oy, a.golib_summa
+      `SELECT a.id, a.oy, a.golib_summa, a.tolov_muddati
          FROM reklama_auksionlar a
          JOIN reklama_kampaniyalar k ON k.id = a.golib_kampaniya_id
         WHERE a.holat = 'yopilgan' AND a.tolandi = FALSE AND k.user_id = $1
@@ -190,11 +242,14 @@ const taklifQil = async (req, res) => {
     if (!auksion) return res.status(400).json({ xato: 'Очиқ кимошди йўқ' });
     if (new Date(auksion.tugash) <= new Date()) return res.status(400).json({ xato: 'Кимошди тугади' });
 
+    // Жорий етакчи (уни хабардор қилиш учун) — энг юқори таклиф эгаси
     const top = await query(
-      `SELECT MAX(summa) AS eng FROM reklama_takliflar WHERE auksion_id = $1`,
+      `SELECT user_id, summa FROM reklama_takliflar
+        WHERE auksion_id = $1 ORDER BY summa DESC, id ASC LIMIT 1`,
       [auksion.id]
     );
-    const joriyNarx = top.rows[0]?.eng ? Number(top.rows[0].eng) : 0;
+    const joriyNarx = top.rows[0]?.summa ? Number(top.rows[0].summa) : 0;
+    const oldingiYetakchi = top.rows[0]?.user_id || null;
     const minQabul = joriyNarx > 0 ? joriyNarx + auksion.min_qadam : auksion.reserve_narx;
     if (summa < minQabul) {
       return res.status(400).json({ xato: `Камида ${minQabul.toLocaleString()} сўм таклиф қилинг`, keyingi_min: minQabul });
@@ -205,6 +260,12 @@ const taklifQil = async (req, res) => {
        VALUES ($1, $2, $3, $4)`,
       [auksion.id, kampaniyaId, req.user.id, summa]
     );
+
+    // Олдинги етакчини хабардор қиламиз — "сиздан юқори таклиф бор"
+    if (oldingiYetakchi && oldingiYetakchi !== req.user.id) {
+      reklamaXabar(oldingiYetakchi, '📈 Сиздан юқори таклиф бор',
+        `${auksion.oy.trim()} реклама кимошдида жорий нарх ${Number(summa).toLocaleString()} сўм. Яна таклиф қилишингиз мумкин.`);
+    }
 
     // Anti-sniping — охирги SNIPING_SOAT соатда таклиф келса, шунчага узаямиз
     const qolgan = (new Date(auksion.tugash) - Date.now()) / 3600000;

@@ -270,6 +270,8 @@ CREATE TABLE IF NOT EXISTS reklama_auksionlar (
   golib_kampaniya_id INTEGER REFERENCES reklama_kampaniyalar(id),
   golib_summa  INTEGER,
   tolandi      BOOLEAN DEFAULT FALSE,
+  tolov_muddati TIMESTAMP,             -- ғолиб шу вақтгача тўласин; ўтса иккинчига ўтади
+  otkazilgan   INTEGER[] DEFAULT '{}', -- тўламай ўтказилган кампания id'лари
   yaratilgan   TIMESTAMP DEFAULT NOW()
 );
 
