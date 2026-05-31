@@ -58,6 +58,16 @@ function Ichki() {
     return kun > 0 ? `${kun} кун ${soat} соат` : `${soat}:${String(daq).padStart(2, '0')}:${String(sek).padStart(2, '0')}`;
   };
 
+  // Ютуқ тўлов муддати — қанча қолгани (ўтган бўлса "тез орада ўтади")
+  const tolovQolgan = (muddat) => {
+    const ms = new Date(muddat) - hozir;
+    if (ms <= 0) return t('reklama.paySoon');
+    const soat = Math.floor(ms / 3600000);
+    return soat > 0
+      ? t('reklama.payLeftH', { n: soat })
+      : t('reklama.payLeftM', { n: Math.max(1, Math.floor((ms % 3600000) / 60000)) });
+  };
+
   const taklifQil = async () => {
     const summa = parseInt(taklif, 10);
     if (!tanlangan) { toast.error(t('reklama.needApproved')); return; }
@@ -123,6 +133,9 @@ function Ichki() {
             <div key={y.id} style={st.yutuq}>
               <div style={st.yutuqSarl}><Ikonka nom="check" size={16} /> {t('reklama.won')}</div>
               <div style={st.yutuqMatn}>{t('reklama.wonPay', { oy: y.oy, sum: Number(y.golib_summa).toLocaleString() })}</div>
+              {y.tolov_muddati && (
+                <div style={st.yutuqMuddat}>{tolovQolgan(y.tolov_muddati)}</div>
+              )}
               <div style={st.tolovlar}>
                 <button style={st.tolPayme} disabled={band} onClick={() => tola(y, 'payme')}>Payme</button>
                 <button style={st.tolClick} disabled={band} onClick={() => tola(y, 'click')}>Click</button>
@@ -262,7 +275,8 @@ const st = {
   radSabab: { fontSize: 12, color: 'var(--secondary-label)', marginTop: 2 },
   yutuq: { background: 'rgba(6,193,103,0.10)', border: '1px solid rgba(6,193,103,0.3)', borderRadius: 'var(--r-lg)', padding: 14 },
   yutuqSarl: { display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, color: 'var(--accept)', fontSize: 15 },
-  yutuqMatn: { fontSize: 14, margin: '6px 0 12px' },
+  yutuqMatn: { fontSize: 14, margin: '6px 0 4px' },
+  yutuqMuddat: { fontSize: 13, fontWeight: 600, color: 'var(--amber)', marginBottom: 12 },
   tolovlar: { display: 'flex', gap: 8 },
   tolPayme: { flex: 1, background: '#00cccc', color: '#fff', padding: 11, borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 14 },
   tolClick: { flex: 1, background: '#0099ff', color: '#fff', padding: 11, borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 14 },
