@@ -2,11 +2,13 @@
 // Payme сервери шу манзилга сўров юборади, биз жавоб берамиз
 const { query } = require('../config/db');
 const { obunaFaollashtir } = require('./subscriptionController');
+const { reklamaFaollashtir } = require('./reklamaController');
 require('dotenv').config();
 
-// Тўлов нишони account'дан: обуна (ac.obuna_id) ёки сафар (ac.ride_id)
+// Тўлов нишони account'дан: реклама (ac.reklama_id), обуна (ac.obuna_id) ёки сафар (ac.ride_id)
 function nishon(account) {
   const a = account || {};
+  if (a.reklama_id) return { tur: 'reklama', id: parseInt(a.reklama_id, 10) };
   if (a.obuna_id) return { tur: 'obuna', id: parseInt(a.obuna_id, 10) };
   if (a.ride_id) return { tur: 'ride', id: parseInt(a.ride_id, 10) };
   return null;
@@ -38,18 +40,23 @@ async function checkPerform(params, id) {
     if (ride.rows.length === 0) return xatoJavob(id, XATO.BUYURTMA_TOPILMADI, 'Буюртма топилмади');
     if (ride.rows[0].holat === 'bekor_qilindi') return xatoJavob(id, XATO.BAJARIB_BOLMAYDI, 'Сафар бекор қилинган');
     kerakli = ride.rows[0].kelishilgan_narx * 100;
-  } else {
+  } else if (n.tur === 'obuna') {
     const ob = await query('SELECT summa, holat FROM obunalar WHERE id = $1', [n.id]);
     if (ob.rows.length === 0) return xatoJavob(id, XATO.BUYURTMA_TOPILMADI, 'Обуна топилмади');
     if (ob.rows[0].holat === 'faol') return xatoJavob(id, XATO.BAJARIB_BOLMAYDI, 'Обуна аллақачон фаол');
     kerakli = ob.rows[0].summa * 100;
+  } else {
+    const a = await query('SELECT golib_summa, tolandi FROM reklama_auksionlar WHERE id = $1', [n.id]);
+    if (a.rows.length === 0 || !a.rows[0].golib_summa) return xatoJavob(id, XATO.BUYURTMA_TOPILMADI, 'Кимошди ютуғи топилмади');
+    if (a.rows[0].tolandi) return xatoJavob(id, XATO.BAJARIB_BOLMAYDI, 'Аллақачон тўланган');
+    kerakli = a.rows[0].golib_summa * 100;
   }
   // Сумма тўғрими? (тийинда солиштирамиз)
   if (params.amount !== kerakli) {
     return xatoJavob(id, XATO.NOTOGRI_SUMMA, 'Сумма нотўғри');
   }
   // Аллақачон тўланганми?
-  const ustun = n.tur === 'ride' ? 'ride_id' : 'obuna_id';
+  const ustun = n.tur === 'ride' ? 'ride_id' : n.tur === 'obuna' ? 'obuna_id' : 'reklama_id';
   const tolangan = await query(
     `SELECT 1 FROM transactions WHERE ${ustun} = $1 AND holat = 'tolandi' LIMIT 1`,
     [n.id]
@@ -77,9 +84,9 @@ async function create(params, id) {
   if (!n) return xatoJavob(id, XATO.BUYURTMA_TOPILMADI, 'Буюртма топилмади');
   const vaqt = Date.now();
   const natija = await query(
-    `INSERT INTO transactions (ride_id, obuna_id, tizim, tashqi_id, summa, holat, yaratilgan_vaqt)
-     VALUES ($1, $2, 'payme', $3, $4, 'kutilmoqda', $5) RETURNING id`,
-    [n.tur === 'ride' ? n.id : null, n.tur === 'obuna' ? n.id : null, params.id, params.amount, vaqt]
+    `INSERT INTO transactions (ride_id, obuna_id, reklama_id, tizim, tashqi_id, summa, holat, yaratilgan_vaqt)
+     VALUES ($1, $2, $3, 'payme', $4, $5, 'kutilmoqda', $6) RETURNING id`,
+    [n.tur === 'ride' ? n.id : null, n.tur === 'obuna' ? n.id : null, n.tur === 'reklama' ? n.id : null, params.id, params.amount, vaqt]
   );
 
   return muvaffaqiyat(id, {
@@ -110,6 +117,7 @@ async function perform(params, id) {
   // Нишонга қараб: сафарни тўланган деб белгилаймиз ёки обунани фаоллаштирамиз
   if (t.ride_id) await query(`UPDATE rides SET holat = 'yakunlandi' WHERE id = $1`, [t.ride_id]);
   if (t.obuna_id) await obunaFaollashtir(t.obuna_id);
+  if (t.reklama_id) await reklamaFaollashtir(t.reklama_id);
 
   return muvaffaqiyat(id, { transaction: String(t.id), perform_time: vaqt, state: HOLAT.TOLANDI });
 }
@@ -198,10 +206,10 @@ const paymeWebhook = async (req, res) => {
 
 // Payme checkout URL яратиш — фойдаланувчи юборилиб тўловни киритади
 //   format: https://checkout.paycom.uz/{base64(m=MERCHANT;ac.ride_id=N;a=AMOUNT_TIYIN;c=RETURN;l=LANG)}
-function paymeCheckoutUrl({ rideId, obunaId, summaSum, returnUrl, til = 'uz' }) {
+function paymeCheckoutUrl({ rideId, obunaId, reklamaId, summaSum, returnUrl, til = 'uz' }) {
   const merchant = process.env.PAYME_ID || 'test_payme_id';
   const summa = summaSum * 100; // тийинда
-  const account = obunaId ? `ac.obuna_id=${obunaId}` : `ac.ride_id=${rideId}`;
+  const account = reklamaId ? `ac.reklama_id=${reklamaId}` : obunaId ? `ac.obuna_id=${obunaId}` : `ac.ride_id=${rideId}`;
   const qismlar = [`m=${merchant}`, account, `a=${summa}`, `l=${til}`];
   if (returnUrl) qismlar.push(`c=${returnUrl}`);
   const param = qismlar.join(';');

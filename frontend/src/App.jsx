@@ -19,6 +19,7 @@ const SafarTarixi      = lazy(() => import('./pages/SafarTarixi'));
 const XizmatlarSahifa  = lazy(() => import('./pages/XizmatlarSahifa'));
 const AkkauntSahifa    = lazy(() => import('./pages/AkkauntSahifa'));
 const UlashilganSahifa = lazy(() => import('./pages/UlashilganSahifa'));
+const ReklamaSahifa    = lazy(() => import('./pages/ReklamaSahifa'));
 
 function Yuklanmoqda() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
             <Route path="/tarix" element={<SafarTarixi />} />
             <Route path="/xizmatlar" element={<XizmatlarSahifa />} />
             <Route path="/akkaunt" element={<AkkauntSahifa />} />
+            <Route path="/reklama" element={<ReklamaSahifa />} />
             <Route path="/k/:kalit" element={<UlashilganSahifa />} />
           </Routes>
         </Suspense>

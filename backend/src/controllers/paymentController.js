@@ -3,10 +3,25 @@ const { query } = require('../config/db');
 const { paymeCheckoutUrl } = require('./paymeController');
 const { clickCheckoutUrl } = require('./clickController');
 const { obunaFaollashtir } = require('./subscriptionController');
+const { reklamaFaollashtir } = require('./reklamaController');
 
-// Тўлов нишонини (сафар ёки обуна) аниқлаб, эгалик ва суммани текширади.
-// Қайтаради: { rideId|obunaId, summaSum } ёки { xato, kod }.
-async function nishonniTekshir({ rideId, obunaId }, user) {
+// Тўлов нишонини (сафар, обуна ёки реклама) аниқлаб, эгалик ва суммани текширади.
+// Қайтаради: { rideId|obunaId|reklamaId, summaSum } ёки { xato, kod }.
+async function nishonniTekshir({ rideId, obunaId, reklamaId }, user) {
+  if (reklamaId) {
+    const a = await query(
+      `SELECT a.id, a.golib_summa, a.tolandi, k.user_id
+         FROM reklama_auksionlar a JOIN reklama_kampaniyalar k ON k.id = a.golib_kampaniya_id
+        WHERE a.id = $1`,
+      [reklamaId]
+    );
+    if (a.rows.length === 0) return { xato: 'Кимошди ютуғи топилмади', kod: 404 };
+    const r = a.rows[0];
+    if (r.user_id !== user.id && user.rol !== 'admin') return { xato: 'Бу ютуқ сизники эмас', kod: 403 };
+    if (r.tolandi) return { xato: 'Аллақачон тўланган', kod: 400 };
+    if (!r.golib_summa) return { xato: 'Ютуқ нархи нотўғри', kod: 400 };
+    return { reklamaId: r.id, summaSum: r.golib_summa };
+  }
   if (obunaId) {
     const o = await query(`SELECT id, user_id, summa, holat FROM obunalar WHERE id = $1`, [obunaId]);
     if (o.rows.length === 0) return { xato: 'Обуна топилмади', kod: 404 };
@@ -27,14 +42,14 @@ async function nishonniTekshir({ rideId, obunaId }, user) {
 // POST /api/payment/url  body: { rideId | obunaId, tizim: 'payme' | 'click', returnUrl?, til? }
 const checkoutUrl = async (req, res) => {
   try {
-    const { rideId, obunaId, tizim, returnUrl, til } = req.body;
-    if ((!rideId && !obunaId) || !['payme', 'click'].includes(tizim)) {
+    const { rideId, obunaId, reklamaId, tizim, returnUrl, til } = req.body;
+    if ((!rideId && !obunaId && !reklamaId) || !['payme', 'click'].includes(tizim)) {
       return res.status(400).json({ xato: 'Нотўғри параметр' });
     }
-    const n = await nishonniTekshir({ rideId, obunaId }, req.user);
+    const n = await nishonniTekshir({ rideId, obunaId, reklamaId }, req.user);
     if (n.xato) return res.status(n.kod).json({ xato: n.xato });
 
-    const ozgaruvchilar = { rideId: n.rideId, obunaId: n.obunaId, summaSum: n.summaSum, returnUrl, til };
+    const ozgaruvchilar = { rideId: n.rideId, obunaId: n.obunaId, reklamaId: n.reklamaId, summaSum: n.summaSum, returnUrl, til };
     const url = tizim === 'payme' ? paymeCheckoutUrl(ozgaruvchilar) : clickCheckoutUrl(ozgaruvchilar);
     res.json({ url, tizim, summa: n.summaSum });
   } catch (err) {
@@ -52,19 +67,20 @@ const testPay = async (req, res) => {
     if (process.env.PAYMENT_TEST_MODE !== '1') {
       return res.status(403).json({ xato: 'Тест тўлови ўчирилган' });
     }
-    const { rideId, obunaId } = req.body;
-    const n = await nishonniTekshir({ rideId, obunaId }, req.user);
+    const { rideId, obunaId, reklamaId } = req.body;
+    const n = await nishonniTekshir({ rideId, obunaId, reklamaId }, req.user);
     if (n.xato) return res.status(n.kod).json({ xato: n.xato });
 
     const vaqt = Date.now();
-    const belgi = n.obunaId ? `obuna-${n.obunaId}` : `ride-${n.rideId}`;
+    const belgi = n.reklamaId ? `reklama-${n.reklamaId}` : n.obunaId ? `obuna-${n.obunaId}` : `ride-${n.rideId}`;
     await query(
-      `INSERT INTO transactions (ride_id, obuna_id, tizim, tashqi_id, summa, holat, yaratilgan_vaqt, amalga_oshgan_vaqt)
-       VALUES ($1, $2, 'test', $3, $4, 'tolandi', $5, $5)`,
-      [n.rideId || null, n.obunaId || null, `test-${belgi}-${vaqt}`, n.summaSum * 100, vaqt]
+      `INSERT INTO transactions (ride_id, obuna_id, reklama_id, tizim, tashqi_id, summa, holat, yaratilgan_vaqt, amalga_oshgan_vaqt)
+       VALUES ($1, $2, $3, 'test', $4, $5, 'tolandi', $6, $6)`,
+      [n.rideId || null, n.obunaId || null, n.reklamaId || null, `test-${belgi}-${vaqt}`, n.summaSum * 100, vaqt]
     );
-    // Обуна тўлови — дарҳол фаоллаштирамиз
+    // Обуна/реклама тўлови — дарҳол фаоллаштирамиз
     if (n.obunaId) await obunaFaollashtir(n.obunaId);
+    if (n.reklamaId) await reklamaFaollashtir(n.reklamaId);
     res.json({ ok: true, summa: n.summaSum });
   } catch (err) {
     console.error('testPay xato:', err.message);

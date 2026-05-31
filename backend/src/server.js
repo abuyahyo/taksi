@@ -21,6 +21,8 @@ const heatmapRoutes = require('./routes/heatmapRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const pushRoutes = require('./routes/pushRoutes');
 const telegramRoutes = require('./routes/telegramRoutes');
+const reklamaRoutes = require('./routes/reklamaRoutes');
+const { auksionlarniTekshir } = require('./controllers/reklamaController');
 
 const app = express();
 const server = http.createServer(app);
@@ -72,6 +74,7 @@ app.use('/api/heatmap', heatmapRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/push', pushRoutes);
 app.use('/api/telegram', telegramRoutes);
+app.use('/api/reklama', reklamaRoutes);
 
 // Мос келмаган API йўли — HTML эмас, JSON 404 қайтарамиз
 app.use('/api', (req, res) => {
@@ -151,4 +154,8 @@ server.listen(PORT, () => {
   console.log(`🚀 Сервер ${PORT} портда ишламоқда`);
   // Telegram бот буйруқлари менюсини ўрнатамиз (токен бўлса; жим, fire-and-forget)
   require('./controllers/telegramBotController').komandalarOrnat();
+  // Реклама кимошдиларини текшириб турамиз — тугаганини ёпиб, ғолибни аниқлаймиз
+  // ва келаси ой учун очиқ кимошди бўлишини таъминлаймиз (лазий + соатлик).
+  auksionlarniTekshir();
+  setInterval(auksionlarniTekshir, 60 * 60 * 1000);
 });

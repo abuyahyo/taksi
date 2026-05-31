@@ -14,6 +14,7 @@ export default function XizmatlarSahifa() {
     { kalit: 'komfort',  ikon: 'car',     yol: '/yolovchi?tarif=komfort',  rang: 'var(--kok)',   belgi: null },
     { kalit: 'dostavka', ikon: 'receipt', yol: '/yolovchi?tarif=dostavka', rang: 'var(--amber)', belgi: t('xizmat.badgeNew') },
     { kalit: 'schedule', ikon: 'clock',   yol: '/yolovchi?reja=1',         rang: 'var(--yashil)', belgi: null },
+    { kalit: 'reklama',  ikon: 'flame',   yol: '/reklama',                 rang: 'var(--ink)',   belgi: t('xizmat.badgeNew') },
   ];
 
   return (

@@ -12,6 +12,7 @@ import Ulashish from '../components/Ulashish';
 import SOS from '../components/SOS';
 import NarxTarkibi from '../components/NarxTarkibi';
 import SevimliKodQosh from '../components/SevimliKodQosh';
+import ReklamaBanner from '../components/ReklamaBanner';
 import { tavsiyaHisobi, ASOSIY, PER_KM, TARIFLAR } from '../utils/narx';
 import { masofaKm } from '../utils/geo';
 import { api, yolHisobla } from '../services/api';
@@ -589,6 +590,9 @@ export default function YolovchiSahifa() {
             </div>
           ) : (
             <div style={st.uberBody}>
+              {/* Ой кимошди ғолибининг рекламаси (бўлса) */}
+              <ReklamaBanner />
+
               {/* Қидирув + Харитадан тугмалари ёнма-ён */}
               <div style={st.qidirvaXarita}>
                 <button style={{ ...st.qayergaTugma, flex: 1, marginBottom: 0 }} className="press" onClick={() => qidiruvAch('tugash')}>
