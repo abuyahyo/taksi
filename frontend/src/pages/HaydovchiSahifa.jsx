@@ -168,9 +168,11 @@ function Ichki({ user }) {
       navigate('/haydovchi/ulanish');
     },
     buyurtma_keldi: (b) => {
-      setBuyurtmalar((oldin) => [...oldin, b]);
+      // Дубликатсиз — маqsadли буюртма барчага очилса яна келиши мумкин
+      setBuyurtmalar((oldin) => (oldin.some((x) => x.id === b.id) ? oldin.map((x) => (x.id === b.id ? b : x)) : [...oldin, b]));
       tebrat(TEBRANISH.muvaffaqiyat);
-      bildir(t('notif.newOrder'), `${Number(b.narx).toLocaleString()} · ${b.boshlanish} → ${b.tugash}`, { tag: `buyurtma-${b.id}` });
+      const sarlavha = b.maqsadli ? t('fav.forYouOrder') : t('notif.newOrder');
+      bildir(sarlavha, `${Number(b.narx).toLocaleString()} · ${b.boshlanish} → ${b.tugash}`, { tag: `buyurtma-${b.id}` });
     },
     mavjud_buyurtmalar: (royxat) => setBuyurtmalar(royxat),
     buyurtma_yopildi: ({ rideId }) => {
@@ -268,6 +270,13 @@ function Ichki({ user }) {
       setBuyurtmalar([]);
       gpsTiklandi();
     }
+  };
+
+  // Сизга атаб буюртмани рад этиш — йўловчидан "барчага очайми?" сўралади
+  const maqsadliRad = (b) => {
+    tebrat(TEBRANISH.yengil);
+    yubor('maqsadli_rad', { rideId: b.id });
+    setBuyurtmalar((oldin) => oldin.filter((x) => x.id !== b.id));
   };
 
   const roziBolish = async (b) => {
@@ -465,6 +474,9 @@ function Ichki({ user }) {
               <div style={st.kartaYuqori}>
                 <div>
                   <span style={st.tarifChip}>{t(`tarif.${b.tarif || 'ekonom'}`)}</span>
+                  {b.maqsadli && (
+                    <span style={st.maqsadliChip}><Ikonka nom="star" size={11} /> {t('fav.forYou')}</span>
+                  )}
                   {b.reja_vaqt && (
                     <span style={st.rejaChip}>
                       <Ikonka nom="clock" size={11} /> {new Date(b.reja_vaqt).toLocaleString(undefined, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
@@ -521,6 +533,11 @@ function Ichki({ user }) {
                   {t('drv.agree')} · {Number(b.narx).toLocaleString()}
                 </button>
               </div>
+              {b.maqsadli && (
+                <button style={st.radTugma} onClick={() => maqsadliRad(b)}>
+                  {t('fav.decline')}
+                </button>
+              )}
             </div>
           ))
         )}
@@ -625,6 +642,8 @@ const st = {
   tugmalar: { display: 'flex', gap: 10 },
   oznarxTugma: { flex: 1, background: 'var(--fill)', color: 'var(--tint)', padding: 13, borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 15 },
   roziTugma: { flex: 1.4, background: 'var(--accept)', color: '#fff', padding: 13, borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 15 },
+  maqsadliChip: { display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 700, color: '#fff', background: 'var(--tint)', padding: '2px 8px', borderRadius: 'var(--r-full)', marginLeft: 6, marginBottom: 6, verticalAlign: 'middle' },
+  radTugma: { width: '100%', background: 'transparent', color: 'var(--decline)', padding: 10, borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 14, marginTop: 8 },
   modalFon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 2000, backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)' },
   modal: { background: 'var(--surface-elevated)', width: '100%', maxWidth: 480, borderRadius: '14px 14px 0 0', padding: '8px 20px', paddingBottom: 'calc(20px + env(safe-area-inset-bottom))' },
   grabber: { width: 36, height: 5, borderRadius: 3, background: 'var(--fill-strong)', margin: '0 auto 14px' },

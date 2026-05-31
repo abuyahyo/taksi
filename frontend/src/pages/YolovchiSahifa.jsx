@@ -86,6 +86,9 @@ export default function YolovchiSahifa() {
   const [oxirgiSafar, setOxirgiSafar] = useState(null); // {tugash_manzil, tugash_lat, tugash_lng, kelishilgan_narx, ...}
   const [qidiruvBoshlandi, setQidiruvBoshlandi] = useState(0); // 'kutish' bosqichi бошланган мс
   const [hozirSek, setHozirSek] = useState(0); // ҳар сонияда таймер
+  const [sevimlilar, setSevimlilar] = useState([]); // севимли ҳайдовчилар
+  const [maqsadliHaydovchi, setMaqsadliHaydovchi] = useState(null); // {haydovchi_id, ism, ...} — тўғридан-тўғри чақириладиган ҳайдовчи
+  const [maqsadliSorov, setMaqsadliSorov] = useState(null); // {rideId, ism, sabab} — "барчага очайми?" сўрови
 
   const meId = user?.id || null;
 
@@ -97,6 +100,7 @@ export default function YolovchiSahifa() {
     api.get('/passenger/recent').then(({ data }) => setSonggiManzillar(data)).catch(() => {});
     api.get('/passenger/addresses').then(({ data }) => setSaqlanganlar(data)).catch(() => {});
     api.get('/passenger/last-ride').then(({ data }) => setOxirgiSafar(data)).catch(() => {});
+    api.get('/passenger/favorites').then(({ data }) => setSevimlilar(data)).catch(() => {});
   }, [user?.id]);
 
   // Қидирув таймери (Uber услуби — фойдаланувчи қанча кутаётганини кўриш)
@@ -262,6 +266,21 @@ export default function YolovchiSahifa() {
       tebrat(TEBRANISH.muvaffaqiyat);
       bildir('💰 Янги таклиф', `${taklif.haydovchi_ism} · ${Number(taklif.haydovchi_narx).toLocaleString()} сўм${taklif.min != null ? ` · ${taklif.min} мин` : ''}`, { tag: 'taklif' });
     },
+    // Севимли ҳайдовчи онлайн эмас — дарҳол "барчага очайми?" сўраймиз
+    maqsadli_band: ({ rideId: rid, sabab }) => {
+      setMaqsadliSorov({ rideId: rid, ism: maqsadliHaydovchi?.ism, sabab: sabab || 'oflayn' });
+    },
+    // Севимли ҳайдовчи жавоб бермади/рад этди — "барчага очайми?" сўраймиз
+    maqsadli_javob_yoq: ({ rideId: rid, sabab }) => {
+      if (rideId && Number(rid) !== Number(rideId)) return;
+      tebrat(TEBRANISH.ogohlantirish);
+      setMaqsadliSorov({ rideId: rid, ism: maqsadliHaydovchi?.ism, sabab: sabab || 'vaqt' });
+    },
+    // Барчага очилди — энди оддий буюртмадек таклифлар келади
+    hammaga_ochildi: () => {
+      setMaqsadliSorov(null);
+      setMaqsadliHaydovchi(null);
+    },
     // Ҳайдовчи сафар ҳолатини янгилаганда
     holat_yangilandi: (data) => {
       if (Number(data.rideId) !== Number(rideId)) return;
@@ -278,7 +297,7 @@ export default function YolovchiSahifa() {
       }
       if (data.holat === 'yakunlandi') {
         bildir(t('notif.rideEnded'), t('rate.askPassenger'));
-        setBaholashUchun({ rideId, ism: haydovchiInfo?.ism || t('home.driver') });
+        setBaholashUchun({ rideId, ism: haydovchiInfo?.ism || t('home.driver'), haydovchi_id: haydovchiInfo?.haydovchi_id });
       }
     },
     // Ҳайдовчи жонли жойлашуви — харитада кузатиш учун
@@ -315,6 +334,8 @@ export default function YolovchiSahifa() {
     setHaydovchiInfo(null);
     setHaydovchiNuqta(null);
     setChatOchiq(false);
+    setMaqsadliHaydovchi(null);
+    setMaqsadliSorov(null);
   };
 
   // Yandex услуби — харита маркази ўзгарганда пин остидаги манзилни (debounce) оламиз
@@ -419,12 +440,14 @@ export default function YolovchiSahifa() {
     const taklifId = Date.now(); // вақтинча — сервер DB id'ни қайтариб buyurtma_yaratildi'да юборади
     setRideId(null);
     setTakliflar([]);
+    setMaqsadliSorov(null);
     setQidiruvBoshlandi(Date.now()); // Uber услубида сонияни ҳисоблаш учун
     setBosqich('kutish');
     yubor('yangi_buyurtma', {
       id: taklifId,
       mijoz: 'Сиз',
       reyting: 5.0,
+      maqsadli_haydovchi_id: maqsadliHaydovchi?.haydovchi_id || null, // тўғридан-тўғри чақириш
       boshlanish: boshlanishManzil || `${boshlanish[0].toFixed(4)}, ${boshlanish[1].toFixed(4)}`,
       tugash: tugashManzil || `${tugash[0].toFixed(4)}, ${tugash[1].toFixed(4)}`,
       boshlanish_koord: boshlanish, // [lat,lng] — ҳайдовчи ETA ва харита учун
@@ -449,12 +472,23 @@ export default function YolovchiSahifa() {
       haydovchi_ism: t.haydovchi_ism,
       narx: t.haydovchi_narx,
     });
-    setHaydovchiInfo({ ism: t.haydovchi_ism, narx: t.haydovchi_narx, mashina: t.mashina, reyting: t.reyting, tasdiqlangan: t.tasdiqlangan });
+    setHaydovchiInfo({ haydovchi_id: t.haydovchi_id, ism: t.haydovchi_ism, narx: t.haydovchi_narx, mashina: t.mashina, reyting: t.reyting, tasdiqlangan: t.tasdiqlangan });
+    setMaqsadliSorov(null);
     setBosqich('safar');
+  };
+
+  // Севимли ҳайдовчи банд — буюртмани барча ҳайдовчиларга очамиз
+  const hammagaOch = () => {
+    if (rideId) yubor('buyurtma_hammaga', { rideId });
+    tebrat(TEBRANISH.yengil);
+    setMaqsadliSorov(null);
+    setMaqsadliHaydovchi(null);
   };
 
   const bekorQilish = () => {
     if (rideId) yubor('buyurtma_bekor', { rideId });
+    setMaqsadliSorov(null);
+    setMaqsadliHaydovchi(null);
     setBosqich('narx');
   };
 
@@ -771,7 +805,35 @@ export default function YolovchiSahifa() {
               izoh={t('price.tavsiyaIzoh')}
             />
 
-            <button style={st.tugma} onClick={buyurtmaBerish}>{t('pass.placeOrder')}</button>
+            {/* Севимли ҳайдовчини чақириш — тўғридан-тўғри буюртма */}
+            {sevimlilar.length > 0 && (
+              <div style={st.sevimliBolimi}>
+                <div style={st.sevimliLabel}><Ikonka nom="star" size={14} /> {t('fav.call')}</div>
+                <div style={st.sevimliChiplar}>
+                  {sevimlilar.map((s) => {
+                    const tanlangan = maqsadliHaydovchi?.haydovchi_id === s.haydovchi_id;
+                    return (
+                      <button
+                        key={s.haydovchi_id}
+                        style={{ ...st.sevimliChip, ...(tanlangan ? st.sevimliChipFaol : {}) }}
+                        onClick={() => setMaqsadliHaydovchi(tanlangan ? null : s)}
+                      >
+                        <span style={st.sevimliAvatar}>{s.ism[0]}</span>
+                        <span style={st.sevimliIsm}>{s.ism}</span>
+                        {tanlangan && <Ikonka nom="check" size={14} />}
+                      </button>
+                    );
+                  })}
+                </div>
+                {maqsadliHaydovchi && (
+                  <div style={st.sevimliIzoh}>{t('fav.willCall', { ism: maqsadliHaydovchi.ism })}</div>
+                )}
+              </div>
+            )}
+
+            <button style={st.tugma} onClick={buyurtmaBerish}>
+              {maqsadliHaydovchi ? t('fav.callBtn', { ism: maqsadliHaydovchi.ism }) : t('pass.placeOrder')}
+            </button>
             <button style={st.orqaga} onClick={() => setBosqich('manzil')}><Ikonka nom="arrow-left" size={16} /> {t('common.back')}</button>
           </>
         )}
@@ -867,14 +929,28 @@ export default function YolovchiSahifa() {
 
         {bosqich === 'kutish' && (
           <>
-            {takliflar.length === 0 ? (
+            {maqsadliSorov ? (
+              <div style={st.kutish}>
+                <div style={st.sorovIkon}><Ikonka nom="car" size={28} /></div>
+                <h2 style={st.sarlavha}>{t('fav.busyTitle')}</h2>
+                <p style={st.izoh}>
+                  {maqsadliSorov.sabab === 'rad'
+                    ? t('fav.declined', { ism: maqsadliSorov.ism || t('home.driver') })
+                    : maqsadliSorov.sabab === 'oflayn'
+                    ? t('fav.offline', { ism: maqsadliSorov.ism || t('home.driver') })
+                    : t('fav.noAnswer', { ism: maqsadliSorov.ism || t('home.driver') })}
+                </p>
+                <button style={st.tugma} onClick={hammagaOch}>{t('fav.openAll')}</button>
+                <button style={st.bekor} onClick={bekorQilish}>{t('common.cancel')}</button>
+              </div>
+            ) : takliflar.length === 0 ? (
               <div style={st.kutish}>
                 <div style={st.radar}>
                   <span style={st.radarHalqa} />
                   <span style={{ ...st.radarHalqa, animationDelay: '0.8s' }} />
                   <span style={st.radarMarkaz}><Ikonka nom="car" size={26} /></span>
                 </div>
-                <h2 style={st.sarlavha}>{t('pass.searching')}</h2>
+                <h2 style={st.sarlavha}>{maqsadliHaydovchi ? t('fav.waiting', { ism: maqsadliHaydovchi.ism }) : t('pass.searching')}</h2>
                 <p style={st.izoh}>{narx.toLocaleString()} · {masofa()} км</p>
                 {hozirSek > 0 && (
                   <p style={st.qidirvaqt}>{Math.floor(hozirSek / 60)}:{String(hozirSek % 60).padStart(2, '0')}</p>
@@ -976,6 +1052,9 @@ export default function YolovchiSahifa() {
           kimni="driver"
           ism={baholashUchun.ism}
           narx={haydovchiInfo?.narx}
+          haydovchiId={baholashUchun.haydovchi_id}
+          sevimliMi={sevimlilar.some((s) => s.haydovchi_id === baholashUchun.haydovchi_id)}
+          onSevimliOzgardi={() => api.get('/passenger/favorites').then(({ data }) => setSevimlilar(data)).catch(() => {})}
           onYopish={() => { setBaholashUchun(null); boshlanishigaQayt(); }}
         />
       )}
@@ -1048,6 +1127,16 @@ const st = {
   opChiplar: { display: 'flex', gap: 8 },
   opChip: { flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '9px 10px', borderRadius: 'var(--r-full)', background: 'var(--fill)', color: 'var(--label)', fontSize: 13, fontWeight: 500 },
   opChipFaol: { background: 'var(--tint)', color: '#fff' },
+  // Севимли ҳайдовчилар (тўғридан-тўғри чақириш)
+  sevimliBolimi: { marginTop: 4, marginBottom: 12 },
+  sevimliLabel: { display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 500, color: 'var(--secondary-label)', marginBottom: 8 },
+  sevimliChiplar: { display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 2 },
+  sevimliChip: { flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 7, padding: '7px 12px 7px 7px', borderRadius: 'var(--r-full)', background: 'var(--fill)', color: 'var(--label)', fontSize: 14, fontWeight: 500, border: '1.5px solid transparent' },
+  sevimliChipFaol: { background: 'var(--tint)', color: '#fff', borderColor: 'var(--tint)' },
+  sevimliAvatar: { width: 26, height: 26, borderRadius: '50%', background: 'var(--tint)', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600 },
+  sevimliIsm: { maxWidth: 110, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  sevimliIzoh: { fontSize: 13, color: 'var(--tint)', marginTop: 8, fontWeight: 500 },
+  sorovIkon: { width: 72, height: 72, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '4px auto 16px' },
   rejaTugma: { width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '11px 10px', borderRadius: 'var(--r-md)', background: 'var(--fill)', color: 'var(--label)', fontSize: 14, fontWeight: 500, marginTop: 8 },
   tariflar: { display: 'flex', gap: 8, marginBottom: 16 },
   tarifKarta: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, padding: '10px 6px', borderRadius: 'var(--r-md)', background: 'var(--fill)', border: '1.5px solid transparent', color: 'var(--label)' },

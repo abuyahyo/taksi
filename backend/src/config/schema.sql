@@ -68,6 +68,7 @@ CREATE TABLE IF NOT EXISTS rides (
   rejalashtirilgan_vaqt TIMESTAMP,     -- олдиндан буюртма вақти (null = ҳозир)
   oraliq_manzillar JSONB DEFAULT '[]', -- кўп манзил: бошланиш ва якуний орасидаги тўхташлар
   pin VARCHAR(4),                      -- машина PIN-коди (тўғри машинага тушганини текшириш)
+  maqsadli_haydovchi_id INTEGER REFERENCES users(id), -- муайян ҳайдовчига аталган буюртма (NULL = барчага)
   -- kutilmoqda, qabul_qilindi, yo'lda, yakunlandi, bekor_qilindi
   -- Кутиш ҳақи — ҳайдовчи ёлғизланган кутиш муддати ва ҳақи
   kelgan_vaqti TIMESTAMP,           -- ҳайдовчи "етиб келдим" деган вақт
@@ -233,6 +234,15 @@ CREATE TABLE IF NOT EXISTS saqlangan_manzillar (
   yaratilgan TIMESTAMPTZ DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_saqlangan_manzil_user ON saqlangan_manzillar(user_id);
+
+-- Севимли ҳайдовчилар — йўловчи ишонган ҳайдовчисини танлаб тўғридан-тўғри чақиради
+CREATE TABLE IF NOT EXISTS sevimli_haydovchilar (
+  yolovchi_id  INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  haydovchi_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  qoshilgan    TIMESTAMP DEFAULT NOW(),
+  PRIMARY KEY (yolovchi_id, haydovchi_id)
+);
+CREATE INDEX IF NOT EXISTS idx_sevimli_yolovchi ON sevimli_haydovchilar(yolovchi_id);
 
 -- Барча public жадвалларда RLS ёқиш (Supabase авто Data API'дан ҳимоя).
 -- Backend `postgres` роли (эга/BYPASSRLS) билан уланади — таъсир йўқ; anon/authenticated = DENY.

@@ -1,5 +1,22 @@
 // Oʻzbek lotin alifbosi (uz-Latn)
 export default {
+  // Sevimli haydovchilar (toʻgʻridan-toʻgʻri chaqirish)
+  'fav.call':        'Tanishni chaqirish',
+  'fav.willCall':    '{ism} chaqiriladi',
+  'fav.callBtn':     '{ism}ni chaqirish',
+  'fav.waiting':     '{ism}ni kutmoqdamiz...',
+  'fav.busyTitle':   'Haydovchi hozir band',
+  'fav.offline':     '{ism} hozir onlayn emas.',
+  'fav.noAnswer':    '{ism} javob bermadi.',
+  'fav.declined':    '{ism} rad etdi.',
+  'fav.openAll':     'Barcha haydovchilarga ochish',
+  'fav.added':       'Sevimliga qoʻshildi',
+  'fav.removed':     'Sevimlidan olindi',
+  'fav.add':         'Sevimliga qoʻshish',
+  'fav.forYou':      'Sizga atab',
+  'fav.forYouOrder': 'Sizga atab buyurtma',
+  'fav.decline':     'Rad etish',
+
   // Umumiy
   'common.app':          'Manzil',
   'common.continue':     'Davom etish',

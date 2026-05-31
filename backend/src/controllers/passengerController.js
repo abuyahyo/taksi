@@ -162,4 +162,63 @@ const oxirgiSafar = async (req, res) => {
   }
 };
 
-module.exports = { me, updateMe, songgiManzillar, oxirgiSafar, manzillar, manzilQosh, manzilOchir };
+// GET /api/passenger/favorites — севимли ҳайдовчилар (машина + рейтинг билан)
+const sevimlilar = async (req, res) => {
+  try {
+    const r = await query(
+      `SELECT u.id AS haydovchi_id, u.ism, u.reyting,
+              d.mashina_modeli, d.mashina_rangi, d.mashina_raqami,
+              s.qoshilgan
+       FROM sevimli_haydovchilar s
+       JOIN users   u ON u.id = s.haydovchi_id
+       LEFT JOIN drivers d ON d.user_id = s.haydovchi_id
+       WHERE s.yolovchi_id = $1
+       ORDER BY s.qoshilgan DESC`,
+      [req.user.id]
+    );
+    res.json(r.rows);
+  } catch (err) {
+    console.error('passenger sevimlilar xato:', err.message);
+    res.status(500).json({ xato: 'Сервер хатоси' });
+  }
+};
+
+// POST /api/passenger/favorites — севимлига қўшиш { haydovchi_id }
+const sevimliQosh = async (req, res) => {
+  try {
+    const haydovchiId = parseInt(req.body.haydovchi_id, 10);
+    if (!Number.isFinite(haydovchiId)) return res.status(400).json({ xato: 'Нотўғри ҳайдовчи' });
+    if (haydovchiId === req.user.id) return res.status(400).json({ xato: 'Ўзингизни қўша олмайсиз' });
+    // Фақат ҳақиқий ҳайдовчини севимлига қўшиш мумкин
+    const h = await query(`SELECT id FROM users WHERE id = $1 AND rol = 'haydovchi'`, [haydovchiId]);
+    if (h.rows.length === 0) return res.status(404).json({ xato: 'Ҳайдовчи топилмади' });
+    await query(
+      `INSERT INTO sevimli_haydovchilar (yolovchi_id, haydovchi_id)
+       VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+      [req.user.id, haydovchiId]
+    );
+    res.status(201).json({ ok: true, haydovchi_id: haydovchiId });
+  } catch (err) {
+    console.error('passenger sevimliQosh xato:', err.message);
+    res.status(500).json({ xato: 'Сервер хатоси' });
+  }
+};
+
+// DELETE /api/passenger/favorites/:id — севимлидан олиб ташлаш
+const sevimliOchir = async (req, res) => {
+  try {
+    const haydovchiId = parseInt(req.params.id, 10);
+    if (!Number.isFinite(haydovchiId)) return res.status(400).json({ xato: 'Нотўғри id' });
+    const r = await query(
+      `DELETE FROM sevimli_haydovchilar WHERE yolovchi_id = $1 AND haydovchi_id = $2`,
+      [req.user.id, haydovchiId]
+    );
+    if (r.rowCount === 0) return res.status(404).json({ xato: 'Топилмади' });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('passenger sevimliOchir xato:', err.message);
+    res.status(500).json({ xato: 'Сервер хатоси' });
+  }
+};
+
+module.exports = { me, updateMe, songgiManzillar, oxirgiSafar, manzillar, manzilQosh, manzilOchir, sevimlilar, sevimliQosh, sevimliOchir };
