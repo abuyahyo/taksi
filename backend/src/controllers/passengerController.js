@@ -248,4 +248,61 @@ const haydovchiKodBoyicha = async (req, res) => {
   }
 };
 
-module.exports = { me, updateMe, songgiManzillar, oxirgiSafar, manzillar, manzilQosh, manzilOchir, sevimlilar, sevimliQosh, sevimliOchir, haydovchiKodBoyicha };
+// GET /api/passenger/driver-by-plate/:raqam — АНИҚ машина рақами бўйича топиш.
+// Махфийлик: фақат тўлиқ мос рақам (қисман/исм бўйича излаб бўлмайди — бегонани
+// кузатиб олишнинг олдини олади). Йўловчи машинани кўрган → рақамни билади.
+const haydovchiRaqamBoyicha = async (req, res) => {
+  try {
+    // Нормаллаштириш: катта ҳарф + бўшлиқларни олиб ташлаш ("01 A 777 BA" → "01A777BA")
+    const raqam = String(req.params.raqam || '').toUpperCase().replace(/\s+/g, '').slice(0, 15);
+    if (raqam.length < 4) return res.status(400).json({ xato: 'Рақамни тўлиқ киритинг' });
+    const r = await query(
+      `SELECT u.id AS haydovchi_id, u.ism, u.reyting,
+              d.mashina_modeli, d.mashina_rangi, d.mashina_raqami
+       FROM users u
+       JOIN drivers d ON d.user_id = u.id
+       WHERE UPPER(REPLACE(d.mashina_raqami, ' ', '')) = $1 AND u.rol = 'haydovchi'
+       LIMIT 1`,
+      [raqam]
+    );
+    if (r.rows.length === 0) return res.status(404).json({ xato: 'Бундай рақамли ҳайдовчи топилмади' });
+    const h = r.rows[0];
+    const sev = await query(
+      `SELECT 1 FROM sevimli_haydovchilar WHERE yolovchi_id = $1 AND haydovchi_id = $2`,
+      [req.user.id, h.haydovchi_id]
+    );
+    res.json({ ...h, sevimli: sev.rows.length > 0 });
+  } catch (err) {
+    console.error('passenger haydovchiRaqamBoyicha xato:', err.message);
+    res.status(500).json({ xato: 'Сервер хатоси' });
+  }
+};
+
+// GET /api/passenger/past-drivers — фақат ЎЗИ сафар қилган ҳайдовчилар.
+// Махфилик-хавфсиз: бегона эмас, фақат тарихингиздагилар. Исм бўйича излаш мумкин.
+const oldingiHaydovchilar = async (req, res) => {
+  try {
+    const r = await query(
+      `SELECT u.id AS haydovchi_id, u.ism, u.reyting,
+              d.mashina_modeli, d.mashina_rangi, d.mashina_raqami,
+              COUNT(r.id)::int AS safar_soni,
+              MAX(r.yakun_vaqti) AS oxirgi,
+              EXISTS (SELECT 1 FROM sevimli_haydovchilar s
+                       WHERE s.yolovchi_id = $1 AND s.haydovchi_id = u.id) AS sevimli
+       FROM rides r
+       JOIN users u ON u.id = r.haydovchi_id
+       LEFT JOIN drivers d ON d.user_id = u.id
+       WHERE r.mijoz_id = $1 AND r.holat = 'yakunlandi' AND r.haydovchi_id IS NOT NULL
+       GROUP BY u.id, u.ism, u.reyting, d.mashina_modeli, d.mashina_rangi, d.mashina_raqami
+       ORDER BY oxirgi DESC NULLS LAST
+       LIMIT 30`,
+      [req.user.id]
+    );
+    res.json(r.rows);
+  } catch (err) {
+    console.error('passenger oldingiHaydovchilar xato:', err.message);
+    res.status(500).json({ xato: 'Сервер хатоси' });
+  }
+};
+
+module.exports = { me, updateMe, songgiManzillar, oxirgiSafar, manzillar, manzilQosh, manzilOchir, sevimlilar, sevimliQosh, sevimliOchir, haydovchiKodBoyicha, haydovchiRaqamBoyicha, oldingiHaydovchilar };
