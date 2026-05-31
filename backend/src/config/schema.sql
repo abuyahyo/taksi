@@ -122,7 +122,9 @@ CREATE INDEX IF NOT EXISTS idx_users_telefon ON users(telefon);
 -- Тўлов транзакциялари (Payme + Click)
 CREATE TABLE IF NOT EXISTS transactions (
   id SERIAL PRIMARY KEY,
-  ride_id INTEGER REFERENCES rides(id),    -- сафар тўлови (ёки obuna_id — иккаласидан бири тўлади)
+  ride_id INTEGER REFERENCES rides(id),    -- сафар тўлови (ёки obuna_id/reklama_id — биттаси тўлади)
+  obuna_id INTEGER REFERENCES obunalar(id),  -- обуна тўлови
+  reklama_id INTEGER,                    -- реклама кимошди ютуғи тўлови
   tizim VARCHAR(10) NOT NULL,            -- payme, click, test
   tashqi_id VARCHAR(100),                -- Payme/Click транзакция ID'си
   summa INTEGER NOT NULL,                -- тийинда (1 сўм = 100 тийин)
@@ -244,6 +246,42 @@ CREATE TABLE IF NOT EXISTS sevimli_haydovchilar (
   PRIMARY KEY (yolovchi_id, haydovchi_id)
 );
 CREATE INDEX IF NOT EXISTS idx_sevimli_yolovchi ON sevimli_haydovchilar(yolovchi_id);
+
+-- Реклама кимошди — ҳар ой битта реклама жойи очиқ кўтарилувчи кимошдида сотилади
+CREATE TABLE IF NOT EXISTS reklama_kampaniyalar (
+  id SERIAL PRIMARY KEY,
+  user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  sarlavha   VARCHAR(100) NOT NULL,
+  rasm_url   TEXT NOT NULL,
+  havola     TEXT NOT NULL,
+  holat      VARCHAR(20) DEFAULT 'kutilmoqda', -- kutilmoqda | tasdiqlangan | rad
+  rad_sababi TEXT,
+  yaratilgan TIMESTAMP DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_reklama_kamp_user ON reklama_kampaniyalar(user_id);
+
+CREATE TABLE IF NOT EXISTS reklama_auksionlar (
+  id SERIAL PRIMARY KEY,
+  oy           CHAR(7) NOT NULL UNIQUE,    -- 'YYYY-MM'
+  tugash       TIMESTAMP NOT NULL,
+  reserve_narx INTEGER NOT NULL DEFAULT 100000,
+  min_qadam    INTEGER NOT NULL DEFAULT 50000,
+  holat        VARCHAR(20) DEFAULT 'ochiq', -- ochiq | yopilgan
+  golib_kampaniya_id INTEGER REFERENCES reklama_kampaniyalar(id),
+  golib_summa  INTEGER,
+  tolandi      BOOLEAN DEFAULT FALSE,
+  yaratilgan   TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS reklama_takliflar (
+  id SERIAL PRIMARY KEY,
+  auksion_id   INTEGER NOT NULL REFERENCES reklama_auksionlar(id) ON DELETE CASCADE,
+  kampaniya_id INTEGER NOT NULL REFERENCES reklama_kampaniyalar(id) ON DELETE CASCADE,
+  user_id      INTEGER NOT NULL REFERENCES users(id),
+  summa        INTEGER NOT NULL,
+  vaqt         TIMESTAMP DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_reklama_taklif_auksion ON reklama_takliflar(auksion_id, summa DESC);
 
 -- Барча public жадвалларда RLS ёқиш (Supabase авто Data API'дан ҳимоя).
 -- Backend `postgres` роли (эга/BYPASSRLS) билан уланади — таъсир йўқ; anon/authenticated = DENY.

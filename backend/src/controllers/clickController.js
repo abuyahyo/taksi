@@ -2,11 +2,13 @@
 const crypto = require('crypto');
 const { query } = require('../config/db');
 const { obunaFaollashtir } = require('./subscriptionController');
+const { reklamaFaollashtir } = require('./reklamaController');
 require('dotenv').config();
 
-// Тўлов нишони merchant_trans_id'дан: обуна ('sub-N') ёки сафар (рақам = ride id)
+// Тўлов нишони merchant_trans_id'дан: реклама ('rek-N'), обуна ('sub-N') ёки сафар (рақам)
 function nishon(merchantTransId) {
   const s = String(merchantTransId || '');
+  if (s.startsWith('rek-')) return { tur: 'reklama', id: parseInt(s.slice(4), 10) };
   if (s.startsWith('sub-')) return { tur: 'obuna', id: parseInt(s.slice(4), 10) };
   return { tur: 'ride', id: parseInt(s, 10) };
 }
@@ -54,18 +56,23 @@ const prepare = async (req, res) => {
     if (ride.rows.length === 0) return res.json({ error: XATO.BUYURTMA_TOPILMADI, error_note: 'Буюртма топилмади' });
     if (ride.rows[0].holat === 'bekor_qilindi') return res.json({ error: XATO.BEKOR_QILINGAN, error_note: 'Сафар бекор қилинган' });
     kerakliSum = Number(ride.rows[0].kelishilgan_narx);
-  } else {
+  } else if (n.tur === 'obuna') {
     const ob = await query('SELECT summa, holat FROM obunalar WHERE id = $1', [n.id]);
     if (ob.rows.length === 0) return res.json({ error: XATO.BUYURTMA_TOPILMADI, error_note: 'Обуна топилмади' });
     if (ob.rows[0].holat === 'faol') return res.json({ error: XATO.BEKOR_QILINGAN, error_note: 'Обуна аллақачон фаол' });
     kerakliSum = Number(ob.rows[0].summa);
+  } else {
+    const a = await query('SELECT golib_summa, tolandi FROM reklama_auksionlar WHERE id = $1', [n.id]);
+    if (a.rows.length === 0 || !a.rows[0].golib_summa) return res.json({ error: XATO.BUYURTMA_TOPILMADI, error_note: 'Кимошди ютуғи топилмади' });
+    if (a.rows[0].tolandi) return res.json({ error: XATO.BEKOR_QILINGAN, error_note: 'Аллақачон тўланган' });
+    kerakliSum = Number(a.rows[0].golib_summa);
   }
   // Сумма мос келиши шарт (Click сўм бирлигида юборади)
   if (!kerakliSum || Math.round(Number(b.amount)) !== kerakliSum) {
     return res.json({ error: XATO.SUMMA_XATO, error_note: 'Сумма нотўғри' });
   }
   // Икки марта тўловни тўсамиз
-  const ustun = n.tur === 'ride' ? 'ride_id' : 'obuna_id';
+  const ustun = n.tur === 'ride' ? 'ride_id' : n.tur === 'obuna' ? 'obuna_id' : 'reklama_id';
   const tolangan = await query(
     `SELECT 1 FROM transactions WHERE ${ustun} = $1 AND holat = 'tolandi' LIMIT 1`,
     [n.id]
@@ -76,9 +83,9 @@ const prepare = async (req, res) => {
 
   // Транзакция яратамиз
   const natija = await query(
-    `INSERT INTO transactions (ride_id, obuna_id, tizim, tashqi_id, summa, holat)
-     VALUES ($1, $2, 'click', $3, $4, 'kutilmoqda') RETURNING id`,
-    [n.tur === 'ride' ? n.id : null, n.tur === 'obuna' ? n.id : null, b.click_trans_id, Math.round(b.amount * 100)]
+    `INSERT INTO transactions (ride_id, obuna_id, reklama_id, tizim, tashqi_id, summa, holat)
+     VALUES ($1, $2, $3, 'click', $4, $5, 'kutilmoqda') RETURNING id`,
+    [n.tur === 'ride' ? n.id : null, n.tur === 'obuna' ? n.id : null, n.tur === 'reklama' ? n.id : null, b.click_trans_id, Math.round(b.amount * 100)]
   );
 
   res.json({
@@ -114,6 +121,7 @@ const complete = async (req, res) => {
   // Нишонга қараб: сафарни тўланган деб белгилаймиз ёки обунани фаоллаштирамиз
   if (tx.rows[0].ride_id) await query(`UPDATE rides SET holat = 'yakunlandi' WHERE id = $1`, [tx.rows[0].ride_id]);
   if (tx.rows[0].obuna_id) await obunaFaollashtir(tx.rows[0].obuna_id);
+  if (tx.rows[0].reklama_id) await reklamaFaollashtir(tx.rows[0].reklama_id);
 
   res.json({
     error: XATO.MUVAFFAQIYAT,
@@ -126,14 +134,14 @@ const complete = async (req, res) => {
 
 // Click checkout URL яратиш
 //   format: https://my.click.uz/services/pay?service_id=X&merchant_id=Y&amount=Z&transaction_param=N&return_url=R
-function clickCheckoutUrl({ rideId, obunaId, summaSum, returnUrl }) {
+function clickCheckoutUrl({ rideId, obunaId, reklamaId, summaSum, returnUrl }) {
   const serviceId = process.env.CLICK_SERVICE_ID || 'test_service_id';
   const merchantId = process.env.CLICK_MERCHANT_ID || 'test_merchant_id';
   const params = new URLSearchParams({
     service_id: serviceId,
     merchant_id: merchantId,
     amount: String(summaSum),
-    transaction_param: obunaId ? `sub-${obunaId}` : String(rideId),
+    transaction_param: reklamaId ? `rek-${reklamaId}` : obunaId ? `sub-${obunaId}` : String(rideId),
   });
   if (returnUrl) params.set('return_url', returnUrl);
   return `https://my.click.uz/services/pay?${params.toString()}`;

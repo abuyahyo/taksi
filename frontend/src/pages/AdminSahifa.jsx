@@ -40,6 +40,9 @@ function AdminIchki({ onChiqish }) {
   const [hujjatModal, setHujjatModal] = useState(null); // { user, data }
   const [radFor, setRadFor] = useState(null); // рад этилаётган ҳужжат id
   const [radSabab, setRadSabab] = useState('');
+  const [reklamaKamp, setReklamaKamp] = useState(null); // реклама кампаниялар (модерация)
+  const [reklamaRad, setReklamaRad] = useState(null);   // рад этилаётган кампания id
+  const [reklamaSabab, setReklamaSabab] = useState('');
 
   const yukla = async () => {
     try {
@@ -164,6 +167,24 @@ function AdminIchki({ onChiqish }) {
     setHujjatModal(null);
   };
 
+  // Реклама кампаниялари — таб очилганда юклаймиз
+  useEffect(() => {
+    if (tab === 'reklama' && reklamaKamp == null) {
+      api.get('/reklama/admin/royxat').then(({ data }) => setReklamaKamp(data)).catch(() => {});
+    }
+  }, [tab]);
+
+  const reklamaModeratsiya = async (id, holat, sabab) => {
+    try {
+      await api.post(`/reklama/admin/moderatsiya/${id}`, { holat, sabab });
+      setReklamaKamp((eski) => eski.map((r) => (r.id === id ? { ...r, holat, rad_sababi: holat === 'rad' ? sabab : null } : r)));
+      toast.success(holat === 'tasdiqlangan' ? t('admin.reklamaApproved') : t('admin.reklamaRejected'));
+      setReklamaRad(null); setReklamaSabab('');
+    } catch (err) {
+      toast.error(err.response?.data?.xato || t('common.error'));
+    }
+  };
+
   return (
     <div style={st.sahifa}>
       <div style={st.header}>
@@ -199,6 +220,7 @@ function AdminIchki({ onChiqish }) {
             ['users',      t('admin.tab.users')],
             ['kyc',        t('admin.tab.kyc') + (Array.isArray(kycQueue) && kycQueue.filter((q) => q.tasdiq_holati === 'kutilmoqda').length ? ` (${kycQueue.filter((q) => q.tasdiq_holati === 'kutilmoqda').length})` : '')],
             ['rides',      t('admin.tab.rides')],
+            ['reklama',    t('admin.tab.reklama') + (Array.isArray(reklamaKamp) && reklamaKamp.filter((r) => r.holat === 'kutilmoqda').length ? ` (${reklamaKamp.filter((r) => r.holat === 'kutilmoqda').length})` : '')],
           ].map(([k, n]) => (
             <button key={k} className="ios-seg" data-on={tab === k} onClick={() => setTab(k)}>{n}</button>
           ))}
@@ -314,6 +336,43 @@ function AdminIchki({ onChiqish }) {
                   <div style={st.rideMeta}>
                     {r.mijoz_ism || '—'} → {r.haydovchi_ism || '—'} · {r.kelishilgan_narx ? `${Number(r.kelishilgan_narx).toLocaleString()}` : '—'}
                   </div>
+                </div>
+              ))}
+            </div>
+          )
+        )}
+
+        {tab === 'reklama' && (
+          reklamaKamp == null ? <Yuklanmoqda /> : reklamaKamp.length === 0 ? <Bosh matn={t('admin.reklamaEmpty')} /> : (
+            <div style={st.royxat} className="royxat-anim">
+              {reklamaKamp.map((r) => (
+                <div key={r.id} style={st.rekKarta}>
+                  <img src={r.rasm_url} alt={r.sarlavha} style={st.rekRasm} loading="lazy" />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={st.rekSarl}>{r.sarlavha}</div>
+                    <div style={st.rekMeta}>{r.reklamachi}</div>
+                    <a href={r.havola} target="_blank" rel="noopener noreferrer nofollow" style={st.rekHavola}>{r.havola}</a>
+                    {r.holat !== 'kutilmoqda' && (
+                      <div style={{ ...st.rekHolat, color: r.holat === 'tasdiqlangan' ? 'var(--accept)' : 'var(--decline)' }}>
+                        {r.holat === 'tasdiqlangan' ? t('reklama.statusApproved') : t('reklama.statusRejected')}
+                        {r.rad_sababi ? ` · ${r.rad_sababi}` : ''}
+                      </div>
+                    )}
+                  </div>
+                  {r.holat === 'kutilmoqda' && (
+                    reklamaRad === r.id ? (
+                      <div style={st.rekRadBox}>
+                        <input style={st.rekRadInput} value={reklamaSabab} onChange={(e) => setReklamaSabab(e.target.value)} placeholder={t('admin.rejectReason')} autoFocus />
+                        <button style={st.rekRadTugma} disabled={!reklamaSabab.trim()} onClick={() => reklamaModeratsiya(r.id, 'rad', reklamaSabab.trim())}>{t('admin.reject')}</button>
+                        <button style={st.rekBekor} onClick={() => { setReklamaRad(null); setReklamaSabab(''); }}>{t('common.cancel')}</button>
+                      </div>
+                    ) : (
+                      <div style={st.rekAmal}>
+                        <button style={st.rekTasdiq} onClick={() => reklamaModeratsiya(r.id, 'tasdiqlangan')}>{t('admin.approve')}</button>
+                        <button style={st.rekRad} onClick={() => { setReklamaRad(r.id); setReklamaSabab(''); }}>{t('admin.reject')}</button>
+                      </div>
+                    )
+                  )}
                 </div>
               ))}
             </div>
@@ -494,6 +553,19 @@ const st = {
   holatSariq: { background: 'rgba(255,149,0,0.16)', color: 'var(--amber)' },
   rideYol: { fontSize: 15, fontWeight: 500 },
   rideMeta: { fontSize: 13, color: 'var(--secondary-label)', marginTop: 4 },
+  rekKarta: { display: 'flex', gap: 12, alignItems: 'flex-start', background: 'var(--surface)', padding: 12, borderRadius: 'var(--r-lg)', boxShadow: 'var(--shadow-1)' },
+  rekRasm: { width: 80, height: 56, borderRadius: 'var(--r-sm)', objectFit: 'cover', background: 'var(--fill)', flexShrink: 0 },
+  rekSarl: { fontSize: 15, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  rekMeta: { fontSize: 13, color: 'var(--secondary-label)', marginTop: 2 },
+  rekHavola: { fontSize: 12, color: 'var(--tint)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 2 },
+  rekHolat: { fontSize: 12, fontWeight: 600, marginTop: 4 },
+  rekAmal: { display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 },
+  rekTasdiq: { background: 'var(--accept)', color: '#fff', padding: '8px 14px', borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 13 },
+  rekRad: { background: 'var(--fill)', color: 'var(--decline)', padding: '8px 14px', borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 13 },
+  rekRadBox: { display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0, width: 150 },
+  rekRadInput: { background: 'var(--fill)', border: 'none', borderRadius: 'var(--r-sm)', padding: '8px 10px', fontSize: 13, color: 'var(--label)' },
+  rekRadTugma: { background: 'var(--decline)', color: '#fff', padding: '7px 10px', borderRadius: 'var(--r-sm)', fontWeight: 600, fontSize: 13 },
+  rekBekor: { background: 'transparent', color: 'var(--secondary-label)', padding: '4px', fontSize: 12 },
   modalFon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: 24, backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)' },
   modal: { background: 'var(--surface-elevated)', width: '100%', maxWidth: 400, borderRadius: 'var(--r-xl)', padding: 24 },
   modalSarlavha: { fontSize: 20, fontWeight: 600, marginBottom: 8 },
