@@ -87,8 +87,6 @@ export default function KirishSahifa() {
           <span className="ios-row-label" style={st.featMatn}>{t('home.featFair')}</span>
         </div>
       </div>
-
-      <div style={st.footer}>{t('common.app')} · Toshkent</div>
     </div>
   );
 }
@@ -141,10 +139,5 @@ const st = {
     margin: '2px auto 0', padding: '8px 14px', borderRadius: 'var(--r-full)',
     background: 'transparent', color: 'var(--secondary-label)',
     fontSize: 14, fontWeight: 500,
-  },
-
-  footer: {
-    marginTop: 'auto', paddingTop: 'var(--space-6)', textAlign: 'center',
-    fontSize: 13, color: 'var(--tertiary-label)',
   },
 };
