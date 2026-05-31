@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
   parol_hash VARCHAR(255),              -- Telegram/Google кириш учун парол шарт эмас
   rol VARCHAR(20) NOT NULL DEFAULT 'mijoz', -- mijoz, haydovchi, admin
   reyting NUMERIC(2,1) DEFAULT 5.0,
+  haydovchi_kodi VARCHAR(8) UNIQUE,     -- ҳайдовчи уникал коди (код/QR орқали севимлига қўшиш)
   -- Йўловчининг сақланган манзиллари (тез-тез манзил танлаш учун)
   home_manzil TEXT,
   home_lat NUMERIC(10,7),

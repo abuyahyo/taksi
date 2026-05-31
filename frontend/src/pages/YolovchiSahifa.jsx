@@ -11,6 +11,7 @@ import ManzilSaqlash from '../components/ManzilSaqlash';
 import Ulashish from '../components/Ulashish';
 import SOS from '../components/SOS';
 import NarxTarkibi from '../components/NarxTarkibi';
+import SevimliKodQosh from '../components/SevimliKodQosh';
 import { tavsiyaHisobi, ASOSIY, PER_KM, TARIFLAR } from '../utils/narx';
 import { masofaKm } from '../utils/geo';
 import { api, yolHisobla } from '../services/api';
@@ -89,6 +90,7 @@ export default function YolovchiSahifa() {
   const [sevimlilar, setSevimlilar] = useState([]); // севимли ҳайдовчилар
   const [maqsadliHaydovchi, setMaqsadliHaydovchi] = useState(null); // {haydovchi_id, ism, ...} — тўғридан-тўғри чақириладиган ҳайдовчи
   const [maqsadliSorov, setMaqsadliSorov] = useState(null); // {rideId, ism, sabab} — "барчага очайми?" сўрови
+  const [kodQosh, setKodQosh] = useState(null); // null | {boshlangichKod} — код/QR билан севимли қўшиш модали
 
   const meId = user?.id || null;
 
@@ -101,6 +103,15 @@ export default function YolovchiSahifa() {
     api.get('/passenger/addresses').then(({ data }) => setSaqlanganlar(data)).catch(() => {});
     api.get('/passenger/last-ride').then(({ data }) => setOxirgiSafar(data)).catch(() => {});
     api.get('/passenger/favorites').then(({ data }) => setSevimlilar(data)).catch(() => {});
+  }, [user?.id]);
+
+  // QR deep-link (?haydovchi=<kod>) — ҳайдовчи QR'ини скан қилиб киргандa
+  // код билан севимли қўшиш модалини очамиз. Меҳмон бўлса аввал киришни сўраймиз.
+  useEffect(() => {
+    const k = urlParam('haydovchi');
+    if (!k) return;
+    if (user) setKodQosh({ boshlangichKod: k });
+    else setKirishOchiq(true);
   }, [user?.id]);
 
   // Қидирув таймери (Uber услуби — фойдаланувчи қанча кутаётганини кўриш)
@@ -805,8 +816,8 @@ export default function YolovchiSahifa() {
               izoh={t('price.tavsiyaIzoh')}
             />
 
-            {/* Севимли ҳайдовчини чақириш — тўғридан-тўғри буюртма */}
-            {sevimlilar.length > 0 && (
+            {/* Севимли ҳайдовчини чақириш — тўғридан-тўғри буюртма (фақат логин қилганлар) */}
+            {user && (
               <div style={st.sevimliBolimi}>
                 <div style={st.sevimliLabel}><Ikonka nom="star" size={14} /> {t('fav.call')}</div>
                 <div style={st.sevimliChiplar}>
@@ -824,6 +835,9 @@ export default function YolovchiSahifa() {
                       </button>
                     );
                   })}
+                  <button style={st.kodChip} onClick={() => setKodQosh({ boshlangichKod: '' })}>
+                    <Ikonka nom="plus" size={16} /> {t('favcode.enter')}
+                  </button>
                 </div>
                 {maqsadliHaydovchi && (
                   <div style={st.sevimliIzoh}>{t('fav.willCall', { ism: maqsadliHaydovchi.ism })}</div>
@@ -1046,6 +1060,17 @@ export default function YolovchiSahifa() {
         />
       )}
 
+      {kodQosh && (
+        <SevimliKodQosh
+          boshlangichKod={kodQosh.boshlangichKod}
+          onQoshildi={(h) => {
+            api.get('/passenger/favorites').then(({ data }) => setSevimlilar(data)).catch(() => {});
+            setMaqsadliHaydovchi({ haydovchi_id: h.haydovchi_id, ism: h.ism });
+          }}
+          onYopish={() => setKodQosh(null)}
+        />
+      )}
+
       {baholashUchun && (
         <Baholash
           rideId={baholashUchun.rideId}
@@ -1136,6 +1161,7 @@ const st = {
   sevimliAvatar: { width: 26, height: 26, borderRadius: '50%', background: 'var(--tint)', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600 },
   sevimliIsm: { maxWidth: 110, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   sevimliIzoh: { fontSize: 13, color: 'var(--tint)', marginTop: 8, fontWeight: 500 },
+  kodChip: { flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 'var(--r-full)', background: 'var(--fill)', color: 'var(--tint)', fontSize: 14, fontWeight: 600, border: '1.5px dashed var(--tint)' },
   sorovIkon: { width: 72, height: 72, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '4px auto 16px' },
   rejaTugma: { width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '11px 10px', borderRadius: 'var(--r-md)', background: 'var(--fill)', color: 'var(--label)', fontSize: 14, fontWeight: 500, marginTop: 8 },
   tariflar: { display: 'flex', gap: 8, marginBottom: 16 },

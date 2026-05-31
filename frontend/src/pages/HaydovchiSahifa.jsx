@@ -7,6 +7,7 @@ import Kirish from '../components/Kirish';
 import Chat from '../components/Chat';
 import Baholash from '../components/Baholash';
 import MashinaProfili, { mashinaMatn } from '../components/MashinaProfili';
+import HaydovchiKodi from '../components/HaydovchiKodi';
 import HaritaPreview from '../components/HaritaPreview';
 import { parseLatLng } from '../utils/geo';
 import { useToast } from '../components/Toast';
@@ -56,6 +57,7 @@ function Ichki({ user }) {
   const [mashina, setMashina] = useState(null); // {mashina_modeli, mashina_raqami, mashina_rangi}
   const [onb, setOnb] = useState(null); // онбординг ҳолати — {tasdiqlangan, tasdiq_holati, foiz, rad_sababi}
   const [profilOchiq, setProfilOchiq] = useState(false);
+  const [kodOchiq, setKodOchiq] = useState(false); // QR/код модали
   const [issiqOchiq, setIssiqOchiq] = useState(false);
   const [obunaOchiq, setObunaOchiq] = useState(false);
   const [obuna, setObuna] = useState(null); // faol subscription
@@ -315,6 +317,7 @@ function Ichki({ user }) {
             <Ikonka nom="card" />
             {obunaBormi && obunaKun < 5 && <span style={st.obunaBadge}>{obunaKun}</span>}
           </button>
+          <button className="driver-header-btn" style={st.tarixTugma} onClick={() => setKodOchiq(true)} title={t('drvcode.title')}><Ikonka nom="grid" /></button>
           <button className="driver-header-btn" style={st.tarixTugma} onClick={() => setIssiqOchiq(true)} title={t('heat.title')}><Ikonka nom="flame" /></button>
           <button className="driver-header-btn" style={st.tarixTugma} onClick={() => setProfilOchiq(true)} title={t('car.title')}><Ikonka nom="car" /></button>
           <button className="driver-header-btn" style={st.tarixTugma} onClick={() => navigate('/tarix')} title={t('hist.title')}><Ikonka nom="clock" /></button>
@@ -446,6 +449,10 @@ function Ichki({ user }) {
 
       {issiqOchiq && (
         <IssiqXarita onYopish={() => setIssiqOchiq(false)} />
+      )}
+
+      {kodOchiq && (
+        <HaydovchiKodi onYopish={() => setKodOchiq(false)} />
       )}
 
       {obunaOchiq && (

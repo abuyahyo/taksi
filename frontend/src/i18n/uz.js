@@ -16,6 +16,20 @@ export default {
   'fav.forYou':      'Сизга атаб',
   'fav.forYouOrder': 'Сизга атаб буюртма',
   'fav.decline':     'Рад этиш',
+  // Код / QR билан қўшиш
+  'common.share':    'Улашиш',
+  'common.copy':     'Нусхалаш',
+  'common.copied':   'Нусхаланди',
+  'drvcode.title':   'Менинг QR кодим',
+  'drvcode.hint':    'Йўловчи скан қилиб ёки кодни киритиб сизни севимлига қўшади',
+  'drvcode.shareText': 'Manzil таксида мени чақиринг — код: {kod}\n{havola}',
+  'favcode.title':   'Код билан қўшиш',
+  'favcode.hint':    'Ҳайдовчининг кодини киритинг — уни севимлига қўшасиз',
+  'favcode.placeholder': 'КОД',
+  'favcode.find':    'Топиш',
+  'favcode.enter':   'Код',
+  'favcode.tooShort': 'Код жуда қисқа',
+  'favcode.already': 'Севимлида',
 
   // Умумий
   'common.app':          'Manzil',
