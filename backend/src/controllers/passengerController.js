@@ -221,4 +221,31 @@ const sevimliOchir = async (req, res) => {
   }
 };
 
-module.exports = { me, updateMe, songgiManzillar, oxirgiSafar, manzillar, manzilQosh, manzilOchir, sevimlilar, sevimliQosh, sevimliOchir };
+// GET /api/passenger/driver/:kod — код бўйича ҳайдовчини топиш (севимлига қўшишдан олдин)
+const haydovchiKodBoyicha = async (req, res) => {
+  try {
+    const kod = String(req.params.kod || '').trim().toUpperCase().slice(0, 8);
+    if (!kod) return res.status(400).json({ xato: 'Код киритинг' });
+    const r = await query(
+      `SELECT u.id AS haydovchi_id, u.ism, u.reyting,
+              d.mashina_modeli, d.mashina_rangi, d.mashina_raqami
+       FROM users u
+       LEFT JOIN drivers d ON d.user_id = u.id
+       WHERE u.haydovchi_kodi = $1 AND u.rol = 'haydovchi'`,
+      [kod]
+    );
+    if (r.rows.length === 0) return res.status(404).json({ xato: 'Бундай кодли ҳайдовчи топилмади' });
+    const h = r.rows[0];
+    // Аллақачон севимлими?
+    const sev = await query(
+      `SELECT 1 FROM sevimli_haydovchilar WHERE yolovchi_id = $1 AND haydovchi_id = $2`,
+      [req.user.id, h.haydovchi_id]
+    );
+    res.json({ ...h, sevimli: sev.rows.length > 0 });
+  } catch (err) {
+    console.error('passenger haydovchiKodBoyicha xato:', err.message);
+    res.status(500).json({ xato: 'Сервер хатоси' });
+  }
+};
+
+module.exports = { me, updateMe, songgiManzillar, oxirgiSafar, manzillar, manzilQosh, manzilOchir, sevimlilar, sevimliQosh, sevimliOchir, haydovchiKodBoyicha };

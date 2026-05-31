@@ -159,4 +159,33 @@ const onboarding = async (req, res) => {
   }
 };
 
-module.exports = { stats, profile, updateProfile, onboarding };
+// Чалкаш белгиларсиз (0/O, 1/I) код — ўқиш/айтиш осон
+const KOD_BELGILAR = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const kodYarat = (n = 6) => Array.from({ length: n }, () => KOD_BELGILAR[Math.floor(Math.random() * KOD_BELGILAR.length)]).join('');
+
+// GET /api/driver/code — ҳайдовчининг уникал коди (йўқ бўлса яратилади)
+const kodim = async (req, res) => {
+  try {
+    const r = await query(`SELECT haydovchi_kodi FROM users WHERE id = $1`, [req.user.id]);
+    let kod = r.rows[0]?.haydovchi_kodi;
+    if (!kod) {
+      // Уникал бўлгунча уринамиз (UNIQUE индекс кафолатлайди)
+      for (let i = 0; i < 10 && !kod; i++) {
+        const c = kodYarat();
+        try {
+          await query(`UPDATE users SET haydovchi_kodi = $2 WHERE id = $1`, [req.user.id, c]);
+          kod = c;
+        } catch (e) {
+          if (e.code !== '23505') throw e; // 23505 = unique violation — қайта уринамиз
+        }
+      }
+      if (!kod) return res.status(500).json({ xato: 'Код яратилмади' });
+    }
+    res.json({ kod });
+  } catch (err) {
+    console.error('Driver kodim xato:', err.message);
+    res.status(500).json({ xato: 'Сервер хатоси' });
+  }
+};
+
+module.exports = { stats, profile, updateProfile, onboarding, kodim };

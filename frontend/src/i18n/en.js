@@ -16,6 +16,20 @@ export default {
   'fav.forYou':      'For you',
   'fav.forYouOrder': 'Order for you',
   'fav.decline':     'Decline',
+  // Add by code / QR
+  'common.share':    'Share',
+  'common.copy':     'Copy',
+  'common.copied':   'Copied',
+  'drvcode.title':   'My QR code',
+  'drvcode.hint':    'A rider scans it or enters the code to add you to favorites',
+  'drvcode.shareText': 'Call me on Manzil — code: {kod}\n{havola}',
+  'favcode.title':   'Add by code',
+  'favcode.hint':    "Enter the driver's code to add them to favorites",
+  'favcode.placeholder': 'CODE',
+  'favcode.find':    'Find',
+  'favcode.enter':   'Code',
+  'favcode.tooShort': 'Code is too short',
+  'favcode.already': 'In favorites',
 
   // Common
   'common.app':          'Manzil',

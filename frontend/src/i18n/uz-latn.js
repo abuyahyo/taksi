@@ -16,6 +16,20 @@ export default {
   'fav.forYou':      'Sizga atab',
   'fav.forYouOrder': 'Sizga atab buyurtma',
   'fav.decline':     'Rad etish',
+  // Kod / QR bilan qoʻshish
+  'common.share':    'Ulashish',
+  'common.copy':     'Nusxalash',
+  'common.copied':   'Nusxalandi',
+  'drvcode.title':   'Mening QR kodim',
+  'drvcode.hint':    'Yoʻlovchi skan qilib yoki kodni kiritib sizni sevimliga qoʻshadi',
+  'drvcode.shareText': 'Manzil taksida meni chaqiring — kod: {kod}\n{havola}',
+  'favcode.title':   'Kod bilan qoʻshish',
+  'favcode.hint':    'Haydovchining kodini kiriting — uni sevimliga qoʻshasiz',
+  'favcode.placeholder': 'KOD',
+  'favcode.find':    'Topish',
+  'favcode.enter':   'Kod',
+  'favcode.tooShort': 'Kod juda qisqa',
+  'favcode.already': 'Sevimlida',
 
   // Umumiy
   'common.app':          'Manzil',

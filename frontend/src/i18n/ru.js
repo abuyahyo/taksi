@@ -16,6 +16,20 @@ export default {
   'fav.forYou':      'Для вас',
   'fav.forYouOrder': 'Заказ для вас',
   'fav.decline':     'Отклонить',
+  // Добавление по коду / QR
+  'common.share':    'Поделиться',
+  'common.copy':     'Копировать',
+  'common.copied':   'Скопировано',
+  'drvcode.title':   'Мой QR-код',
+  'drvcode.hint':    'Пассажир сканирует или вводит код и добавляет вас в избранное',
+  'drvcode.shareText': 'Вызовите меня в Manzil — код: {kod}\n{havola}',
+  'favcode.title':   'Добавить по коду',
+  'favcode.hint':    'Введите код водителя — добавите его в избранное',
+  'favcode.placeholder': 'КОД',
+  'favcode.find':    'Найти',
+  'favcode.enter':   'Код',
+  'favcode.tooShort': 'Код слишком короткий',
+  'favcode.already': 'В избранном',
 
   // Общие
   'common.app':          'Manzil',
