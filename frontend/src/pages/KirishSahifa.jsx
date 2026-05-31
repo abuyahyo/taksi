@@ -65,6 +65,13 @@ export default function KirishSahifa() {
         </button>
       </div>
 
+      {/* Реклама бериш — нозик иккиламчи кириш (асосий иккиламчи) */}
+      <button style={st.reklamaQator} className="press" onClick={() => navigate('/reklama')}>
+        <Ikonka nom="flame" size={15} />
+        <span>{t('reklama.loginTitle')}</span>
+        <Ikonka nom="arrow-right" size={14} />
+      </button>
+
       {/* Устунликлар */}
       <div style={st.section}>
         <div className="ios-row">
@@ -128,6 +135,13 @@ const st = {
   },
   rowTitle: { fontSize: 17, fontWeight: 600, color: 'var(--label)' },
   featMatn: { fontSize: 15, fontWeight: 400, color: 'var(--label)', lineHeight: 1.3 },
+
+  reklamaQator: {
+    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+    margin: '2px auto 0', padding: '8px 14px', borderRadius: 'var(--r-full)',
+    background: 'transparent', color: 'var(--secondary-label)',
+    fontSize: 14, fontWeight: 500,
+  },
 
   footer: {
     marginTop: 'auto', paddingTop: 'var(--space-6)', textAlign: 'center',
