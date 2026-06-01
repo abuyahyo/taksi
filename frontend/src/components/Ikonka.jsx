@@ -90,6 +90,8 @@ export default function Ikonka({ nom, size = 20 }) {
       return <svg {...p}><rect x="4" y="9" width="16" height="11" rx="1" /><path d="M4 13h16M12 9v11M12 9S9 4 6.5 6 9 9 12 9zM12 9s3-5 5.5-3S15 9 12 9z" /></svg>;
     case 'settings':
       return <svg {...p}><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" /></svg>;
+    case 'navigation':
+      return <svg {...p} fill="currentColor" stroke="none"><path d="M12 2.5l8 18-8-4-8 4 8-18z" /></svg>;
     default:
       return null;
   }
