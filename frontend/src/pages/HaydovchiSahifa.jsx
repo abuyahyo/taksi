@@ -20,6 +20,7 @@ import { tebrat, TEBRANISH } from '../services/haptika';
 import { pushObunaBol } from '../services/push';
 import { useT } from '../i18n';
 import SozlamalarTugma from '../components/SozlamalarTugma';
+import NavigatorTugma from '../components/NavigatorTugma';
 import Ikonka from '../components/Ikonka';
 
 export default function HaydovchiSahifa() {
@@ -188,7 +189,12 @@ function Ichki({ user }) {
     // Йўловчи мени танлади — сафар бошланди (ҳайдовчи "келмоқда" ҳолатда)
     tasdiqlandi: (data) => {
       if (data.haydovchi_id === user.id) {
-        setFaolSafar({ rideId: data.rideId, narx: data.narx, mijoz_ism: data.mijoz_ism, holati: 'kelmoqda', kutish_haqi: 0 });
+        setFaolSafar({
+          rideId: data.rideId, narx: data.narx, mijoz_ism: data.mijoz_ism,
+          holati: 'kelmoqda', kutish_haqi: 0,
+          boshlanish_koord: data.boshlanish_koord, tugash_koord: data.tugash_koord,
+          boshlanish_manzil: data.boshlanish_manzil, tugash_manzil: data.tugash_manzil,
+        });
       }
     },
     // Кутиш ҳақи ҳисобланди — нархни янгилаймиз
@@ -421,6 +427,10 @@ function Ichki({ user }) {
             {faolSafar.holati === 'yolda' && (
               <button style={st.harakatTugma} onClick={safarTugatish}>{t('drv.endRide')}</button>
             )}
+            {/* Навигаторда очиш — "келмоқда/кутаяпман"да пикапгача, "йўлда"да манзилгача */}
+            {faolSafar.holati === 'yolda'
+              ? <NavigatorTugma koord={faolSafar.tugash_koord} manzil={faolSafar.tugash_manzil} />
+              : <NavigatorTugma koord={faolSafar.boshlanish_koord} manzil={faolSafar.boshlanish_manzil} />}
             <div style={{ marginTop: 10 }}>
               <SOS rideId={faolSafar.rideId} />
             </div>

@@ -268,12 +268,25 @@ module.exports = (io) => {
            WHERE id = $1 AND holat = 'kutilmoqda'`,
           [data.rideId, data.haydovchi_id || null, data.narx]
         );
-        // Ҳайдовчига мижоз исмини қўшиб юборамиз (баҳолаш ва чат учун)
+        // Ҳайдовчига мижоз исмини + манзил координаталарини қўшиб юборамиз
+        // (баҳолаш, чат ва "Навигаторда очиш" учун).
         const r = await query(
-          `SELECT r.mijoz_id, u.ism AS mijoz_ism FROM rides r LEFT JOIN users u ON r.mijoz_id = u.id WHERE r.id = $1`,
+          `SELECT r.mijoz_id, u.ism AS mijoz_ism,
+                  r.boshlanish_manzil, r.tugash_manzil,
+                  r.boshlanish_lat, r.boshlanish_lng, r.tugash_lat, r.tugash_lng
+             FROM rides r LEFT JOIN users u ON r.mijoz_id = u.id WHERE r.id = $1`,
           [data.rideId]
         );
-        const enriched = { ...data, mijoz_id: r.rows[0]?.mijoz_id || null, mijoz_ism: r.rows[0]?.mijoz_ism || null };
+        const rr = r.rows[0] || {};
+        const enriched = {
+          ...data,
+          mijoz_id: rr.mijoz_id || null,
+          mijoz_ism: rr.mijoz_ism || null,
+          boshlanish_manzil: rr.boshlanish_manzil || null,
+          tugash_manzil: rr.tugash_manzil || null,
+          boshlanish_koord: (rr.boshlanish_lat != null && rr.boshlanish_lng != null) ? [Number(rr.boshlanish_lat), Number(rr.boshlanish_lng)] : null,
+          tugash_koord: (rr.tugash_lat != null && rr.tugash_lng != null) ? [Number(rr.tugash_lat), Number(rr.tugash_lng)] : null,
+        };
         // Танланган ҳайдовчини энди сафар хонасига қўшамиз (таклиф пайтида қўшмаган
         // эдик). Шу пайтдан у чат, GPS ва ҳолат янгиланишларини олади.
         if (data.haydovchi_id) {
