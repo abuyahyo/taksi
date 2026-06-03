@@ -26,6 +26,7 @@ inDrive услубидаги такси веб-дастур. Тошкент уч
 4. **Карта (банк карти) талаб қилмаймиз.** Render/Koyeb/Fly карта талаб қилади → улар йўқолди. ngrok (барқарор домен, бепул) + Supabase бепул план + Nominatim бепул. **Google Maps мумкин эмас** (Billing талаб қилади). MapBox/OSM мумкин.
 5. **inDrive услуби.** Йўловчи нархни ўзи белгилайди, ҳайдовчи рози бўлади ёки **ўз нархи**ни таклиф қилади. Surge pricing йўқ.
 6. **Бошқа иловалардаги муаммоларни тузатишга стратегиямиз.** "Келди" алдаш → GPS текширув (200м). Манзил кўринмайди → йўловчи юлдузли превью. Хавфсизлик йўқ → SOS тугмаси, сафарни улашиш линки. Қўнғироқ кераксиз → чат.
+   - **Буюм қолди (Lost & Found)** — таксида қолган буюмни **тўлов эвазига** қайтариш (`topilmalar` жадвали, `topilmaController.js`, `BuyumQoldi.jsx` — тарих саҳифасидан). inDrive услуби савдо: йўловчи нарх таклиф қилади, ҳайдовчи рози ёки ўз нархи. Тўлов **нақд, шахсан** — биз ушламаймиз. Фақат тугаган сафар, сўнгги **48 соат** ичида. Чат қайта ишлатилади (учрашув жойи). Навигация **deep link** (Yandex/Google) — Billing йўқ, бу JS API эмас (4-банддаги "Google Maps мумкин эмас" фақат ичма-ич API'га тегишли).
 
 ## Тех стек
 
@@ -47,7 +48,7 @@ C:\taxi-app\
 │   │   ├── server.js              # роутларни yиғади
 │   │   ├── config\db.js           # PG pool, DATABASE_URL ёки DB_*
 │   │   ├── config\schema.sql      # барча жадваллар + индекслар
-│   │   ├── controllers\           # auth, admin, driver, passenger, ride, share, payment, payme, click, message, geocode, heatmap, sos, subscription
+│   │   ├── controllers\           # auth, admin, driver, passenger, ride, share, payment, payme, click, message, geocode, heatmap, sos, subscription, topilma
 │   │   ├── routes\                # мос routes
 │   │   ├── middleware\auth.js     # JWT + role middleware
 │   │   └── socket\socketHandler.js # барча real-time мантиқ шу ерда
@@ -60,7 +61,7 @@ C:\taxi-app\
 │   │   ├── index.css              # БАРЧА дизайн tokens, glass, blobs шу ерда
 │   │   ├── i18n\                  # uz.js, uz-latn.js, ru.js, index.jsx
 │   │   ├── services\              # api.js (axios + socket), useSocket.js, bildirishnoma.js
-│   │   ├── components\            # Kirish, Chat, Tolov, Ulashish, Baholash, MashinaProfili, YolovchiProfili, Obuna, SOS, NarxTarkibi, HaritaPreview, IssiqXarita, ManzilQidirish, Toast, Skelet, YangilanishBanner
+│   │   ├── components\            # Kirish, Chat, Tolov, Ulashish, Baholash, MashinaProfili, YolovchiProfili, Obuna, SOS, NarxTarkibi, HaritaPreview, IssiqXarita, ManzilQidirish, Toast, Skelet, YangilanishBanner, NavigatorTugma, BuyumQoldi
 │   │   └── pages\                 # KirishSahifa (бош), YolovchiSahifa, HaydovchiSahifa, AdminSahifa, SafarTarixi, UlashilganSahifa
 │   ├── public\                    # icon-192/512/маскали, manifest автомат vite'дан
 │   ├── vite.config.js             # PWA конфиг шу ерда

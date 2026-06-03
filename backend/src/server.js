@@ -22,6 +22,7 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const pushRoutes = require('./routes/pushRoutes');
 const telegramRoutes = require('./routes/telegramRoutes');
 const reklamaRoutes = require('./routes/reklamaRoutes');
+const topilmaRoutes = require('./routes/topilmaRoutes');
 const { auksionlarniTekshir } = require('./controllers/reklamaController');
 
 const app = express();
@@ -75,6 +76,7 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/push', pushRoutes);
 app.use('/api/telegram', telegramRoutes);
 app.use('/api/reklama', reklamaRoutes);
+app.use('/api/topilma', topilmaRoutes);
 
 // Мос келмаган API йўли — HTML эмас, JSON 404 қайтарамиз
 app.use('/api', (req, res) => {

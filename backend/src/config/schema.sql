@@ -285,6 +285,26 @@ CREATE TABLE IF NOT EXISTS reklama_takliflar (
 );
 CREATE INDEX IF NOT EXISTS idx_reklama_taklif_auksion ON reklama_takliflar(auksion_id, summa DESC);
 
+-- "Буюм қолди" — таксида қолган буюмни тўлов эвазига қайтариш (inDrive услуби савдо)
+CREATE TABLE IF NOT EXISTS topilmalar (
+  id SERIAL PRIMARY KEY,
+  ride_id      INTEGER NOT NULL REFERENCES rides(id) ON DELETE CASCADE,
+  mijoz_id     INTEGER NOT NULL REFERENCES users(id),
+  haydovchi_id INTEGER NOT NULL REFERENCES users(id),
+  tavsif       TEXT NOT NULL,
+  holat        VARCHAR(20) NOT NULL DEFAULT 'soraldi', -- soraldi|topildi|topilmadi|kelishildi|qaytarildi|bekor
+  taklif_narx  INTEGER NOT NULL,
+  taklif_kim   VARCHAR(10) NOT NULL DEFAULT 'mijoz',   -- сўнгги нархни ким қўйди: mijoz|haydovchi
+  kelishilgan_narx INTEGER,
+  yaratilgan   TIMESTAMP DEFAULT NOW(),
+  yangilangan  TIMESTAMP DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_topilma_mijoz     ON topilmalar(mijoz_id);
+CREATE INDEX IF NOT EXISTS idx_topilma_haydovchi ON topilmalar(haydovchi_id);
+CREATE INDEX IF NOT EXISTS idx_topilma_ride      ON topilmalar(ride_id);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_topilma_ochiq
+  ON topilmalar(ride_id) WHERE holat IN ('soraldi', 'topildi', 'kelishildi');
+
 -- Барча public жадвалларда RLS ёқиш (Supabase авто Data API'дан ҳимоя).
 -- Backend `postgres` роли (эга/BYPASSRLS) билан уланади — таъсир йўқ; anon/authenticated = DENY.
 -- Батафсил: backend/migrations/enable_rls.sql

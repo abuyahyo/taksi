@@ -7,6 +7,7 @@ import Pastki from '../components/Pastki';
 import { SkeletKarta } from '../components/Skelet';
 import { useT } from '../i18n';
 import Ikonka from '../components/Ikonka';
+import BuyumQoldi from '../components/BuyumQoldi';
 
 export default function SafarTarixi() {
   const navigate = useNavigate();
@@ -29,6 +30,8 @@ function Ichki({ user, onOrqaga, onChiqish }) {
   const { t } = useT();
   const [rides, setRides] = useState(null);
   const [xato, setXato] = useState('');
+  const [topilmalar, setTopilmalar] = useState({}); // ride_id → топилма сўрови
+  const [modalRide, setModalRide] = useState(null); // {ride, topilma} — очиқ ойна
 
   useEffect(() => {
     api.get('/rides/me')
@@ -37,7 +40,21 @@ function Ichki({ user, onOrqaga, onChiqish }) {
         if (err.response?.status === 401) onChiqish();
         else setXato(err.response?.data?.xato || t('common.error'));
       });
+    api.get('/topilma')
+      // yangilangan DESC келади — teskari қилиб энг янгиси картада қолсин
+      .then(({ data }) => setTopilmalar(Object.fromEntries(data.slice().reverse().map((x) => [x.ride_id, x]))))
+      .catch(() => {});
   }, []);
+
+  // Буюм-сўров ойнаси ўзгариш қайтарганда рўйхатни янгилаймиз
+  const topilmaYangilandi = (tp) => setTopilmalar((oldin) => ({ ...oldin, [tp.ride_id]: tp }));
+
+  // "Буюм қолди" сўрови мумкинми (йўловчи, тугаган, ҳайдовчили, 48 соат ичида)
+  const buyumMumkinmi = (r, menMijoz) => {
+    if (!menMijoz || r.holat !== 'yakunlandi' || !r.haydovchi_id) return false;
+    const asos = r.yakun_vaqti || r.qabul_vaqti || r.yaratilgan;
+    return asos && (Date.now() - new Date(asos).getTime()) / 3600000 <= 48;
+  };
 
   const sana = (v) => {
     if (!v) return '';
@@ -106,6 +123,27 @@ function Ichki({ user, onOrqaga, onChiqish }) {
                         : r.taklif_narx ? `~${Number(r.taklif_narx).toLocaleString()}` : '—'}
                     </div>
                   </div>
+                  {(() => {
+                    const tp = topilmalar[r.id];
+                    const ochiq = tp && ['soraldi', 'topildi', 'kelishildi'].includes(tp.holat);
+                    if (ochiq) return (
+                      <button style={st.buyumTugma} onClick={() => setModalRide({ ride: r, topilma: tp })}>
+                        <Ikonka nom="chat" size={15} /> {t('lost.openRequest')}
+                      </button>
+                    );
+                    // Ёпиқ сўров бўлса ҳам йўловчи янги сўров бера олади (нотўғри бекор қилган бўлса)
+                    if (buyumMumkinmi(r, menMijoz)) return (
+                      <button style={st.buyumTugma} onClick={() => setModalRide({ ride: r, topilma: null })}>
+                        <Ikonka nom="alert" size={15} /> {t('lost.leftItem')}
+                      </button>
+                    );
+                    if (tp) return (
+                      <button style={st.buyumTugma} onClick={() => setModalRide({ ride: r, topilma: tp })}>
+                        <Ikonka nom="check" size={15} /> {t('lost.viewRequest')}
+                      </button>
+                    );
+                    return null;
+                  })()}
                 </div>
               );
             })}
@@ -113,6 +151,22 @@ function Ichki({ user, onOrqaga, onChiqish }) {
         )}
       </div>
       <Pastki faol="tarix" />
+
+      {modalRide && (() => {
+        const menMijoz = Number(modalRide.ride.mijoz_id) === Number(user.id);
+        const hamroh = menMijoz ? (modalRide.ride.haydovchi_ism || '—') : (modalRide.ride.mijoz_ism || t('hist.guest'));
+        return (
+          <BuyumQoldi
+            ride={modalRide.ride}
+            topilma={modalRide.topilma}
+            menMijoz={menMijoz}
+            meId={user.id}
+            hamrohIsm={hamroh}
+            onYopish={() => setModalRide(null)}
+            onYangilandi={topilmaYangilandi}
+          />
+        );
+      })()}
     </div>
   );
 }
@@ -143,4 +197,5 @@ const st = {
   kartaPast: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, paddingTop: 12, borderTop: '0.5px solid var(--separator)' },
   hamroh: { display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 14, color: 'var(--secondary-label)' },
   narx: { fontSize: 16, fontWeight: 700 },
+  buyumTugma: { width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 12, padding: 10, borderRadius: 'var(--r-md)', background: 'var(--fill)', color: 'var(--tint)', fontSize: 14, fontWeight: 600 },
 };
