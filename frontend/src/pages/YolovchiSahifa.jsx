@@ -507,18 +507,31 @@ export default function YolovchiSahifa() {
   return (
     <div style={st.sahifa}>
       {bosqich === 'manzil' ? (
-        <div style={st.uberEkran}>
-          <div style={st.uberHeader}>
-            <div style={st.uberLogo}><Ikonka nom="taxi" size={20} /> Manzil</div>
-            <div style={st.uberHeaderOng}>
-              <SozlamalarTugma />
-              <button style={st.uberIkonTugma} className="press" onClick={() => user ? setProfilOchiq(true) : setKirishOchiq(true)} title={user ? t('prof.title') : t('login.title')}><Ikonka nom={user ? 'user' : 'key'} /></button>
-              <button style={st.uberIkonTugma} className="press" onClick={() => navigate('/tarix')} title={t('hist.title')}><Ikonka nom="clock" /></button>
-            </div>
+        <>
+          {/* Карта фон — Uber услуби */}
+          <div style={st.harita}>
+            <Harita
+              markaz={markazNuqta || TOSHKENT}
+              markazRejim={false}
+            />
           </div>
 
+          {/* Float'ли лого — чап юқори */}
+          {!qidiruvOchiq && (
+            <div style={st.logo} className="glass-tugma"><Ikonka nom="taxi" size={18} /> Manzil</div>
+          )}
+
+          {/* Float'ли ўнг юқори тугмалар: созлама, профил, тарих */}
+          {!qidiruvOchiq && (
+            <div style={st.uyHeaderOng}>
+              <SozlamalarTugma />
+              <button style={st.uyIkonTugma} className="press glass-tugma" onClick={() => user ? setProfilOchiq(true) : setKirishOchiq(true)} aria-label={user ? t('prof.title') : t('login.title')}><Ikonka nom={user ? 'user' : 'key'} /></button>
+              <button style={st.uyIkonTugma} className="press glass-tugma" onClick={() => navigate('/tarix')} aria-label={t('hist.title')}><Ikonka nom="clock" /></button>
+            </div>
+          )}
+
           {qidiruvOchiq ? (
-            <div style={st.uberBody}>
+            <div style={st.panel} className="glass slide-up"><div style={st.grabber} />
               <button style={st.qidirOrqa} className="press" onClick={() => setQidiruvOchiq(false)}><Ikonka nom="arrow-left" size={18} /> {t('common.back')}</button>
 
               <div style={st.maydonKarta}>
@@ -589,10 +602,8 @@ export default function YolovchiSahifa() {
               </div>
             </div>
           ) : (
-            <div style={st.uberBody}>
-              {/* Ой кимошди ғолибининг рекламаси (бўлса) */}
-              <ReklamaBanner />
-
+            <div style={{ ...st.panel, maxHeight: '55vh', paddingBottom: 'calc(90px + env(safe-area-inset-bottom))' }} className="glass slide-up">
+              <div style={st.grabber} />
               {/* Қидирув + Харитадан тугмалари ёнма-ён */}
               <div style={st.qidirvaXarita}>
                 <button style={{ ...st.qayergaTugma, flex: 1, marginBottom: 0 }} className="press" onClick={() => qidiruvAch('tugash')}>
@@ -629,7 +640,6 @@ export default function YolovchiSahifa() {
                 </button>
               )}
 
-              <div style={st.bolimSarlavha}>{t('pass.quickAccess')}</div>
               <div style={st.uberSection}>
                 {/* Уй — ҳар доим кўрсатамиз; бўш бўлса "қўшинг" такfлифи */}
                 {profil?.home_lat ? (
@@ -712,10 +722,13 @@ export default function YolovchiSahifa() {
                   <span style={st.uberRowMatn}>{t('pass.saveAddr')}</span>
                 </button>
               </div>
+
+              {/* Ой кимошди ғолибининг рекламаси — пастда, асосий контент устида турмайди */}
+              <ReklamaBanner />
             </div>
           )}
           {!qidiruvOchiq && <Pastki faol="home" />}
-        </div>
+        </>
       ) : (
       <>
       <div style={st.harita}>
@@ -1224,14 +1237,9 @@ const st = {
   amalIkon: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center' },
 
   // ===== Uber услуби — бош/қидирув саҳифа =====
-  uberEkran: { position: 'absolute', inset: 0, zIndex: 1200, display: 'flex', flexDirection: 'column', background: 'var(--bg)', paddingTop: 'env(safe-area-inset-top)' },
-  uberHeader: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px 8px', gap: 8 },
-  uberLogo: { display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 20, color: 'var(--label)' },
-  uberHeaderOng: { display: 'flex', alignItems: 'center', gap: 8 },
-  uberIkonTugma: { width: 36, height: 36, borderRadius: '50%', background: 'var(--fill)', color: 'var(--tint)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  uberBody: { flex: 1, overflowY: 'auto', padding: '8px 16px calc(92px + env(safe-area-inset-bottom))' },
-  qayergaTugma: { width: '100%', display: 'flex', alignItems: 'center', gap: 12, background: 'var(--fill)', color: 'var(--secondary-label)', padding: '16px 18px', borderRadius: 'var(--r-lg)', fontSize: 18, fontWeight: 500, marginBottom: 22, textAlign: 'left' },
-  bolimSarlavha: { fontSize: 22, fontWeight: 700, color: 'var(--label)', margin: '4px 4px 12px' },
+  uyHeaderOng: { position: 'absolute', top: 'calc(16px + env(safe-area-inset-top))', right: 16, zIndex: 1000, display: 'flex', alignItems: 'center', gap: 8 },
+  uyIkonTugma: { width: 38, height: 38, borderRadius: '50%', color: 'var(--label)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  qayergaTugma: { width: '100%', display: 'flex', alignItems: 'center', gap: 12, background: 'var(--fill)', color: 'var(--secondary-label)', padding: '16px 18px', borderRadius: 'var(--r-lg)', fontSize: 18, fontWeight: 500, marginBottom: 18, textAlign: 'left' },
   uberSection: { background: 'var(--surface)', borderRadius: 'var(--r-lg)', overflow: 'hidden', boxShadow: 'var(--shadow-1)' },
   uberRow: { width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', background: 'transparent', borderBottom: '0.5px solid var(--separator)', textAlign: 'left' },
   uberRowIkon: { width: 38, height: 38, borderRadius: 10, background: 'var(--tint-fill)', color: 'var(--tint)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
