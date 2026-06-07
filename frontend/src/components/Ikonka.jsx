@@ -89,7 +89,8 @@ export default function Ikonka({ nom, size = 20 }) {
     case 'gift':
       return <svg {...p}><rect x="4" y="9" width="16" height="11" rx="1" /><path d="M4 13h16M12 9v11M12 9S9 4 6.5 6 9 9 12 9zM12 9s3-5 5.5-3S15 9 12 9z" /></svg>;
     case 'settings':
-      return <svg {...p}><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" /></svg>;
+      // Gear/cog wheel — tishlari bilan (quyoshdan farqi: tishlar to'g'ri burchakli, radial chiziq emas)
+      return <svg {...p}><path d="M19.4 13a7.5 7.5 0 0 0 0-2l2.1-1.6-2-3.4-2.5 1a7.5 7.5 0 0 0-1.7-1l-.4-2.6h-4l-.4 2.6a7.5 7.5 0 0 0-1.7 1l-2.5-1-2 3.4L4.6 11a7.5 7.5 0 0 0 0 2l-2.1 1.6 2 3.4 2.5-1c.5.4 1.1.8 1.7 1l.4 2.6h4l.4-2.6c.6-.2 1.2-.6 1.7-1l2.5 1 2-3.4L19.4 13z" /><circle cx="12" cy="12" r="3" /></svg>;
     case 'navigation':
       return <svg {...p} fill="currentColor" stroke="none"><path d="M12 2.5l8 18-8-4-8 4 8-18z" /></svg>;
     default:
