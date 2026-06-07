@@ -80,12 +80,13 @@ export default function OrnatishBanner() {
 
 const st = {
   banner: {
-    position: 'fixed', bottom: 'calc(16px + env(safe-area-inset-bottom))',
+    // Pastki nav (~62px) ustiga жойлашади — content'ни ёпиб қўймайди
+    position: 'fixed', bottom: 'calc(76px + env(safe-area-inset-bottom))',
     left: 16, right: 16, maxWidth: 460, margin: '0 auto',
     background: 'var(--surface-elevated)', color: 'var(--label)',
     padding: 12, borderRadius: 'var(--r-xl)',
     display: 'flex', alignItems: 'center', gap: 12,
-    zIndex: 5000, boxShadow: '0 12px 32px rgba(0,0,0,0.18), 0 0 0 0.5px var(--separator)',
+    zIndex: 1200, boxShadow: '0 12px 32px rgba(0,0,0,0.18), 0 0 0 0.5px var(--separator)',
   },
   ikon: { width: 44, height: 44, borderRadius: 10, flexShrink: 0, objectFit: 'cover' },
   matnWrap: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 2 },

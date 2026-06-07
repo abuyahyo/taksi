@@ -196,7 +196,7 @@ function Stat({ raqam, matn }) {
 
 const st = {
   sahifa: { width: '100%', maxWidth: 480, margin: '0 auto', minHeight: '100dvh', background: 'var(--bg)' },
-  kontent: { padding: 'calc(16px + env(safe-area-inset-top)) 16px calc(96px + env(safe-area-inset-bottom))' },
+  kontent: { padding: 'calc(16px + env(safe-area-inset-top)) 16px calc(220px + env(safe-area-inset-bottom))' },
   shapka: { display: 'flex', alignItems: 'center', gap: 14, padding: '8px 4px 18px' },
   avatar: { width: 64, height: 64, borderRadius: '50%', background: 'var(--tint)', color: 'var(--on-tint)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 600, flexShrink: 0 },
   ism: { fontSize: 26, fontWeight: 700, letterSpacing: '0.2px', color: 'var(--label)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
