@@ -1123,7 +1123,6 @@ export default function YolovchiSahifa() {
         <div style={st.kirishOverlay}>
           <button style={st.kirishYopish} className="press" onClick={() => setKirishOchiq(false)} aria-label={t('common.close')}><Ikonka nom="x" size={20} /></button>
           <Kirish
-            kerakliRol="mijoz"
             onKirildi={(u) => { setUser(u); setKirishOchiq(false); }}
           />
         </div>
