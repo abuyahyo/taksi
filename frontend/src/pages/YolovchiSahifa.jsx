@@ -1038,7 +1038,7 @@ export default function YolovchiSahifa() {
             <Harita
               markaz={boshlanish || TOSHKENT}
               markazRejim={true}
-              markazRang={qidiruvMaydon === 'boshlanish' ? '#0E9384' : '#EF4444'}
+              markazRang={qidiruvMaydon === 'boshlanish' ? '#000000' : '#E11900'}
               onMarkaz={markazKuzat}
               uchish={uchish}
             />
@@ -1148,7 +1148,7 @@ const st = {
   tezTugma: { flex: '1 0 auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 5, background: 'var(--fill)', color: 'var(--tint)', padding: '8px 14px', borderRadius: 'var(--r-full)', fontSize: 13, fontWeight: 600 },
   kutishOgoh: { display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,149,0,0.14)', padding: '11px 14px', borderRadius: 'var(--r-md)', marginBottom: 10, fontSize: 14, color: 'var(--amber)', fontWeight: 500 },
   kutishQushilgan: { background: 'rgba(255,59,48,0.12)', padding: 10, borderRadius: 'var(--r-md)', fontSize: 13, color: 'var(--qizil)', textAlign: 'center', marginBottom: 10 },
-  panel: { position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 1000, maxWidth: 480, margin: '0 auto', borderRadius: '14px 14px 0 0', padding: '6px 20px calc(20px + env(safe-area-inset-bottom))', maxHeight: '85vh', overflowY: 'auto' },
+  panel: { position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 500, maxWidth: 480, margin: '0 auto', borderRadius: '14px 14px 0 0', padding: '6px 20px calc(20px + env(safe-area-inset-bottom))', maxHeight: '85vh', overflowY: 'auto' },
   grabber: { width: 36, height: 5, borderRadius: 3, background: 'var(--fill-strong)', margin: '0 auto 14px' },
   sarlavha: { fontSize: 22, fontWeight: 700, letterSpacing: '0.35px', marginBottom: 14 },
   izoh: { color: 'var(--secondary-label)', fontSize: 15, marginBottom: 16 },

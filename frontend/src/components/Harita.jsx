@@ -23,17 +23,17 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-// Брендланган пин (SVG teardrop) — бирюза бошланиш, қизил борар манзил
+// Брендланган пин (SVG teardrop) — қора бошланиш, қизил борар манзил (Uber-style B&W)
 const pinSvg = (rang) => `<svg width="30" height="40" viewBox="0 0 24 32" xmlns="http://www.w3.org/2000/svg">
   <path d="M12 0C5.37 0 0 5.37 0 12c0 8.4 12 20 12 20s12-11.6 12-20C24 5.37 18.63 0 12 0z" fill="${rang}" stroke="#fff" stroke-width="2"/>
   <circle cx="12" cy="12" r="4.5" fill="#fff"/>
 </svg>`;
-const boshlanishIcon = L.divIcon({ className: 'brand-pin', html: pinSvg('#0E9384'), iconSize: [30, 40], iconAnchor: [15, 40] });
-const tugashIcon = L.divIcon({ className: 'brand-pin', html: pinSvg('#EF4444'), iconSize: [30, 40], iconAnchor: [15, 40] });
-// Оралиқ тўхташ — кичик бирюза доира
+const boshlanishIcon = L.divIcon({ className: 'brand-pin', html: pinSvg('#000000'), iconSize: [30, 40], iconAnchor: [15, 40] });
+const tugashIcon = L.divIcon({ className: 'brand-pin', html: pinSvg('#E11900'), iconSize: [30, 40], iconAnchor: [15, 40] });
+// Оралиқ тўхташ — кичик қора доира (бренд = қора)
 const oraliqIcon = L.divIcon({
   className: 'oraliq-pin',
-  html: `<div style="width:16px;height:16px;border-radius:50%;background:#0E9384;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)"></div>`,
+  html: `<div style="width:16px;height:16px;border-radius:50%;background:#000000;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)"></div>`,
   iconSize: [16, 16], iconAnchor: [8, 8],
 });
 
@@ -43,7 +43,7 @@ const mashinaIcon = L.divIcon({
   className: 'mashina-marker',
   html: `<div class="mashina-aylan" style="transition:transform .45s ease-out;will-change:transform;filter:drop-shadow(0 2px 4px rgba(0,0,0,.35))">
     <svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
-      <rect x="11" y="6" width="14" height="24" rx="6.5" fill="#0E9384" stroke="#fff" stroke-width="2.2"/>
+      <rect x="11" y="6" width="14" height="24" rx="6.5" fill="#000000" stroke="#fff" stroke-width="2.2"/>
       <path d="M13.5 12 C15 10.5 21 10.5 22.5 12 L21.5 15.5 L14.5 15.5 Z" fill="#fff" opacity="0.9"/>
       <rect x="14" y="23" width="8" height="3.5" rx="1.5" fill="#fff" opacity="0.7"/>
     </svg>
@@ -170,7 +170,7 @@ function MarkazKuzat({ onMarkaz }) {
 
 export default function Harita({
   markaz, boshlanish, tugash, haydovchi, onBosish,
-  markazRejim = false, markazRang = '#0E9384', onMarkaz, uchish, yol, yolChizigi,
+  markazRejim = false, markazRang = '#000000', onMarkaz, uchish, yol, yolChizigi,
 }) {
   // Кўп манзил: yol = [бошланиш, ...оралиқлар]. 2+ нуқта бўлса йўлни шу бўйича чизамиз.
   const koplik = Array.isArray(yol) && yol.length >= 2;
@@ -193,17 +193,17 @@ export default function Harita({
         {markazRejim && onMarkaz && <MarkazKuzat onMarkaz={onMarkaz} />}
         {/* Йўл чизиғи — реал йўл (OSRM) бўлса шу бўйича, акс ҳолда тўғри чизиқ */}
         {realYol ? (
-          <Polyline positions={realYol} pathOptions={{ color: '#0E9384', weight: 5, opacity: 0.9 }} />
+          <Polyline positions={realYol} pathOptions={{ color: '#000000', weight: 5, opacity: 0.9 }} />
         ) : koplik ? (
-          <Polyline positions={yol} pathOptions={{ color: '#0E9384', weight: 4, opacity: 0.85 }} />
+          <Polyline positions={yol} pathOptions={{ color: '#000000', weight: 4, opacity: 0.85 }} />
         ) : boshlanish && tugash && (
-          <Polyline positions={[boshlanish, tugash]} pathOptions={{ color: '#0E9384', weight: 4, opacity: 0.85 }} />
+          <Polyline positions={[boshlanish, tugash]} pathOptions={{ color: '#000000', weight: 4, opacity: 0.85 }} />
         )}
         {/* Оралиқ тўхташ маркерлари */}
         {oraliqlar.map((nuqta, i) => <Marker key={`or-${i}`} position={nuqta} icon={oraliqIcon} />)}
         {/* Ҳайдовчи → pickup (пунктир) — ҳайдовчи йўлда бўлганда */}
         {haydovchi && boshlanish && (
-          <Polyline positions={[haydovchi, boshlanish]} pathOptions={{ color: '#0E9384', weight: 3, opacity: 0.55, dashArray: '6 8' }} />
+          <Polyline positions={[haydovchi, boshlanish]} pathOptions={{ color: '#000000', weight: 3, opacity: 0.55, dashArray: '6 8' }} />
         )}
         {boshlanish && <Marker position={boshlanish} icon={boshlanishIcon} />}
         {tugash && <Marker position={tugash} icon={tugashIcon} />}

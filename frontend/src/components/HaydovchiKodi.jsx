@@ -23,7 +23,7 @@ export default function HaydovchiKodi({ onYopish }) {
         const havola = `${window.location.origin}/yolovchi?haydovchi=${data.kod}`;
         try {
           const QR = (await import('qrcode')).default;
-          const url = await QR.toDataURL(havola, { width: 240, margin: 1, color: { dark: '#0E9384', light: '#ffffff' } });
+          const url = await QR.toDataURL(havola, { width: 240, margin: 1, color: { dark: '#000000', light: '#ffffff' } });
           if (!bekor) setQr(url);
         } catch { /* QR чизилмаса — код барибир кўрсатилади */ }
       })

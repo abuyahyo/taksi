@@ -127,7 +127,7 @@ const st = {
   royxat: { flex: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 4 },
   bosh: { textAlign: 'center', color: 'var(--secondary-label)', padding: 40, fontSize: 15 },
   qator: { display: 'flex' },
-  kopcha: { maxWidth: '75%', padding: '7px 13px', borderRadius: 18 },
+  kopcha: { maxWidth: 'min(75%, calc(100vw - 40px))', minWidth: 80, padding: '7px 13px', borderRadius: 18 },
   kopchaOzim: { background: 'var(--tint)', color: '#fff' },
   kopchaBegona: { background: 'var(--fill)', color: 'var(--label)' },
   yuboruvchi: { fontSize: 11, fontWeight: 600, color: 'var(--secondary-label)', marginBottom: 2 },

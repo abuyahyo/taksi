@@ -56,7 +56,7 @@ export default function HaritaPreview({ boshlanish, tugash, height = 110 }) {
         />
         <Marker position={boshlanish} icon={yashilDot} />
         <Marker position={tugash} icon={qizilDot} />
-        <Polyline positions={[boshlanish, tugash]} pathOptions={{ color: '#0E9384', weight: 4, opacity: 0.9 }} />
+        <Polyline positions={[boshlanish, tugash]} pathOptions={{ color: '#000000', weight: 4, opacity: 0.9 }} />
         <FitBounds nuqtalar={[boshlanish, tugash]} />
       </MapContainer>
     </div>

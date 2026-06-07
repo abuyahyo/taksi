@@ -1,23 +1,26 @@
-/* Safar Taksi — iOS дизайн тизими (Apple HIG)
+/* Safar Taksi — iOS дизайн тизими (Apple HIG) + Uber-style B&W бренд
    Тизим шрифти SF Pro (iOS'да автомат), iOS ранглар, материаллар,
    inset-grouped рўйхатлар, grabber'ли sheet'лар, iOS тугма/свич/segmented.
-   Эски токен номлари (--sariq, --oq, --qora, --kulrang, --och-kulrang...)
-   сақланган — қийматлари iOS аестетикасига мосланган. */
+   Бренд ранги — қора (light) / оқ (dark). Семантик ранглар (--accept яшил,
+   --decline қизил) сақланган. Эски токен номлари (--sariq, --asosiy, --oq,
+   --qora, --kulrang...) сақланган — қийматлари қора-оқ контрастга мосланган. */
 
 :root {
-  /* ===== Бренд tint (бирюза — Apple услубида апп tint ранги) ===== */
-  --tint:            #0E9384;
-  --tint-pressed:    #0B7B6E;
-  --tint-fill:       rgba(14, 147, 132, 0.12);
+  /* ===== Бренд tint (Uber-style — қора-оқ, ажралиш учун семантик ранг) =====
+     Илгари бирюза (#0E9384) эди — бошқа таксидан ажралиш учун. Энди Uber-style
+     минимализм: бренд = қора-оқ контраст, ранг фақат семантик (accept/decline). */
+  --tint:            #000000;
+  --tint-pressed:    #1F1F1F;
+  --tint-fill:       rgba(0, 0, 0, 0.06);
 
-  --sariq:           var(--tint);   /* эски ном — бой кодга мос */
-  --sariq-light:     #2DD4BF;
-  --sariq-dark:      #0B7B6E;
-  --sariq-surface:   #F0FDFA;
+  --sariq:           var(--tint);   /* эски ном — бой кодга мос (қиймати қора) */
+  --sariq-light:     #2A2A2A;
+  --sariq-dark:      #000000;
+  --sariq-surface:   #F2F2F7;
   --asosiy:          var(--tint);
-  --asosiy-light:    #2DD4BF;
-  --asosiy-dark:     #0B7B6E;
-  --asosiy-surface:  #F0FDFA;
+  --asosiy-light:    #2A2A2A;
+  --asosiy-dark:     #000000;
+  --asosiy-surface:  #F2F2F7;
 
   /* ===== iOS система ранглари (light) ===== */
   --label:            #000000;
@@ -76,11 +79,11 @@
 
   /* ===== Uber-симон семантик ранглар (минималист CTA + actionable) =====
      ИШЛАТИШ ҚОИДАСИ:
-     - --tint (бирюза): бренд асосий tugma'лар, кириш нуқтаси ("Order", "Continue")
-     - --ink: иккиламчи CTA, "Где to?" услуби (қора-оқ), кучли акцент
+     - --tint (қора): бренд асосий tugma'лар, кириш нуқтаси ("Order", "Continue")
+     - --ink: --tint билан бир хил (legacy alias), янги кодда --tint ишлат
      - --accept (Uber яшил): "Go Online", "Accept", "Confirm" — actionable green
      - --decline (Uber қизил): "Cancel", "Reject", destructive
-     Қора матн — `--label`'дан ишлатинг (Uber #141414 каби). */
+     Матн — `--label`'дан ишлатинг (Uber #141414 каби). */
   --ink:          #000000;
   --ink-press:    #1F1F1F;
   --ink-fill:     rgba(0, 0, 0, 0.06);
@@ -104,7 +107,7 @@
   --shadow-2: 0 1px 3px rgba(0,0,0,0.08);
   --shadow-3: 0 8px 24px rgba(0,0,0,0.12);
   --shadow-4: 0 16px 40px rgba(0,0,0,0.18);
-  --shadow-sariq: 0 4px 16px rgba(14, 147, 132, 0.24);
+  --shadow-sariq: 0 4px 16px rgba(0, 0, 0, 0.18);
   --soya: var(--shadow-2);
 
   /* ===== Transitionлар (iOS spring-ишора) ===== */
@@ -120,18 +123,16 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  /* Tunda бирюза илгари teal-300 (#2DD4BF) эди — паст контраст ҳамда "юваш"
-     ҳис берарди. Сатурацияли teal-400 (#14B8A6) — қора бг'да контраст ~8.0
-     (AAA), брендга яқинроқ. Press ҳолатда олдинги шафтол кўринсин. */
-  --tint:            #14B8A6;
-  --tint-pressed:    #2DD4BF;
-  --tint-fill:       rgba(20, 184, 166, 0.20);
+  /* Tunda бренд = оқ (Uber dark mode'и каби). Press ҳолатда сал хира. */
+  --tint:            #FFFFFF;
+  --tint-pressed:    #E5E5E5;
+  --tint-fill:       rgba(255, 255, 255, 0.10);
   --sariq:           var(--tint);
-  --sariq-light:     #2DD4BF;
-  --sariq-dark:      #5EEAD4;
+  --sariq-light:     #E5E5E5;
+  --sariq-dark:      #FFFFFF;
   --asosiy:          var(--tint);
-  --asosiy-light:    #2DD4BF;
-  --asosiy-dark:     #5EEAD4;
+  --asosiy-light:    #E5E5E5;
+  --asosiy-dark:     #FFFFFF;
 
   --label:            #FFFFFF;
   --secondary-label:  rgba(235, 235, 245, 0.60);
@@ -184,8 +185,8 @@
   --decline:       #FF453A;
   --decline-press: #FF6C63;
 
-  --sariq-surface:  #0C1517;
-  --asosiy-surface: #0C1517;
+  --sariq-surface:  #1C1C1E;
+  --asosiy-surface: #1C1C1E;
 
   --shadow-1: 0 1px 2px rgba(0,0,0,0.5);
   --shadow-2: 0 1px 3px rgba(0,0,0,0.6);

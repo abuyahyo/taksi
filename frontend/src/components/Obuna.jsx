@@ -105,10 +105,10 @@ export default function Obuna({ onYopish, onYangilandi }) {
               <div style={st.summaRaqam}>{Number(tolov.summa).toLocaleString()} {t('wait.sum')}</div>
             </div>
             <div style={st.tolovTugmalar}>
-              <button style={{ ...st.payme, opacity: tolovYubor ? 0.5 : 1 }} disabled={tolovYubor} onClick={() => tashqiTola('payme')}>{t('pay.payme')}</button>
-              <button style={{ ...st.click, opacity: tolovYubor ? 0.5 : 1 }} disabled={tolovYubor} onClick={() => tashqiTola('click')}>{t('pay.click')}</button>
+              <button style={st.payme} disabled={tolovYubor} onClick={() => tashqiTola('payme')}>{t('pay.payme')}</button>
+              <button style={st.click} disabled={tolovYubor} onClick={() => tashqiTola('click')}>{t('pay.click')}</button>
               <div style={st.ajratgich} />
-              <button style={{ ...st.test, opacity: tolovYubor ? 0.5 : 1 }} disabled={tolovYubor} onClick={testTola}>{t('pay.test')}</button>
+              <button style={st.test} disabled={tolovYubor} onClick={testTola}>{t('pay.test')}</button>
               <div style={st.testHint}>{t('pay.testHint')}</div>
             </div>
             <button style={st.orqaga} onClick={() => setTolov(null)}>{t('common.back')}</button>

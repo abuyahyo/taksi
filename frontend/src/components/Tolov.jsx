@@ -68,18 +68,18 @@ export default function Tolov({ rideId, summa, onYopish, onTolandi }) {
         ) : (
           <div style={st.tugmalar}>
             <button
-              style={{ ...st.payme, opacity: yuborilmoqda ? 0.5 : 1 }}
+              style={st.payme}
               disabled={yuborilmoqda}
               onClick={() => tashqigaOch('payme')}
             >{t('pay.payme')}</button>
             <button
-              style={{ ...st.click, opacity: yuborilmoqda ? 0.5 : 1 }}
+              style={st.click}
               disabled={yuborilmoqda}
               onClick={() => tashqigaOch('click')}
             >{t('pay.click')}</button>
             <div style={st.ajratgich} />
             <button
-              style={{ ...st.test, opacity: yuborilmoqda ? 0.5 : 1 }}
+              style={st.test}
               disabled={yuborilmoqda}
               onClick={testTola}
             >{t('pay.test')}</button>
