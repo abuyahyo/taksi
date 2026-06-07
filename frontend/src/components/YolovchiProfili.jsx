@@ -107,7 +107,7 @@ export default function YolovchiProfili({ onYopish, onYangilandi, mapNuqta }) {
 
         <div style={st.manzilSarlavha}>{t('prof.savedAddresses')}</div>
         <div style={st.manzilQator}>
-          <div style={{ ...st.manzilBelgi, background: 'var(--tint)' }}><Ikonka nom="home" size={16} /></div>
+          <div style={{ ...st.manzilBelgi, background: 'var(--tint)', color: 'var(--on-tint)' }}><Ikonka nom="home" size={16} /></div>
           <div style={{ flex: 1 }}>
             <div style={st.manzilLabel}>{t('prof.home')}</div>
             <div style={st.manzilQiymat}>{homeManzil || t('prof.noAddress')}</div>
