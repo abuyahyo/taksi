@@ -200,7 +200,7 @@ const st = {
 
   tugma: {
     background: 'var(--tint)',
-    color: '#fff', padding: 15, borderRadius: 'var(--r-lg)',
+    color: 'var(--on-tint)', padding: 15, borderRadius: 'var(--r-lg)',
     fontWeight: 600, fontSize: 17,
     marginTop: 'var(--space-2)',
   },

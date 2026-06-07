@@ -207,7 +207,7 @@ const st = {
   narxKorsat: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', background: 'var(--tint-fill)', borderRadius: 'var(--r-md)', marginBottom: 14 },
   narxLabel: { fontSize: 14, color: 'var(--secondary-label)' },
   narxKatta: { fontSize: 22, fontWeight: 700, color: 'var(--tint)' },
-  asosiy: { width: '100%', background: 'var(--ink)', color: '#fff', padding: 15, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 17, marginBottom: 8 },
+  asosiy: { width: '100%', background: 'var(--ink)', color: 'var(--on-tint)', padding: 15, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 17, marginBottom: 8 },
   accept: { width: '100%', background: 'var(--accept)', color: '#fff', padding: 15, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 17, marginBottom: 8 },
   decline: { width: '100%', background: 'transparent', color: 'var(--decline)', padding: 13, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 15, marginBottom: 8 },
   ikkilamchi: { width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'var(--fill)', color: 'var(--tint)', padding: 13, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 15, marginBottom: 8 },

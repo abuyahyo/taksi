@@ -262,7 +262,7 @@ const st = {
   select: { width: '100%', padding: 12, borderRadius: 'var(--r-md)', background: 'var(--fill)', border: 'none', fontSize: 15, color: 'var(--label)', marginBottom: 10 },
   taklifQator: { display: 'flex', gap: 10 },
   input: { flex: 1, background: 'var(--fill)', border: 'none', borderRadius: 'var(--r-md)', padding: '13px 16px', fontSize: 18, fontWeight: 700, color: 'var(--label)' },
-  taklifTugma: { background: 'var(--ink)', color: '#fff', padding: '0 22px', borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 16 },
+  taklifTugma: { background: 'var(--ink)', color: 'var(--on-tint)', padding: '0 22px', borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 16 },
   minIzoh: { fontSize: 13, color: 'var(--secondary-label)', marginTop: 8 },
   ogoh: { fontSize: 14, color: 'var(--secondary-label)', textAlign: 'center', padding: '12px 0' },
   bolimSarl: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13, fontWeight: 600, color: 'var(--secondary-label)', textTransform: 'uppercase', letterSpacing: '-0.08px', marginTop: 6 },

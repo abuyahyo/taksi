@@ -56,7 +56,7 @@ export default function KirishSahifa() {
           <span className="ios-chevron"><Ikonka nom="arrow-right" size={16} /></span>
         </button>
         <button className="ios-row" onClick={() => navigate('/haydovchi' + window.location.search)}>
-          <span style={{ ...st.tile, background: '#1C1C1E' }}><Ikonka nom="car" size={18} /></span>
+          <span style={{ ...st.tile, background: '#1C1C1E', color: '#fff' }}><Ikonka nom="car" size={18} /></span>
           <span className="ios-row-label">
             <div style={st.rowTitle}>{t('home.driver')}</div>
             <div className="ios-row-sub">{t('home.driverSub')}</div>
@@ -129,7 +129,7 @@ const st = {
   },
   tile: {
     width: 30, height: 30, borderRadius: 7, flexShrink: 0,
-    display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--on-tint)',
   },
   rowTitle: { fontSize: 17, fontWeight: 600, color: 'var(--label)' },
   featMatn: { fontSize: 15, fontWeight: 400, color: 'var(--label)', lineHeight: 1.3 },

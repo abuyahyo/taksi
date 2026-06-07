@@ -46,5 +46,5 @@ const st = {
   ikon: { fontSize: 48, marginBottom: 12 },
   sarlavha: { fontSize: 22, fontWeight: 700, marginBottom: 8 },
   izoh: { fontSize: 15, color: 'var(--secondary-label, #666)', maxWidth: 320, marginBottom: 24, lineHeight: 1.4 },
-  tugma: { background: 'var(--tint, #000000)', color: '#fff', padding: '14px 28px', borderRadius: 14, fontSize: 16, fontWeight: 600, border: 'none', cursor: 'pointer' },
+  tugma: { background: 'var(--tint, #000000)', color: 'var(--on-tint, #fff)', padding: '14px 28px', borderRadius: 14, fontSize: 16, fontWeight: 600, border: 'none', cursor: 'pointer' },
 };

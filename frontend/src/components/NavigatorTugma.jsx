@@ -50,7 +50,7 @@ export default function NavigatorTugma({ koord, manzil }) {
 }
 
 const st = {
-  tugma: { width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'var(--ink)', color: '#fff', padding: 13, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 15, marginTop: 10 },
+  tugma: { width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'var(--ink)', color: 'var(--on-tint)', padding: 13, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 15, marginTop: 10 },
   fon: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 2000, backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)' },
   list: { background: 'var(--surface-elevated)', width: '100%', maxWidth: 480, borderRadius: '14px 14px 0 0', padding: '8px 20px', paddingBottom: 'calc(20px + env(safe-area-inset-bottom))' },
   grabber: { width: 36, height: 5, borderRadius: 3, background: 'var(--fill-strong)', margin: '0 auto 14px' },
