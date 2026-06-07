@@ -177,7 +177,7 @@ const st = {
   orqaga: { width: 44, height: 44, borderRadius: '50%', background: 'var(--fill)', color: 'var(--tint)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   sarlavha: { flex: 1, fontWeight: 600, fontSize: 17, textAlign: 'center', color: 'var(--label)' },
   chiqish: { background: 'transparent', color: 'var(--tint)', padding: '6px 8px', fontSize: 15, fontWeight: 400 },
-  kontent: { padding: '16px 16px calc(96px + env(safe-area-inset-bottom))' },
+  kontent: { padding: '16px 16px calc(220px + env(safe-area-inset-bottom))' },
   xato: { background: 'rgba(255,59,48,0.12)', color: 'var(--qizil)', padding: 12, borderRadius: 'var(--r-md)', marginBottom: 12, fontSize: 14 },
   bosh: { textAlign: 'center', padding: 60, color: 'var(--secondary-label)' },
   boshIkon: { display: 'inline-flex', color: 'var(--tertiary-label)' },

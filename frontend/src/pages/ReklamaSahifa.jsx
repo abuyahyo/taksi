@@ -244,7 +244,7 @@ function Ichki() {
 }
 
 const st = {
-  sahifa: { minHeight: '100vh', background: 'var(--bg)', paddingBottom: 32 },
+  sahifa: { minHeight: '100vh', background: 'var(--bg)', paddingBottom: 'calc(140px + env(safe-area-inset-bottom))' },
   header: { display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px', position: 'sticky', top: 0, background: 'var(--bg)', zIndex: 10 },
   orqa: { width: 44, height: 44, borderRadius: '50%', background: 'var(--fill)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--label)' },
   sarlavha: { fontSize: 20, fontWeight: 700 },

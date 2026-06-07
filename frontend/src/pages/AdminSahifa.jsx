@@ -509,7 +509,7 @@ const st = {
   profilLabel: { fontSize: 11, color: 'var(--tertiary-label)', textTransform: 'uppercase' },
   profilQiymat: { fontSize: 14, color: 'var(--label)', fontWeight: 500 },
 
-  sahifa: { width: '100%', maxWidth: 720, margin: '0 auto', minHeight: '100dvh', background: 'var(--bg)', paddingBottom: 'env(safe-area-inset-bottom)' },
+  sahifa: { width: '100%', maxWidth: 720, margin: '0 auto', minHeight: '100dvh', background: 'var(--bg)', paddingBottom: 'calc(140px + env(safe-area-inset-bottom))' },
   header: { padding: '12px 16px', paddingTop: 'calc(12px + env(safe-area-inset-top))', background: 'var(--material-bar)', backdropFilter: 'saturate(180%) blur(20px)', WebkitBackdropFilter: 'saturate(180%) blur(20px)', borderBottom: '0.5px solid var(--separator)', color: 'var(--label)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 50 },
   logo: { fontWeight: 600, fontSize: 17 },
   chiqish: { background: 'transparent', color: 'var(--tint)', padding: '6px 8px', fontSize: 15, fontWeight: 400 },
