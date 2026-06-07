@@ -24,6 +24,11 @@ export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
   // Google Sign-In — Telegram'дан ташқарида ва client_id берилганда
   const googleRef = useRef(null);
   const googleKoʻrsatish = registerKoʻrsatish && googleYoqilgan() && !tgIchidami();
+
+  // Telegram Login Widget — Telegram'дан ташқарида ва bot username берилганда
+  const tgWidgetRef = useRef(null);
+  const tgBot = import.meta.env.VITE_TELEGRAM_BOT?.trim() || '';
+  const tgWidgetKoʻrsatish = registerKoʻrsatish && tgBot && !tgIchidami();
   useEffect(() => {
     if (!googleKoʻrsatish) return;
     let bekor = false;
@@ -51,6 +56,47 @@ export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
       });
     });
     return () => { bekor = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Telegram Login Widget — глобал callback + script инжекция
+  useEffect(() => {
+    if (!tgWidgetKoʻrsatish || !tgWidgetRef.current) return;
+    // Глобал callback — widget script шуни чақиради
+    window.onTelegramAuth = async (auth) => {
+      setXato(''); setYuklanmoqda(true);
+      try {
+        const { data } = await api.post('/auth/telegram-widget', { auth, rol: kerakliRol || 'mijoz' });
+        if (kerakliRol && data.user.rol !== kerakliRol) {
+          const rolMatni = kerakliRol === 'haydovchi' ? t('home.driver') : t('home.passenger');
+          setXato(t('login.wrongRole', { rol: rolMatni }));
+          setYuklanmoqda(false);
+          return;
+        }
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        onKirildi?.(data.user);
+      } catch (err) {
+        const xabar = err.response?.data?.xato || t('common.error');
+        const sabab = err.response?.data?.sabab ? ` (${err.response.data.sabab})` : '';
+        setXato(xabar + sabab);
+        setYuklanmoqda(false);
+      }
+    };
+    // Widget script — botFather'да /setdomain қилинган домейнда ишлайди
+    const s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://telegram.org/js/telegram-widget.js?22';
+    s.setAttribute('data-telegram-login', tgBot);
+    s.setAttribute('data-size', 'large');
+    s.setAttribute('data-onauth', 'onTelegramAuth(user)');
+    s.setAttribute('data-request-access', 'write');
+    s.setAttribute('data-radius', '12');
+    tgWidgetRef.current.appendChild(s);
+    return () => {
+      try { tgWidgetRef.current?.removeChild(s); } catch {}
+      delete window.onTelegramAuth;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -143,12 +189,11 @@ export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
           </button>
         )}
 
-        {googleKoʻrsatish && (
-          <>
-            <div style={st.ajratgich}><span style={st.ajratgichMatn}>{t('login.or')}</span></div>
-            <div ref={googleRef} style={st.googleWrap} />
-          </>
+        {(googleKoʻrsatish || tgWidgetKoʻrsatish) && (
+          <div style={st.ajratgich}><span style={st.ajratgichMatn}>{t('login.or')}</span></div>
         )}
+        {googleKoʻrsatish && <div ref={googleRef} style={st.googleWrap} />}
+        {tgWidgetKoʻrsatish && <div ref={tgWidgetRef} style={st.tgWidgetWrap} />}
       </form>
     </div>
   );
@@ -214,4 +259,5 @@ const st = {
   },
   ajratgichMatn: { padding: '0 10px' },
   googleWrap: { display: 'flex', justifyContent: 'center', minHeight: 44 },
+  tgWidgetWrap: { display: 'flex', justifyContent: 'center', minHeight: 44, marginTop: 8 },
 };

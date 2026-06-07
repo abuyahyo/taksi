@@ -2,7 +2,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { query } = require('../config/db');
-const { initDataTekshir } = require('../utils/telegram');
+const { initDataTekshir, widgetTekshir } = require('../utils/telegram');
 const { googleTokenTekshir } = require('../utils/google');
 require('dotenv').config();
 
@@ -156,6 +156,62 @@ const telegramKirish = async (req, res) => {
   }
 };
 
+// TELEGRAM LOGIN WIDGET — оддий веб-брaузерда (Telegram Mini App'дан ташқарида)
+// "Log in with Telegram" виджети callback'дан келган auth объектини текширади.
+const telegramWidgetKirish = async (req, res) => {
+  try {
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    if (!botToken) {
+      return res.status(503).json({ xato: 'Telegram кириш созланмаган' });
+    }
+    const { auth, rol } = req.body;
+    const n = widgetTekshir(auth, botToken);
+    if (!n.ok || !n.user?.id) {
+      return res.status(401).json({ xato: 'Telegram маълумоти нотўғри', sabab: n.sabab });
+    }
+
+    const tgId = String(n.user.id);
+    const ism = [n.user.first_name, n.user.last_name].filter(Boolean).join(' ').trim().slice(0, 100)
+      || n.user.username || 'Telegram';
+    const foydalanuvchiRol = rol === 'haydovchi' ? 'haydovchi' : 'mijoz';
+
+    let r = await query('SELECT * FROM users WHERE telegram_id = $1', [tgId]);
+    let user = r.rows[0];
+    if (!user) {
+      const ins = await query(
+        `INSERT INTO users (ism, telegram_id, rol) VALUES ($1, $2, $3) RETURNING *`,
+        [ism, tgId, foydalanuvchiRol]
+      );
+      user = ins.rows[0];
+      // Янги ҳайдовчи — drivers ёзуви + 7 кунлик trial обуна
+      if (foydalanuvchiRol === 'haydovchi') {
+        await query('INSERT INTO drivers (user_id) VALUES ($1)', [user.id]);
+        await query(
+          `INSERT INTO obunalar (user_id, turi, summa, tugash_sana)
+           VALUES ($1, 'trial', 0, NOW() + INTERVAL '7 days')`,
+          [user.id]
+        );
+      }
+    }
+
+    if (user.bloklangan) {
+      return res.status(403).json({
+        xato: 'Ҳисобингиз блокланган',
+        sabab: user.blok_sababi || 'Сабаб кўрсатилмаган',
+      });
+    }
+
+    const token = tokenYaratish(user);
+    res.json({
+      token,
+      user: { id: user.id, ism: user.ism, telefon: user.telefon, rol: user.rol, reyting: user.reyting },
+    });
+  } catch (err) {
+    console.error('Telegram widget кириш хатоси:', err.message);
+    res.status(500).json({ xato: 'Сервер хатоси' });
+  }
+};
+
 // GOOGLE КИРИШ — Google ID token'ни текшириб, JWT берамиз.
 // Бот токени каби fail-closed: GOOGLE_CLIENT_ID созланмаса рад этамиз.
 const googleKirish = async (req, res) => {
@@ -234,4 +290,4 @@ const googleKirish = async (req, res) => {
   }
 };
 
-module.exports = { register, login, telegramKirish, googleKirish };
+module.exports = { register, login, telegramKirish, telegramWidgetKirish, googleKirish };
