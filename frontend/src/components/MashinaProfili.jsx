@@ -176,5 +176,5 @@ const st = {
   labelMatn: { fontSize: 13, fontWeight: 400, color: 'var(--secondary-label)', textTransform: 'uppercase', letterSpacing: '-0.08px', paddingLeft: 4 },
   input: { padding: 14, borderRadius: 'var(--r-md)', border: 'none', background: 'var(--fill)', color: 'var(--label)', fontSize: 17 },
   xato: { color: 'var(--qizil)', fontSize: 14, textAlign: 'center' },
-  tugma: { background: 'var(--tint)', color: '#fff', padding: 15, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 17, marginTop: 4 },
+  tugma: { background: 'var(--tint)', color: 'var(--on-tint)', padding: 15, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 17, marginTop: 4 },
 };

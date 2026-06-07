@@ -45,7 +45,7 @@ export default function DaromadSolishtiruv({ daromad = 0 }) {
 const st = {
   karta: { margin: '0 16px 16px', padding: 16, background: 'var(--surface)', borderRadius: 'var(--r-lg)', boxShadow: 'var(--shadow-1)' },
   bosh: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 },
-  belgi: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: 40, height: 28, padding: '0 8px', borderRadius: 'var(--r-full)', background: 'var(--tint)', color: '#fff', fontWeight: 700, fontSize: 15 },
+  belgi: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: 40, height: 28, padding: '0 8px', borderRadius: 'var(--r-full)', background: 'var(--tint)', color: 'var(--on-tint)', fontWeight: 700, fontSize: 15 },
   sarlavha: { fontSize: 16, fontWeight: 600, color: 'var(--label)' },
   daromad: { fontSize: 28, fontWeight: 700, color: 'var(--tint)', letterSpacing: '0.3px' },
   som: { fontSize: 15, fontWeight: 400, color: 'var(--secondary-label)' },

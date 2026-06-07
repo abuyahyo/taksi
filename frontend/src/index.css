@@ -12,6 +12,7 @@
   --tint:            #000000;
   --tint-pressed:    #1F1F1F;
   --tint-fill:       rgba(0, 0, 0, 0.06);
+  --on-tint:         #FFFFFF;  /* --tint фонида матн ранги (light: оқ матн қора фонда) */
 
   --sariq:           var(--tint);   /* эски ном — бой кодга мос (қиймати қора) */
   --sariq-light:     #2A2A2A;
@@ -131,6 +132,7 @@
   --tint:            #FFFFFF;
   --tint-pressed:    #E5E5E5;
   --tint-fill:       rgba(255, 255, 255, 0.10);
+  --on-tint:         #000000;  /* --tint фонида матн (dark: қора матн оқ фонда) */
   --sariq:           var(--tint);
   --sariq-light:     #E5E5E5;
   --sariq-dark:      #FFFFFF;
@@ -357,7 +359,7 @@ button.ios-row:active:not(:disabled) { opacity: 1; background: var(--fill); }
   padding: 14px 20px; line-height: 1.1;
 }
 .ios-btn:active:not(:disabled) { opacity: 0.8; transform: scale(0.985); }
-.ios-btn--filled { background: var(--tint); color: #fff; }
+.ios-btn--filled { background: var(--tint); color: var(--on-tint); }
 .ios-btn--tinted { background: var(--tint-fill); color: var(--tint); }
 .ios-btn--gray   { background: var(--fill); color: var(--label); }
 .ios-btn--destructive { background: var(--qizil); color: #fff; }

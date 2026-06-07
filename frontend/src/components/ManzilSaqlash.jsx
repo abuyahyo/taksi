@@ -138,5 +138,5 @@ const st = {
   spin: { width: 14, height: 14, borderWidth: 2 },
   tanlangan: { display: 'flex', alignItems: 'center', gap: 8, padding: '12px 14px', marginTop: 12, borderRadius: 'var(--r-md)', background: 'rgba(52,199,89,0.10)', color: 'var(--yashil)', fontSize: 14 },
   tanlanganMatn: { flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-  saqla: { width: '100%', marginTop: 18, padding: 15, borderRadius: 'var(--r-lg)', background: 'var(--tint)', color: '#fff', fontWeight: 600, fontSize: 17 },
+  saqla: { width: '100%', marginTop: 18, padding: 15, borderRadius: 'var(--r-lg)', background: 'var(--tint)', color: 'var(--on-tint)', fontWeight: 600, fontSize: 17 },
 };

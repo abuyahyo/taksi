@@ -91,6 +91,6 @@ const st = {
   matnWrap: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 2 },
   sarlavha: { fontSize: 15, fontWeight: 600, color: 'var(--label)' },
   izoh: { fontSize: 12, color: 'var(--secondary-label)', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis' },
-  tugma: { background: 'var(--tint)', color: '#fff', padding: '8px 14px', borderRadius: 'var(--r-full)', fontWeight: 600, fontSize: 13, flexShrink: 0 },
+  tugma: { background: 'var(--tint)', color: 'var(--on-tint)', padding: '8px 14px', borderRadius: 'var(--r-full)', fontWeight: 600, fontSize: 13, flexShrink: 0 },
   yopish: { background: 'var(--fill)', color: 'var(--secondary-label)', width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
 };

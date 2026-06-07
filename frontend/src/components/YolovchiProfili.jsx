@@ -145,7 +145,7 @@ const st = {
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, marginTop: 8 },
   sarlavha: { fontSize: 20, fontWeight: 600 },
   yopish: { width: 44, height: 44, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  avatar: { width: 76, height: 76, borderRadius: '50%', background: 'var(--tint)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, fontWeight: 600, margin: '0 auto 12px' },
+  avatar: { width: 76, height: 76, borderRadius: '50%', background: 'var(--tint)', color: 'var(--on-tint)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, fontWeight: 600, margin: '0 auto 12px' },
   ismQator: { display: 'flex', gap: 8, marginBottom: 8 },
   input: { flex: 1, padding: 12, borderRadius: 'var(--r-md)', border: 'none', background: 'var(--fill)', color: 'var(--label)', fontSize: 17 },
   kichikTugma: { background: 'var(--tint-fill)', color: 'var(--tint)', padding: '8px 14px', borderRadius: 'var(--r-md)', fontWeight: 600, fontSize: 13, whiteSpace: 'nowrap' },

@@ -89,7 +89,7 @@ const st = {
   kodQutu: { display: 'inline-flex', gap: 8, justifyContent: 'center', background: 'transparent', marginBottom: 18, cursor: 'pointer' },
   kodXona: { width: 38, height: 48, borderRadius: 'var(--r-md)', background: 'var(--fill)', color: 'var(--tint)', fontSize: 26, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', letterSpacing: 0 },
   tugmalar: { display: 'flex', gap: 10 },
-  ulashTugma: { flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7, background: 'var(--tint)', color: '#fff', padding: 14, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 16 },
+  ulashTugma: { flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7, background: 'var(--tint)', color: 'var(--on-tint)', padding: 14, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 16 },
   yopishTugma: { flex: 1, background: 'var(--fill)', color: 'var(--label)', padding: 14, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 16 },
   yuk: { padding: 40, color: 'var(--secondary-label)' },
   xato: { padding: 24, color: 'var(--qizil)', fontSize: 15 },

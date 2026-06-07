@@ -763,7 +763,7 @@ export default function YolovchiSahifa() {
                     style={{ ...st.tarifKarta, ...(faol ? st.tarifFaol : {}) }}
                     onClick={() => tarifTanla(tr.kod)}
                   >
-                    <span style={{ ...st.tarifIkon, color: faol ? '#fff' : 'var(--tint)' }}><Ikonka nom={tr.ikon} size={20} /></span>
+                    <span style={{ ...st.tarifIkon, color: faol ? 'var(--on-tint)' : 'var(--tint)' }}><Ikonka nom={tr.ikon} size={20} /></span>
                     <span style={st.tarifNom}>{t(`tarif.${tr.kod}`)}</span>
                     <span style={st.tarifNarx}>{tavsiyaHisobi(masofa(), tr.kod).toLocaleString()}</span>
                   </button>
@@ -1162,20 +1162,20 @@ const st = {
   qoshTugma: { width: '100%', background: 'var(--fill)', color: 'var(--tint)', padding: 14, borderRadius: 'var(--r-lg)', fontSize: 16, fontWeight: 600, marginTop: 8 },
   markazManzilQator: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--fill)', padding: 14, borderRadius: 'var(--r-md)', marginBottom: 10, minHeight: 48 },
   markazManzilMatn: { fontSize: 15, fontWeight: 500, lineHeight: 1.3, color: 'var(--label)' },
-  tugma: { width: '100%', background: 'var(--tint)', color: '#fff', padding: 15, borderRadius: 'var(--r-lg)', fontSize: 17, fontWeight: 600, marginTop: 8 },
+  tugma: { width: '100%', background: 'var(--tint)', color: 'var(--on-tint)', padding: 15, borderRadius: 'var(--r-lg)', fontSize: 17, fontWeight: 600, marginTop: 8 },
   orqaga: { width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 2, background: 'transparent', padding: 12, color: 'var(--tint)', fontSize: 17, fontWeight: 400, marginTop: 2 },
   opsiyalar: { marginBottom: 4 },
   opIzoh: { width: '100%', background: 'var(--fill)', border: 'none', borderRadius: 'var(--r-md)', padding: '12px 14px', fontSize: 15, color: 'var(--label)', marginBottom: 8 },
   opChiplar: { display: 'flex', gap: 8 },
   opChip: { flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '9px 10px', borderRadius: 'var(--r-full)', background: 'var(--fill)', color: 'var(--label)', fontSize: 13, fontWeight: 500 },
-  opChipFaol: { background: 'var(--tint)', color: '#fff' },
+  opChipFaol: { background: 'var(--tint)', color: 'var(--on-tint)' },
   // Севимли ҳайдовчилар (тўғридан-тўғри чақириш)
   sevimliBolimi: { marginTop: 4, marginBottom: 12 },
   sevimliLabel: { display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 500, color: 'var(--secondary-label)', marginBottom: 8 },
   sevimliChiplar: { display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 2 },
   sevimliChip: { flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 7, padding: '7px 12px 7px 7px', borderRadius: 'var(--r-full)', background: 'var(--fill)', color: 'var(--label)', fontSize: 14, fontWeight: 500, border: '1.5px solid transparent' },
-  sevimliChipFaol: { background: 'var(--tint)', color: '#fff', borderColor: 'var(--tint)' },
-  sevimliAvatar: { width: 26, height: 26, borderRadius: '50%', background: 'var(--tint)', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600 },
+  sevimliChipFaol: { background: 'var(--tint)', color: 'var(--on-tint)', borderColor: 'var(--tint)' },
+  sevimliAvatar: { width: 26, height: 26, borderRadius: '50%', background: 'var(--tint)', color: 'var(--on-tint)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600 },
   sevimliIsm: { maxWidth: 110, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   sevimliIzoh: { fontSize: 13, color: 'var(--tint)', marginTop: 8, fontWeight: 500 },
   kodChip: { flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 'var(--r-full)', background: 'var(--fill)', color: 'var(--tint)', fontSize: 14, fontWeight: 600, border: '1.5px dashed var(--tint)' },
@@ -1183,7 +1183,7 @@ const st = {
   rejaTugma: { width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '11px 10px', borderRadius: 'var(--r-md)', background: 'var(--fill)', color: 'var(--label)', fontSize: 14, fontWeight: 500, marginTop: 8 },
   tariflar: { display: 'flex', gap: 8, marginBottom: 16 },
   tarifKarta: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, padding: '10px 6px', borderRadius: 'var(--r-md)', background: 'var(--fill)', border: '1.5px solid transparent', color: 'var(--label)' },
-  tarifFaol: { background: 'var(--tint)', color: '#fff', borderColor: 'var(--tint)' },
+  tarifFaol: { background: 'var(--tint)', color: 'var(--on-tint)', borderColor: 'var(--tint)' },
   tarifIkon: { display: 'inline-flex' },
   tarifNom: { fontSize: 13, fontWeight: 600 },
   tarifNarx: { fontSize: 12, fontWeight: 400, opacity: 0.85, fontVariantNumeric: 'tabular-nums' },
@@ -1196,16 +1196,16 @@ const st = {
   bekor: { width: '100%', background: 'var(--fill)', color: 'var(--qizil)', padding: 14, borderRadius: 'var(--r-lg)', fontSize: 17, fontWeight: 500, marginTop: 8 },
   haydovchi: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--fill)', padding: 12, borderRadius: 'var(--r-md)', marginBottom: 10 },
   haydovchiTavsiya: { background: 'var(--tint-fill)', outline: '1px solid var(--tint)' },
-  tavsiyaChip: { display: 'inline-block', marginLeft: 8, padding: '2px 8px', borderRadius: 'var(--r-full)', background: 'var(--tint)', color: '#fff', fontSize: 10, fontWeight: 700, letterSpacing: '0.3px', verticalAlign: 'middle' },
+  tavsiyaChip: { display: 'inline-block', marginLeft: 8, padding: '2px 8px', borderRadius: 'var(--r-full)', background: 'var(--tint)', color: 'var(--on-tint)', fontSize: 10, fontWeight: 700, letterSpacing: '0.3px', verticalAlign: 'middle' },
   arzonChip: { display: 'inline-block', marginLeft: 8, padding: '2px 8px', borderRadius: 'var(--r-full)', background: 'rgba(52,199,89,0.18)', color: 'var(--yashil)', fontSize: 10, fontWeight: 700, letterSpacing: '0.3px' },
   takliflarHeader: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
   qidirvaqt: { fontSize: 22, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: 'var(--tint)', marginTop: 6 },
   qidirvaqtChip: { padding: '4px 10px', borderRadius: 'var(--r-full)', background: 'var(--fill)', color: 'var(--secondary-label)', fontSize: 12, fontWeight: 600, fontVariantNumeric: 'tabular-nums' },
-  avatar: { width: 44, height: 44, borderRadius: '50%', background: 'var(--tint)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: 18, flexShrink: 0 },
+  avatar: { width: 44, height: 44, borderRadius: '50%', background: 'var(--tint)', color: 'var(--on-tint)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: 18, flexShrink: 0 },
   hIsm: { display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap', fontWeight: 600, fontSize: 16 },
-  tasdiqBelgi: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 16, height: 16, borderRadius: '50%', background: 'var(--tint)', color: '#fff', fontSize: 10, fontWeight: 700, marginLeft: 4 },
+  tasdiqBelgi: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 16, height: 16, borderRadius: '50%', background: 'var(--tint)', color: 'var(--on-tint)', fontSize: 10, fontWeight: 700, marginLeft: 4 },
   hMashina: { fontSize: 13, color: 'var(--secondary-label)', marginTop: 1 },
-  qabul: { background: 'var(--tint)', color: '#fff', padding: '9px 16px', borderRadius: 'var(--r-full)', fontWeight: 600, fontSize: 15 },
+  qabul: { background: 'var(--tint)', color: 'var(--on-tint)', padding: '9px 16px', borderRadius: 'var(--r-full)', fontWeight: 600, fontSize: 15 },
   kuzatishMatn: { textAlign: 'center', padding: 12, color: 'var(--secondary-label)', fontSize: 13, marginTop: 4 },
   eta: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, background: 'var(--tint-fill)', color: 'var(--tint)', padding: '9px 12px', borderRadius: 'var(--r-md)', fontSize: 15, fontWeight: 600, marginBottom: 12 },
   pinKarta: { background: 'var(--tint)', borderRadius: 'var(--r-lg)', padding: 16, marginBottom: 12, textAlign: 'center' },
@@ -1216,7 +1216,7 @@ const st = {
   // Uber услуби — қидириш радари
   radar: { position: 'relative', width: 96, height: 96, margin: '4px auto 18px', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   radarHalqa: { position: 'absolute', width: 96, height: 96, borderRadius: '50%', background: 'var(--tint)', animation: 'radar 1.6s ease-out infinite' },
-  radarMarkaz: { position: 'relative', width: 56, height: 56, borderRadius: '50%', background: 'var(--tint)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 },
+  radarMarkaz: { position: 'relative', width: 56, height: 56, borderRadius: '50%', background: 'var(--tint)', color: 'var(--on-tint)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 },
 
   // Uber услуби — ҳолат пилюласи
   statusPill: { display: 'flex', alignItems: 'center', gap: 8, background: 'var(--tint-fill)', color: 'var(--tint)', padding: '10px 14px', borderRadius: 'var(--r-full)', fontSize: 15, fontWeight: 600, marginBottom: 12 },
@@ -1225,7 +1225,7 @@ const st = {
 
   // Uber услуби — ҳайдовчи картаси
   drvKarta: { display: 'flex', alignItems: 'center', gap: 12, background: 'var(--surface)', padding: 14, borderRadius: 'var(--r-lg)', boxShadow: 'var(--shadow-1)', marginBottom: 12 },
-  avatarKatta: { width: 52, height: 52, borderRadius: '50%', background: 'var(--tint)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 22, flexShrink: 0 },
+  avatarKatta: { width: 52, height: 52, borderRadius: '50%', background: 'var(--tint)', color: 'var(--on-tint)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 22, flexShrink: 0 },
   hReyting: { display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 13, color: 'var(--secondary-label)', marginTop: 2 },
   drvMashinaBox: { textAlign: 'right', maxWidth: 130, flexShrink: 0 },
   drvMashinaMatn: { fontSize: 13, color: 'var(--secondary-label)', lineHeight: 1.25 },

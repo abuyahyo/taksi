@@ -128,7 +128,7 @@ const st = {
   bosh: { textAlign: 'center', color: 'var(--secondary-label)', padding: 40, fontSize: 15 },
   qator: { display: 'flex' },
   kopcha: { maxWidth: 'min(75%, calc(100vw - 40px))', minWidth: 80, padding: '7px 13px', borderRadius: 18 },
-  kopchaOzim: { background: 'var(--tint)', color: '#fff' },
+  kopchaOzim: { background: 'var(--tint)', color: 'var(--on-tint)' },
   kopchaBegona: { background: 'var(--fill)', color: 'var(--label)' },
   yuboruvchi: { fontSize: 11, fontWeight: 600, color: 'var(--secondary-label)', marginBottom: 2 },
   matn: { fontSize: 16, lineHeight: 1.35, whiteSpace: 'pre-wrap', wordBreak: 'break-word' },
@@ -137,5 +137,5 @@ const st = {
   shablonTugma: { background: 'var(--fill)', padding: '7px 14px', borderRadius: 'var(--r-full)', fontSize: 14, fontWeight: 400, whiteSpace: 'nowrap', flexShrink: 0, color: 'var(--tint)' },
   kiritish: { display: 'flex', gap: 8, padding: '10px 12px calc(10px + env(safe-area-inset-bottom))', borderTop: '0.5px solid var(--separator)', alignItems: 'center' },
   input: { flex: 1, padding: '10px 16px', borderRadius: 'var(--r-full)', border: 'none', background: 'var(--fill)', color: 'var(--label)', fontSize: 16 },
-  yuborTugma: { width: 44, height: 44, borderRadius: '50%', background: 'var(--tint)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  yuborTugma: { width: 44, height: 44, borderRadius: '50%', background: 'var(--tint)', color: 'var(--on-tint)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
 };

@@ -179,7 +179,7 @@ const st = {
   paketTavsiya: { border: '2px solid var(--tint)', background: 'var(--tint-fill)' },
   paketYuqori: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
   paketIsm: { fontSize: 14, fontWeight: 600, color: 'var(--label)' },
-  tavsiyaBelgi: { background: 'var(--tint)', color: '#fff', padding: '3px 8px', borderRadius: 'var(--r-full)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2px' },
+  tavsiyaBelgi: { background: 'var(--tint)', color: 'var(--on-tint)', padding: '3px 8px', borderRadius: 'var(--r-full)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2px' },
   paketNarx: { fontSize: 20, fontWeight: 700, color: 'var(--label)' },
   paketNarxTavsiya: { fontSize: 24, fontWeight: 700, color: 'var(--tint)' },
   paketSom: { fontSize: 12, fontWeight: 400, color: 'var(--secondary-label)' },

@@ -288,6 +288,6 @@ const st = {
   modalSarl: { fontSize: 19, fontWeight: 700, marginBottom: 14, textAlign: 'center' },
   formInput: { width: '100%', background: 'var(--fill)', border: 'none', borderRadius: 'var(--r-md)', padding: '12px 14px', fontSize: 15, color: 'var(--label)', marginBottom: 10 },
   formPreview: { width: '100%', maxHeight: 120, objectFit: 'cover', borderRadius: 'var(--r-md)', marginBottom: 10 },
-  formYubor: { width: '100%', background: 'var(--tint)', color: '#fff', padding: 14, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 16 },
+  formYubor: { width: '100%', background: 'var(--tint)', color: 'var(--on-tint)', padding: 14, borderRadius: 'var(--r-lg)', fontWeight: 600, fontSize: 16 },
   modIzoh: { fontSize: 12, color: 'var(--tertiary-label)', textAlign: 'center', marginTop: 10 },
 };
