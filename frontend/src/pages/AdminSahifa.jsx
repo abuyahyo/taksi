@@ -467,9 +467,12 @@ function holatRang(holat) {
 }
 
 function Stat({ raqam, matn, nom, rang, keng }) {
+  // B&W фон (--tint, --ink) учун matn rangini --on-tint қилиб берамиз — даркда оқ фон+оқ icon ёпилмасин
+  const bwFon = rang === 'var(--tint)' || rang === 'var(--ink)';
+  const ikonRang = bwFon ? 'var(--on-tint)' : '#fff';
   return (
     <div style={{ ...stStat.karta, ...(keng ? { gridColumn: '1 / -1' } : {}) }}>
-      <div style={{ ...stStat.ikon, background: rang }}><Ikonka nom={nom} size={18} /></div>
+      <div style={{ ...stStat.ikon, background: rang, color: ikonRang }}><Ikonka nom={nom} size={18} /></div>
       <div style={stStat.raqam}>{raqam}</div>
       <div style={stStat.matn}>{matn}</div>
     </div>
@@ -578,7 +581,7 @@ const st = {
 
 const stStat = {
   karta: { background: 'var(--surface)', padding: 18, borderRadius: 'var(--r-lg)', boxShadow: 'var(--shadow-1)', textAlign: 'center' },
-  ikon: { width: 36, height: 36, borderRadius: 9, color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
+  ikon: { width: 36, height: 36, borderRadius: 9, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
   raqam: { fontSize: 26, fontWeight: 700, letterSpacing: '0.3px' },
   matn: { fontSize: 13, color: 'var(--secondary-label)', marginTop: 2 },
 };
