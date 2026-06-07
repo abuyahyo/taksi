@@ -610,7 +610,7 @@ const st = {
   sahifa: { width: '100%', maxWidth: 480, margin: '0 auto', minHeight: '100dvh', background: 'var(--bg)', paddingBottom: 'env(safe-area-inset-bottom)' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', paddingTop: 'calc(12px + env(safe-area-inset-top))', background: 'var(--material-bar)', backdropFilter: 'saturate(180%) blur(20px)', WebkitBackdropFilter: 'saturate(180%) blur(20px)', borderBottom: '0.5px solid var(--separator)', gap: 8, position: 'sticky', top: 0, zIndex: 50 },
   logo: { display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 600, fontSize: 15, color: 'var(--label)', flex: 1, overflow: 'hidden', whiteSpace: 'nowrap' },
-  tarixTugma: { background: 'var(--fill)', width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--tint)' },
+  tarixTugma: { background: 'var(--fill)', width: 44, height: 44, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--tint)' },
   obunaBadge: { position: 'absolute', top: -3, right: -3, background: 'var(--qizil)', color: '#fff', minWidth: 18, height: 18, borderRadius: 9, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', border: '1.5px solid var(--surface)' },
   ogohlantirish: { margin: '12px 16px 0', padding: 12, background: 'rgba(255,149,0,0.14)', color: 'var(--amber)', borderRadius: 'var(--r-md)', fontSize: 14, cursor: 'pointer', fontWeight: 500 },
   tasdiqBaner: { margin: '12px 16px 0', padding: 14, background: 'var(--surface)', borderRadius: 'var(--r-lg)', cursor: 'pointer', border: '0.5px solid var(--separator)' },

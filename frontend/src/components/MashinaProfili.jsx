@@ -169,7 +169,7 @@ const st = {
   modal: { width: '100%', maxWidth: 420, borderRadius: 'var(--r-xl)', padding: 24, maxHeight: '90dvh', overflowY: 'auto' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 },
   sarlavha: { fontSize: 20, fontWeight: 600 },
-  yopish: { width: 30, height: 30, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  yopish: { width: 44, height: 44, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   bosh: { textAlign: 'center', padding: 40, color: 'var(--secondary-label)' },
   form: { display: 'flex', flexDirection: 'column', gap: 14 },
   label: { display: 'flex', flexDirection: 'column', gap: 6 },

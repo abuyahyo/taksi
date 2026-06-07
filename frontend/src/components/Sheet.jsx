@@ -92,7 +92,7 @@ const st = {
     willChange: 'transform',
   },
   dastak: {
-    padding: '8px 0 4px', cursor: 'grab',
+    padding: '14px 0 10px', cursor: 'grab',
     touchAction: 'none', flexShrink: 0,
   },
   grabber: { width: 36, height: 5, borderRadius: 3, background: 'var(--fill-strong)', margin: '0 auto' },

@@ -86,7 +86,7 @@ export default function Ulashish({ rideId, onYopish }) {
 const st = {
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, marginTop: 8 },
   sarlavha: { fontSize: 20, fontWeight: 600 },
-  yopish: { width: 30, height: 30, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  yopish: { width: 44, height: 44, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   izoh: { fontSize: 15, color: 'var(--secondary-label)', marginBottom: 16, lineHeight: 1.4 },
   bosh: { textAlign: 'center', padding: 30, color: 'var(--secondary-label)' },
   xato: { color: 'var(--qizil)', padding: 14, textAlign: 'center' },

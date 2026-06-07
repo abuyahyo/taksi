@@ -92,6 +92,10 @@
   --decline:      #E11900;
   --decline-press: #B81400;
 
+  /* ===== Тўлов провайдерлари — bren'и нарси алмашмаслиги учун ===== */
+  --payme:        #00C2A6;
+  --click:        #1E40AF;
+
   --border:       var(--separator);
 
   /* ===== Spacing шкаласи (4px база) ===== */
@@ -269,6 +273,11 @@ button:focus-visible, a:focus-visible {
 /* ===== Карта контейнер ===== */
 .leaflet-container { width: 100%; height: 100%; background: var(--neutral-200); }
 .leaflet-div-icon { background: transparent; border: none; }
+/* Мобилда attribution пастда жойлашган glass panel остида қолади — кичкина матн,
+   шунчаки яширамиз (юридик жиҳатдан CARTO/OSM иборалари README'да ҳам). */
+@media (max-width: 480px) {
+  .leaflet-control-attribution { display: none; }
+}
 
 /* =========================================================
    iOS КОМПОНЕНТ ҚАТЛАМИ
@@ -508,6 +517,9 @@ button.ios-row:active:not(:disabled) { opacity: 1; background: var(--fill); }
 /* Босилганда енгил қисилиш (iOS ҳис) */
 .press { transition: transform var(--t-fast), opacity var(--t-fast); }
 .press:active:not(:disabled) { transform: scale(0.97); opacity: 0.85; }
+@media (hover: hover) {
+  .press:hover:not(:disabled) { opacity: 0.75; }
+}
 
 /* Рақамлар бир текис кенгликда (нарх, вақт) */
 .tabular { font-variant-numeric: tabular-nums; }
@@ -540,10 +552,11 @@ button.ios-row:active:not(:disabled) { opacity: 1; background: var(--fill); }
   background: var(--tint-fill);
   -webkit-backdrop-filter: blur(18px) saturate(180%);
           backdrop-filter: blur(18px) saturate(180%);
-  border: 0.5px solid rgba(14, 147, 132, 0.30);
+  border: 0.5px solid rgba(0, 0, 0, 0.18);
 }
 .glass-tugma {
   background: var(--material-thick);
+  color: var(--label);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
           backdrop-filter: blur(16px) saturate(180%);
   border: 0.5px solid var(--separator);

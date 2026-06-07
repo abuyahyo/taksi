@@ -131,7 +131,7 @@ export default function ManzilSaqlash({ turi = 'custom', tahrirla = null, profil
 const st = {
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0 16px', borderBottom: '0.5px solid var(--separator)', marginBottom: 16 },
   sarlavha: { fontSize: 20, fontWeight: 600, color: 'var(--label)' },
-  yopish: { width: 30, height: 30, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  yopish: { width: 44, height: 44, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   label: { fontSize: 12, fontWeight: 500, color: 'var(--secondary-label)', textTransform: 'uppercase', letterSpacing: '-0.08px', paddingLeft: 4, marginBottom: 6 },
   input: { width: '100%', padding: 14, borderRadius: 'var(--r-md)', border: 'none', background: 'var(--fill)', color: 'var(--label)', fontSize: 17 },
   gps: { display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 10, padding: '10px 14px', borderRadius: 'var(--r-md)', background: 'var(--tint-fill)', color: 'var(--tint)', fontSize: 14, fontWeight: 600 },

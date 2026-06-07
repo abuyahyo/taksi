@@ -39,7 +39,7 @@ const st = {
     position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1300,
     maxWidth: 480, margin: '0 auto', display: 'flex',
     borderTop: '0.5px solid var(--separator)',
-    padding: '7px 8px calc(7px + env(safe-area-inset-bottom))',
+    padding: '9px 8px calc(9px + env(safe-area-inset-bottom))',
   },
   tugma: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, padding: '5px 0', background: 'transparent' },
   label: { fontSize: 11, letterSpacing: '-0.1px' },

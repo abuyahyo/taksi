@@ -110,7 +110,7 @@ const st = {
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '8px 16px 12px', borderBottom: '0.5px solid var(--separator)' },
   sarlavha: { fontSize: 20, fontWeight: 600 },
   izoh: { fontSize: 13, color: 'var(--secondary-label)', marginTop: 2 },
-  yopish: { width: 30, height: 30, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  yopish: { width: 44, height: 44, borderRadius: '50%', background: 'var(--fill)', color: 'var(--secondary-label)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   harita: { flex: 1, position: 'relative' },
   legenda: { display: 'flex', gap: 16, alignItems: 'center', padding: '12px 16px', background: 'var(--surface)', borderTop: '0.5px solid var(--separator)', fontSize: 14, color: 'var(--label)' },
   legElem: { display: 'flex', alignItems: 'center', gap: 8 },

@@ -174,7 +174,7 @@ function Ichki({ user, onOrqaga, onChiqish }) {
 const st = {
   sahifa: { width: '100%', maxWidth: 720, margin: '0 auto', minHeight: '100dvh', background: 'var(--bg)', paddingBottom: 'env(safe-area-inset-bottom)' },
   header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', paddingTop: 'calc(10px + env(safe-area-inset-top))', background: 'var(--material-bar)', backdropFilter: 'saturate(180%) blur(20px)', WebkitBackdropFilter: 'saturate(180%) blur(20px)', borderBottom: '0.5px solid var(--separator)', gap: 12, position: 'sticky', top: 0, zIndex: 50 },
-  orqaga: { width: 36, height: 36, borderRadius: '50%', background: 'var(--fill)', color: 'var(--tint)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  orqaga: { width: 44, height: 44, borderRadius: '50%', background: 'var(--fill)', color: 'var(--tint)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   sarlavha: { flex: 1, fontWeight: 600, fontSize: 17, textAlign: 'center', color: 'var(--label)' },
   chiqish: { background: 'transparent', color: 'var(--tint)', padding: '6px 8px', fontSize: 15, fontWeight: 400 },
   kontent: { padding: '16px 16px calc(96px + env(safe-area-inset-bottom))' },
