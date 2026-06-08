@@ -36,6 +36,12 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
         // /api/ ва /socket.io/ — ҳеч қачон кешланмайди (доим серверга)
         navigateFallbackDenylist: [/^\/api/, /^\/socket\.io/],
+        // МУҲИМ: navigateFallback'ни ўчирамиз, чунки workbox уни precache билан
+        // боғлаб (NavigationRoute) бизнинг NetworkFirst навигация qoidамизни
+        // ҳеч қачон ишлатмайди — натижада илгари кешланган index.html доим
+        // юкланиб, янги деплой Telegram WebView'да кўринмай қоларди.
+        // Бу йўл билан навигация runtimeCaching NetworkFirst орқали ўтади.
+        navigateFallback: null,
         runtimeCaching: [
           {
             // Навигация (илова кириш нуқтаси) — доим аввал сервердан (NetworkFirst).
