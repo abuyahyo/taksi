@@ -15,6 +15,7 @@ import IssiqXarita from '../components/IssiqXarita';
 import SOS from '../components/SOS';
 import Obuna from '../components/Obuna';
 import DaromadSolishtiruv from '../components/DaromadSolishtiruv';
+import DaromadPaneli from '../components/DaromadPaneli';
 import { bildir, ruxsatSora } from '../services/bildirishnoma';
 import { tebrat, TEBRANISH } from '../services/haptika';
 import { pushObunaBol } from '../services/push';
@@ -61,6 +62,7 @@ function Ichki({ user }) {
   const [kodOchiq, setKodOchiq] = useState(false); // QR/код модали
   const [issiqOchiq, setIssiqOchiq] = useState(false);
   const [obunaOchiq, setObunaOchiq] = useState(false);
+  const [daromadOchiq, setDaromadOchiq] = useState(false);
   const [obuna, setObuna] = useState(null); // faol subscription
   const [joylashuvOchiqmi, setJoylashuvOchiqmi] = useState(false); // GPS таклиф қилинганми
   const [gpsRad, setGpsRad] = useState(false); // GPS рухсати рад этилган
@@ -372,14 +374,22 @@ function Ichki({ user }) {
         </div>
       )}
 
-      <div style={st.daromad}>
+      <div
+        style={{ ...st.daromad, cursor: 'pointer' }}
+        onClick={() => { tebrat(TEBRANISH.yengil); setDaromadOchiq(true); }}
+        role="button"
+        title={t('drv.incomePanel')}
+      >
         <div>
           <div style={st.daromadRaqam}>{stats.daromad.toLocaleString()}</div>
           <div style={st.daromadMatn}>{t('drv.todayIncome')}</div>
         </div>
-        <div style={{ textAlign: 'right' }}>
-          <div style={st.kichikRaqam}>{stats.safar}</div>
-          <div style={st.daromadMatn}>{t('drv.rides')}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ textAlign: 'right' }}>
+            <div style={st.kichikRaqam}>{stats.safar}</div>
+            <div style={st.daromadMatn}>{t('drv.rides')}</div>
+          </div>
+          <Ikonka nom="grid" size={18} />
         </div>
       </div>
 
@@ -471,6 +481,8 @@ function Ichki({ user }) {
           onYangilandi={(o) => setObuna(o)}
         />
       )}
+
+      {daromadOchiq && <DaromadPaneli onYopish={() => setDaromadOchiq(false)} />}
 
       <div style={st.royxat}>
         {!onlayn ? (
