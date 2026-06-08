@@ -8,20 +8,35 @@ const crypto = require('crypto');
 function initDataTekshir(initData, botToken, maxAgeSec = 86400) {
   if (!initData || !botToken) return { ok: false, sabab: 'parametr' };
 
-  let params;
-  try { params = new URLSearchParams(initData); } catch { return { ok: false, sabab: 'parse' }; }
-
-  const hash = params.get('hash');
+  // initData'ни ҚЎЛДА парс қиламиз. `URLSearchParams` `+` белгисини бўш жойга
+  // айлантиради (application/x-www-form-urlencoded семантикаси), Telegram эса
+  // RFC 3986 ишлатади. base64 майдонлар (query_id, signature) хом `+` сақласа,
+  // URLSearchParams data_check_string'ни бузиб HMAC мос келмай қоларди.
+  // `decodeURIComponent` `+`'ни сақлайди — Telegram сервери билан бир хил.
+  const juftliklar = [];
+  let hash = null;
+  let authDate = 0;
+  let userRaw = null;
+  for (const qism of initData.split('&')) {
+    if (!qism) continue;
+    const tengIdx = qism.indexOf('=');
+    if (tengIdx === -1) continue;
+    const kalit = qism.slice(0, tengIdx);
+    const xom = qism.slice(tengIdx + 1);
+    let qiymat;
+    try { qiymat = decodeURIComponent(xom); } catch { qiymat = xom; }
+    if (kalit === 'hash') { hash = qiymat; continue; }
+    if (kalit === 'signature') continue; // Ed25519 имзо — data-check'дан чиқарилади
+    if (kalit === 'auth_date') authDate = parseInt(qiymat || '0', 10);
+    if (kalit === 'user') userRaw = qiymat;
+    juftliklar.push([kalit, qiymat]);
+  }
   if (!hash) return { ok: false, sabab: 'hash_yoq' };
 
-  // hash ва (янги Ed25519) signature data-check'дан чиқарилади
-  params.delete('hash');
-  params.delete('signature');
-
-  // data_check_string — қолган майдонлар алифбо тартибида, "key=value" \n билан
-  const dataCheckString = [...params.entries()]
+  // data_check_string — КАЛИТ бўйича сорт (қиймат эмас), "key=value" \n билан
+  const dataCheckString = juftliklar
+    .sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
     .map(([k, v]) => `${k}=${v}`)
-    .sort()
     .join('\n');
 
   const secret = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();
@@ -37,14 +52,12 @@ function initDataTekshir(initData, botToken, maxAgeSec = 86400) {
   if (!teng) return { ok: false, sabab: 'imzo' };
 
   // Муддат текшируви (replay ҳимояси)
-  const authDate = parseInt(params.get('auth_date') || '0', 10);
   if (maxAgeSec > 0 && authDate > 0 && (Date.now() / 1000 - authDate) > maxAgeSec) {
     return { ok: false, sabab: 'eskirgan' };
   }
 
   let user = null;
-  const uRaw = params.get('user');
-  if (uRaw) { try { user = JSON.parse(uRaw); } catch { /* user йўқ — мумкин */ } }
+  if (userRaw) { try { user = JSON.parse(userRaw); } catch { /* user йўқ — мумкин */ } }
 
   return { ok: true, user, auth_date: authDate };
 }
