@@ -1,10 +1,27 @@
 // Рўйхатдан ўтиш, кириш ва токен яратиш мантиғи
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { query } = require('../config/db');
 const { initDataTekshir, widgetTekshir } = require('../utils/telegram');
 const { googleTokenTekshir } = require('../utils/google');
 require('dotenv').config();
+
+// Telegram Mini App 401 рад этилиш сабабларининг хотирадаги ring-буфери.
+// Махфий маълумот (initData ўзи, токен ва б.) ёзилмайди — фақат сабаб ва ўлчам.
+// Telefon'дан диагностика учун `telegramDiagnostika` эндпоинт орқали ўқилади.
+const TG_RAD_BUFFER_HAJMI = 50;
+const tgRadBuffer = [];
+function tgRadYoz(sabab, initDataUz, userAgent) {
+  tgRadBuffer.push({
+    vaqt: new Date().toISOString(),
+    sabab,
+    initDataUz,
+    // фақат UA префикси — фойдаланувчини аниқлаб бўлмайди, лекин клиент тури кўринади
+    ua: typeof userAgent === 'string' ? userAgent.slice(0, 80) : null,
+  });
+  if (tgRadBuffer.length > TG_RAD_BUFFER_HAJMI) tgRadBuffer.shift();
+}
 
 // Токен яратиш ёрдамчи функцияси
 const tokenYaratish = (user) => {
@@ -120,10 +137,12 @@ const telegramKirish = async (req, res) => {
     const { initData } = req.body;
     const n = initDataTekshir(initData, botToken);
     if (!n.ok || !n.user?.id) {
-      // Сабабни логлаймиз — продакшнда 401 нега бўлаётганини кўриш учун
-      // (imzo/eskirgan/hash_yoq/parametr). Махфий маълумот ёзилмайди.
+      // Сабабни ҳам логга, ҳам хотирадаги ring-буферга ёзамиз — телефондан
+      // диагностика учун `GET /api/auth/telegram-diagnostika` эндпоинти ўқийди.
       const sabab = n.sabab || (n.ok ? 'user_yoq' : 'nomalum');
-      console.warn(`Telegram Mini App кириш рад: sabab=${sabab}, initData uzunligi=${initData ? initData.length : 0}`);
+      const initDataUz = initData ? initData.length : 0;
+      console.warn(`Telegram Mini App кириш рад: sabab=${sabab}, initData uzunligi=${initDataUz}`);
+      tgRadYoz(sabab, initDataUz, req.get('user-agent'));
       return res.status(401).json({ xato: 'Telegram маълумоти нотўғри', sabab });
     }
 
@@ -294,4 +313,26 @@ const googleKirish = async (req, res) => {
   }
 };
 
-module.exports = { register, login, telegramKirish, telegramWidgetKirish, googleKirish };
+// TELEGRAM КИРИШ ДИАГНОСТИКАСИ — телефондан 401 сабабини кўриш учун.
+// Махфий: `TELEGRAM_DIAGNOSTIKA_TOKEN` env ўрнатилмаган бўлса 404 қайтади
+// (эндпоинт умуман йўқдай кўринади). Токен мос келса, охирги 50 рад этилишни
+// JSON қилиб қайтаради. Махфий маълумот (initData ўзи, IP, токен) қайтарилмайди.
+const telegramDiagnostika = async (req, res) => {
+  const kutilgan = process.env.TELEGRAM_DIAGNOSTIKA_TOKEN;
+  if (!kutilgan) return res.status(404).json({ xato: 'Йўл топилмади' });
+
+  const berilgan = String(req.query.token || '');
+  // timing-safe солиштириш: узунлик мос келмаса дарҳол рад
+  const a = Buffer.from(berilgan);
+  const b = Buffer.from(kutilgan);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+    return res.status(404).json({ xato: 'Йўл топилмади' });
+  }
+
+  res.json({
+    jami: tgRadBuffer.length,
+    oxirgi: tgRadBuffer.slice().reverse(), // янги биринчи
+  });
+};
+
+module.exports = { register, login, telegramKirish, telegramWidgetKirish, googleKirish, telegramDiagnostika };
