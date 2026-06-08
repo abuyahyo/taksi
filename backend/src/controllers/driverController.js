@@ -188,4 +188,54 @@ const kodim = async (req, res) => {
   }
 };
 
-module.exports = { stats, profile, updateProfile, onboarding, kodim };
+// Тўлиқ даромад панели — бугун/ҳафта/ой/жами + сўнгги 7 кун графиги + рейтинг.
+// (Бош экрандаги `stats` фақат бугунгисини беради; бу — батафсил панель учун.)
+const daromad = async (req, res) => {
+  try {
+    const uid = req.user.id;
+    const num = (v) => parseInt(v, 10) || 0;
+    // Давр кесимлари — битта сўровда FILTER билан (индекс: haydovchi_id, holat, yakun_vaqti)
+    const xul = await query(
+      `SELECT
+         COALESCE(SUM(kelishilgan_narx) FILTER (WHERE yakun_vaqti >= CURRENT_DATE), 0) AS bugun_d,
+         COUNT(*)                       FILTER (WHERE yakun_vaqti >= CURRENT_DATE) AS bugun_s,
+         COALESCE(SUM(kelishilgan_narx) FILTER (WHERE yakun_vaqti >= date_trunc('week', CURRENT_DATE)), 0) AS hafta_d,
+         COUNT(*)                       FILTER (WHERE yakun_vaqti >= date_trunc('week', CURRENT_DATE)) AS hafta_s,
+         COALESCE(SUM(kelishilgan_narx) FILTER (WHERE yakun_vaqti >= date_trunc('month', CURRENT_DATE)), 0) AS oy_d,
+         COUNT(*)                       FILTER (WHERE yakun_vaqti >= date_trunc('month', CURRENT_DATE)) AS oy_s,
+         COALESCE(SUM(kelishilgan_narx), 0) AS jami_d,
+         COUNT(*)                            AS jami_s
+       FROM rides
+       WHERE haydovchi_id = $1 AND holat = 'yakunlandi'`,
+      [uid]
+    );
+    // Сўнгги 7 кун — кунлар тўлдирилади (сафар бўлмаган кун ҳам 0 бўлиб кўринсин)
+    const kunlik = await query(
+      `SELECT to_char(d.kun, 'YYYY-MM-DD') AS kun,
+              COALESCE(SUM(r.kelishilgan_narx), 0) AS daromad,
+              COUNT(r.id)                          AS safar
+       FROM generate_series(CURRENT_DATE - INTERVAL '6 days', CURRENT_DATE, INTERVAL '1 day') AS d(kun)
+       LEFT JOIN rides r
+         ON r.haydovchi_id = $1 AND r.holat = 'yakunlandi'
+        AND r.yakun_vaqti >= d.kun AND r.yakun_vaqti < d.kun + INTERVAL '1 day'
+       GROUP BY d.kun
+       ORDER BY d.kun`,
+      [uid]
+    );
+    const u = await query(`SELECT reyting FROM users WHERE id = $1`, [uid]);
+    const x = xul.rows[0];
+    res.json({
+      bugun: { daromad: num(x.bugun_d), safar: num(x.bugun_s) },
+      hafta: { daromad: num(x.hafta_d), safar: num(x.hafta_s) },
+      oy:    { daromad: num(x.oy_d),    safar: num(x.oy_s) },
+      jami:  { daromad: num(x.jami_d),  safar: num(x.jami_s) },
+      reyting: Number(u.rows[0]?.reyting) || 5,
+      kunlik: kunlik.rows.map((r) => ({ kun: r.kun, daromad: num(r.daromad), safar: num(r.safar) })),
+    });
+  } catch (err) {
+    console.error('Driver daromad xato:', err.message);
+    res.status(500).json({ xato: 'Сервер хатоси' });
+  }
+};
+
+module.exports = { stats, daromad, profile, updateProfile, onboarding, kodim };
