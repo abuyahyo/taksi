@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const { query } = require('../config/db');
 const { initDataTekshir, widgetTekshir } = require('../utils/telegram');
 const { googleTokenTekshir } = require('../utils/google');
+const { botMenyuTugmaBarchaUchun } = require('../utils/botMenyu');
 require('dotenv').config();
 
 // Telegram Mini App 401 рад этилиш сабабларининг хотирадаги ring-буфери.
@@ -335,4 +336,33 @@ const telegramDiagnostika = async (req, res) => {
   });
 };
 
-module.exports = { register, login, telegramKirish, telegramWidgetKirish, googleKirish, telegramDiagnostika };
+// BOT МЕНЮ ТУГМА YANGИЛАШ — cloudflared URL ҳaр restart'дa ўзгaради,
+// taxi-tunnel.ps1 янги URL'ни ушлaгaндa шу эндпoинтни чaқириб бaрчa
+// фoйдaлaнувчилaр учун `setChatMenuButton`'ни автo-яngilatadi.
+// Махфий: `BOT_MENYU_TOKEN` env. Ўрнaтилмaгaн бўлсa 404.
+const botMenyuYangilash = async (req, res) => {
+  const kutilgan = process.env.BOT_MENYU_TOKEN;
+  if (!kutilgan) return res.status(404).json({ xato: 'Йўл топилмади' });
+
+  const berilgan = String(req.body?.token || req.query?.token || '');
+  const a = Buffer.from(berilgan);
+  const b = Buffer.from(kutilgan);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+    return res.status(404).json({ xato: 'Йўл топилмади' });
+  }
+
+  const url = String(req.body?.url || '');
+  if (!/^https?:\/\/[^\s]+$/.test(url)) {
+    return res.status(400).json({ xato: 'URL nodurust' });
+  }
+
+  try {
+    const natija = await botMenyuTugmaBarchaUchun(url);
+    res.json(natija);
+  } catch (err) {
+    console.error('botMenyuYangilash xato:', err.message);
+    res.status(500).json({ xato: 'Сервер хатоси' });
+  }
+};
+
+module.exports = { register, login, telegramKirish, telegramWidgetKirish, googleKirish, telegramDiagnostika, botMenyuYangilash };
