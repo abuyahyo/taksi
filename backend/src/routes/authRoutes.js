@@ -1,7 +1,7 @@
 // Аутентификация API йўллари
 const express = require('express');
 const router = express.Router();
-const { register, login, telegramKirish, telegramWidgetKirish, googleKirish } = require('../controllers/authController');
+const { register, login, telegramKirish, telegramWidgetKirish, googleKirish, telegramDiagnostika } = require('../controllers/authController');
 const { rateLimit } = require('../middleware/rateLimit');
 
 // Brute-force ҳимояси — IP бўйича уринишларни чеклаймиз
@@ -13,5 +13,7 @@ router.post('/login', loginLimit, login);
 router.post('/telegram', loginLimit, telegramKirish);
 router.post('/telegram-widget', loginLimit, telegramWidgetKirish);
 router.post('/google', loginLimit, googleKirish);
+// Диагностика: TELEGRAM_DIAGNOSTIKA_TOKEN env ўрнатилган бўлсагина очиқ (акс ҳолда 404)
+router.get('/telegram-diagnostika', telegramDiagnostika);
 
 module.exports = router;
