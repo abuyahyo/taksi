@@ -91,7 +91,16 @@ const testPay = async (req, res) => {
 // GET /api/payment/status/:rideId  — сафарнинг тўлов ҳолати
 const status = async (req, res) => {
   try {
-    const { rideId } = req.params;
+    const rideId = parseInt(req.params.rideId, 10);
+    if (!Number.isInteger(rideId)) return res.status(400).json({ xato: 'Нотўғри ид' });
+    // Фақат сафар эгаси (мижоз/ҳайдовчи) ёки админ кўра олади —
+    // бошқа фойдаланувчи бировнинг тўлов маълумотини сўра олмасин.
+    const ride = await query('SELECT mijoz_id, haydovchi_id FROM rides WHERE id = $1', [rideId]);
+    if (ride.rows.length === 0) return res.status(404).json({ xato: 'Сафар топилмади' });
+    const { mijoz_id, haydovchi_id } = ride.rows[0];
+    if (req.user.rol !== 'admin' && req.user.id !== mijoz_id && req.user.id !== haydovchi_id) {
+      return res.status(403).json({ xato: 'Рухсат йўқ' });
+    }
     const r = await query(
       `SELECT id, tizim, summa, holat, yaratilgan FROM transactions WHERE ride_id = $1 ORDER BY id DESC LIMIT 1`,
       [rideId]

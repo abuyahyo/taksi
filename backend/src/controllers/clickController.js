@@ -116,12 +116,23 @@ const complete = async (req, res) => {
     return res.json({ error: XATO.BEKOR_QILINGAN, error_note: 'Тўлов бекор қилинди' });
   }
 
-  // Тўловни якунлаймиз
-  await query(`UPDATE transactions SET holat = 'tolandi' WHERE id = $1`, [b.merchant_prepare_id]);
-  // Нишонга қараб: сафарни тўланган деб белгилаймиз ёки обунани фаоллаштирамиз
+  // Идемпотентлик — аллақачон тўланган бўлса қайта фаоллаштирмаймиз
+  if (tx.rows[0].holat === 'tolandi') {
+    return res.json({
+      error: XATO.MUVAFFAQIYAT,
+      error_note: 'Муваффақият',
+      click_trans_id: b.click_trans_id,
+      merchant_trans_id: b.merchant_trans_id,
+      merchant_confirm_id: b.merchant_prepare_id,
+    });
+  }
+
+  // Аввал нишонни фаоллаштирамиз (идемпотент), сўнг 'tolandi' белгилаймиз —
+  // фаоллашиш узилса транзакция 'kutilmoqda' қолиб, қайта уринишда такрорланади.
   if (tx.rows[0].ride_id) await query(`UPDATE rides SET holat = 'yakunlandi' WHERE id = $1`, [tx.rows[0].ride_id]);
   if (tx.rows[0].obuna_id) await obunaFaollashtir(tx.rows[0].obuna_id);
   if (tx.rows[0].reklama_id) await reklamaFaollashtir(tx.rows[0].reklama_id);
+  await query(`UPDATE transactions SET holat = 'tolandi' WHERE id = $1`, [b.merchant_prepare_id]);
 
   res.json({
     error: XATO.MUVAFFAQIYAT,

@@ -32,6 +32,10 @@ const server = http.createServer(app);
 const allowedOrigins = process.env.FRONTEND_URL
   ? process.env.FRONTEND_URL.split(',').map(s => s.trim())
   : '*';
+// Продакшнда FRONTEND_URL белгиланмаса CORS барча манзилга очиқ қолади — огоҳлантирамиз.
+if (process.env.NODE_ENV === 'production' && !process.env.FRONTEND_URL) {
+  console.warn('⚠️  FRONTEND_URL белгиланмаган — CORS барча манзилларга очиқ (*). Продакшнда ўз доменингизни қўйинг.');
+}
 
 // Socket.io созлаш
 const io = new Server(server, {

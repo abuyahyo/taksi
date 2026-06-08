@@ -8,6 +8,10 @@ const { kutishHaqiHisobla } = require('../utils/kutishHaqi');
 
 // Фаол буюртмалар: rideId -> buyurtma ma'lumoti
 const faolBuyurtmalar = new Map();
+// Сафар бўйича ҳайдовчи таклифлари: rideId -> Map(haydovchi_id -> narx).
+// Йўловчи ҳайдовчини танлаганда нарх/ид айнан шу таклифга мос келишини текширамиз
+// (мижоз ихтиёрий нарх ёки ид сохталаштирмасин).
+const safarTakliflari = new Map();
 // Муайян ҳайдовчига аталган буюртма таймерлари: rideId -> timeout
 // (ҳайдовчи белгиланган вақт ичида жавоб бермаса йўловчидан "барчага очайми?" сўралади)
 const maqsadliTaymerlar = new Map();
@@ -217,13 +221,29 @@ module.exports = (io) => {
         if (!rr.rows[0] || rr.rows[0].holat !== 'kutilmoqda') return;
         mijozId = rr.rows[0].mijoz_id;
       } catch (err) { console.error('narx_taklif tekshir xato:', err.message); return; }
-      // haydovchi_id ва тасдиқ белгисини серверда аниқлаймиз — сохталаштириб бўлмайди
+      // Нарх — сонга айлантириб текширамиз (сохта/бўш нарх таклиф юборилмасин)
+      const haydovchiNarx = Number(taklif.haydovchi_narx);
+      if (!Number.isFinite(haydovchiNarx) || haydovchiNarx <= 0) return;
+      // haydovchi_id, исм ва тасдиқ белгисини серверда аниқлаймиз — сохталаштириб бўлмайди
       let tasdiqlangan = false;
+      let haydovchiIsm = null;
       try {
         const d = await query(`SELECT tasdiqlangan FROM drivers WHERE user_id = $1`, [socket.data.userId]);
         tasdiqlangan = !!d.rows[0]?.tasdiqlangan;
+        const u = await query(`SELECT ism FROM users WHERE id = $1`, [socket.data.userId]);
+        haydovchiIsm = u.rows[0]?.ism || null;
       } catch (err) { console.error('tasdiq tekshir xato:', err.message); }
-      const enriched = { ...taklif, haydovchi_id: socket.data.userId, tasdiqlangan };
+      // Таклифни эслаб қоламиз — танлашда нарх айнан шунга мос келиши шарт
+      let takliflar = safarTakliflari.get(taklif.rideId);
+      if (!takliflar) { takliflar = new Map(); safarTakliflari.set(taklif.rideId, takliflar); }
+      takliflar.set(socket.data.userId, haydovchiNarx);
+      const enriched = {
+        ...taklif,
+        haydovchi_id: socket.data.userId,
+        haydovchi_narx: haydovchiNarx,
+        haydovchi_ism: haydovchiIsm,
+        tasdiqlangan,
+      };
       // Хонага ҲОЗИР қўшилмаймиз — акс ҳолда таклиф берган ҲАР БИР ҳайдовчи мижознинг
       // чати ва жонли GPS'ини эшитарди. Хонага фақат танлангач қўшамиз (haydovchi_tanlandi).
       io.to(`ride_${taklif.rideId}`).emit('yangi_taklif', enriched);
@@ -232,11 +252,11 @@ module.exports = (io) => {
         if (mijozId) {
           yuborFoydalanuvchiga(mijozId, {
             title: '💰 Янги таклиф',
-            body: `${taklif.haydovchi_ism} · ${Number(taklif.haydovchi_narx).toLocaleString()} сўм`,
+            body: `${haydovchiIsm || 'Ҳайдовчи'} · ${haydovchiNarx.toLocaleString()} сўм`,
             tag: `taklif-${taklif.rideId}`,
             url: '/yolovchi',
           });
-          botFoydalanuvchiga(mijozId, `💰 Янги таклиф\n${taklif.haydovchi_ism} · ${Number(taklif.haydovchi_narx).toLocaleString()} сўм`);
+          botFoydalanuvchiga(mijozId, `💰 Янги таклиф\n${haydovchiIsm || 'Ҳайдовчи'} · ${haydovchiNarx.toLocaleString()} сўм`);
         }
       } catch (err) { console.error('taklif push xato:', err.message); }
       console.log(`💰 Таклиф #${taklif.rideId}: ${taklif.haydovchi_narx} сўм (haydovchi=${enriched.haydovchi_id})`);
@@ -259,6 +279,14 @@ module.exports = (io) => {
         if (!egasimi(tek.rows[0].mijoz_id, data.rideId)) return;
         if (tek.rows[0].holat !== 'kutilmoqda') return; // аллақачон қабул/бекор
 
+        // Танланган ҳайдовчи ва нарх — ҳайдовчи юборган ҳақиқий таклифга мос келиши шарт.
+        // Мижоз ихтиёрий нарх ёки ид сохталаштириб юбора олмайди.
+        const haydovchiId = Number(data.haydovchi_id);
+        const takliflar = safarTakliflari.get(data.rideId);
+        const taklifNarx = takliflar?.get(haydovchiId);
+        if (taklifNarx == null) return; // бундай таклиф йўқ
+        const narx = taklifNarx; // сервердаги таклиф нархи — манба
+
         await query(
           `UPDATE rides
              SET haydovchi_id   = $2,
@@ -266,7 +294,7 @@ module.exports = (io) => {
                  holat          = 'qabul_qilindi',
                  qabul_vaqti    = NOW()
            WHERE id = $1 AND holat = 'kutilmoqda'`,
-          [data.rideId, data.haydovchi_id || null, data.narx]
+          [data.rideId, haydovchiId, narx]
         );
         // Ҳайдовчига мижоз исмини + манзил координаталарини қўшиб юборамиз
         // (баҳолаш, чат ва "Навигаторда очиш" учун).
@@ -280,6 +308,8 @@ module.exports = (io) => {
         const rr = r.rows[0] || {};
         const enriched = {
           ...data,
+          haydovchi_id: haydovchiId,
+          narx,
           mijoz_id: rr.mijoz_id || null,
           mijoz_ism: rr.mijoz_ism || null,
           boshlanish_manzil: rr.boshlanish_manzil || null,
@@ -289,14 +319,13 @@ module.exports = (io) => {
         };
         // Танланган ҳайдовчини энди сафар хонасига қўшамиз (таклиф пайтида қўшмаган
         // эдик). Шу пайтдан у чат, GPS ва ҳолат янгиланишларини олади.
-        if (data.haydovchi_id) {
-          io.in(`user_${data.haydovchi_id}`).socketsJoin(`ride_${data.rideId}`);
-        }
+        io.in(`user_${haydovchiId}`).socketsJoin(`ride_${data.rideId}`);
         faolBuyurtmalar.delete(data.rideId);
+        safarTakliflari.delete(data.rideId);
         maqsadliTaymerTozala(data.rideId);
         io.to('haydovchilar').emit('buyurtma_yopildi', { rideId: data.rideId });
         io.to(`ride_${data.rideId}`).emit('tasdiqlandi', enriched);
-        console.log(`✅ Танланди #${data.rideId} → ${data.haydovchi_ism}`);
+        console.log(`✅ Танланди #${data.rideId} → haydovchi=${haydovchiId}`);
       } catch (err) {
         console.error('haydovchi_tanlandi xato:', err.message);
       }
@@ -309,6 +338,7 @@ module.exports = (io) => {
         if (!tek.rows[0] || !egasimi(tek.rows[0].mijoz_id, data.rideId)) return;
         await query(`UPDATE rides SET holat = 'bekor_qilindi' WHERE id = $1`, [data.rideId]);
         faolBuyurtmalar.delete(data.rideId);
+        safarTakliflari.delete(data.rideId);
         maqsadliTaymerTozala(data.rideId);
         io.to('haydovchilar').emit('buyurtma_yopildi', { rideId: data.rideId });
       } catch (err) {
@@ -496,6 +526,13 @@ module.exports = (io) => {
     socket.on('sos_yuborildi', async (data) => {
       // data = { rideId, lat, lng, matn }
       try {
+        // Сафар берилган бўлса — юборувчи ўша сафар иштирокчиси (хонада) бўлсин.
+        // Бошқа сафарга ёки тасодифий ид'га SOS юборишни тўсамиз.
+        if (data.rideId && !socket.rooms.has(`ride_${data.rideId}`)) return;
+        // Спамга қарши — ҳар socket'дан 10 сонияда битта SOS
+        const endi = Date.now();
+        if (socket.data.sosOxirgi && endi - socket.data.sosOxirgi < 10_000) return;
+        socket.data.sosOxirgi = endi;
         const userId = socket.data.userId;
         const rol = socket.data.rol || 'mijoz';
         const r = await query(
@@ -599,9 +636,10 @@ module.exports = (io) => {
         if (!userId) return;
         const summa = Number(data.summa);
         if (!Number.isFinite(summa) || summa <= 0 || summa > 1_000_000) return;
-        // Сафар йўловчиси текширилади
-        const r = await query(`SELECT mijoz_id, haydovchi_id, kelishilgan_narx FROM rides WHERE id = $1`, [data.rideId]);
+        // Сафар йўловчиси ва сафар тугаганлиги текширилади
+        const r = await query(`SELECT mijoz_id, haydovchi_id, kelishilgan_narx, holat FROM rides WHERE id = $1`, [data.rideId]);
         if (r.rows.length === 0 || r.rows[0].mijoz_id !== userId) return;
+        if (r.rows[0].holat !== 'yakunlandi') return; // фақат тугаган сафарга чаёвой
         // Чаёвой ёзилади ва нархга қўшилади
         await query(
           `UPDATE rides SET chayovoy = COALESCE(chayovoy, 0) + $2,
@@ -626,10 +664,11 @@ module.exports = (io) => {
       try {
         // Бу сафарнинг иштирокчиларини оламиз
         const ride = await query(
-          `SELECT mijoz_id, haydovchi_id FROM rides WHERE id = $1`,
+          `SELECT mijoz_id, haydovchi_id, holat FROM rides WHERE id = $1`,
           [data.rideId]
         );
         if (ride.rows.length === 0) return;
+        if (ride.rows[0].holat !== 'yakunlandi') return; // фақат тугаган сафарни баҳолаш
         const { mijoz_id, haydovchi_id } = ride.rows[0];
         if (baholovchi !== mijoz_id && baholovchi !== haydovchi_id) return; // иштирокчи эмас
         const baholanuvchi = baholovchi === mijoz_id ? haydovchi_id : mijoz_id;
