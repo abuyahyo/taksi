@@ -120,7 +120,11 @@ const telegramKirish = async (req, res) => {
     const { initData } = req.body;
     const n = initDataTekshir(initData, botToken);
     if (!n.ok || !n.user?.id) {
-      return res.status(401).json({ xato: 'Telegram маълумоти нотўғри' });
+      // Сабабни логлаймиз — продакшнда 401 нега бўлаётганини кўриш учун
+      // (imzo/eskirgan/hash_yoq/parametr). Махфий маълумот ёзилмайди.
+      const sabab = n.sabab || (n.ok ? 'user_yoq' : 'nomalum');
+      console.warn(`Telegram Mini App кириш рад: sabab=${sabab}, initData uzunligi=${initData ? initData.length : 0}`);
+      return res.status(401).json({ xato: 'Telegram маълумоти нотўғри', sabab });
     }
 
     const tgId = String(n.user.id);
