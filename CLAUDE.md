@@ -41,7 +41,7 @@ inDrive услубидаги такси веб-дастур. Тошкент уч
 ## Тех стек
 
 - **Backend:** Node.js + Express 5, Socket.io 4, PostgreSQL (Supabase), JWT, bcryptjs. Native `fetch` (Node 22).
-- **Frontend:** React 18 + Vite 8 (rolldown), React Router, Leaflet, Axios, socket.io-client, vite-plugin-pwa.
+- **Frontend:** React 19 + Vite 8 (rolldown), React Router 7, Leaflet, Axios, socket.io-client, vite-plugin-pwa.
 - **i18n:** Кутубхонасиз ўз қурилмаси — `src/i18n/index.jsx` + `uz.js`/`uz-latn.js`/`ru.js`.
 - **PWA:** vite-plugin-pwa билан, `registerType: 'autoUpdate'` + `cleanupOutdatedCaches`. Янги версия → автомат янгиланиш, кеш муаммоси йўқ.
 - **Дизайн:** Liquid Glass (`backdrop-filter`), `.glass` / `.glass-dark` / `.glass-asosiy` / `.glass-tugma` утилитлари. Декоратив `.fon-blobs` блоблар билан фон. Index.css ичида.

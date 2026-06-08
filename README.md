@@ -128,6 +128,6 @@ $env:NGROK_DOMAIN="sizniki.ngrok-free.app"; .\start.ps1   # ngrok (барқар�
 ## Технология стеки
 
 - **Backend:** Node.js, Express 5, Socket.io 4, PostgreSQL (Supabase), JWT, bcryptjs
-- **Frontend:** React 18, Vite, React Router, Leaflet, Axios, Socket.io-client
+- **Frontend:** React 19, Vite 8, React Router 7, Leaflet, Axios, Socket.io-client
 - **i18n:** Ўз қурилмамиз, кутубхонасиз
 - **Деплой:** Cloudflare Tunnel (синов) — реал деплой учун Render/Fly/VPS

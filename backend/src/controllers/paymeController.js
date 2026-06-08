@@ -29,31 +29,31 @@ const HOLAT = { YARATILDI: 1, TOLANDI: 2, BEKOR: -1, BEKOR_TOLANGANDAN: -2 };
 const xatoJavob = (id, code, message) => ({ id, error: { code, message } });
 const muvaffaqiyat = (id, result) => ({ id, result });
 
-// 1. CheckPerformTransaction — тўлов мумкинми текшириш
-async function checkPerform(params, id) {
-  const n = nishon(params.account);
-  if (!n) return xatoJavob(id, XATO.BUYURTMA_TOPILMADI, 'Буюртма топилмади');
-
+// Нишон бўйича тўлов мумкинлигини текширади (амалга оширилмайди).
+// Қайтаради: { kerakli } (тийинда) ёки { xato: kod, xabar }.
+// checkPerform ва create иккаласи шу битта текширувни ишлатади (Payme протоколи
+// CreateTransaction'да ҳам айни текширувни такрорлашни талаб қилади).
+async function nishonTekshir(n, amount) {
   let kerakli; // тийинда
   if (n.tur === 'ride') {
     const ride = await query('SELECT kelishilgan_narx, holat FROM rides WHERE id = $1', [n.id]);
-    if (ride.rows.length === 0) return xatoJavob(id, XATO.BUYURTMA_TOPILMADI, 'Буюртма топилмади');
-    if (ride.rows[0].holat === 'bekor_qilindi') return xatoJavob(id, XATO.BAJARIB_BOLMAYDI, 'Сафар бекор қилинган');
-    kerakli = ride.rows[0].kelishilgan_narx * 100;
+    if (ride.rows.length === 0) return { xato: XATO.BUYURTMA_TOPILMADI, xabar: 'Буюртма топилмади' };
+    if (ride.rows[0].holat === 'bekor_qilindi') return { xato: XATO.BAJARIB_BOLMAYDI, xabar: 'Сафар бекор қилинган' };
+    kerakli = Math.round(Number(ride.rows[0].kelishilgan_narx) * 100);
   } else if (n.tur === 'obuna') {
     const ob = await query('SELECT summa, holat FROM obunalar WHERE id = $1', [n.id]);
-    if (ob.rows.length === 0) return xatoJavob(id, XATO.BUYURTMA_TOPILMADI, 'Обуна топилмади');
-    if (ob.rows[0].holat === 'faol') return xatoJavob(id, XATO.BAJARIB_BOLMAYDI, 'Обуна аллақачон фаол');
-    kerakli = ob.rows[0].summa * 100;
+    if (ob.rows.length === 0) return { xato: XATO.BUYURTMA_TOPILMADI, xabar: 'Обуна топилмади' };
+    if (ob.rows[0].holat === 'faol') return { xato: XATO.BAJARIB_BOLMAYDI, xabar: 'Обуна аллақачон фаол' };
+    kerakli = Math.round(Number(ob.rows[0].summa) * 100);
   } else {
     const a = await query('SELECT golib_summa, tolandi FROM reklama_auksionlar WHERE id = $1', [n.id]);
-    if (a.rows.length === 0 || !a.rows[0].golib_summa) return xatoJavob(id, XATO.BUYURTMA_TOPILMADI, 'Кимошди ютуғи топилмади');
-    if (a.rows[0].tolandi) return xatoJavob(id, XATO.BAJARIB_BOLMAYDI, 'Аллақачон тўланган');
-    kerakli = a.rows[0].golib_summa * 100;
+    if (a.rows.length === 0 || !a.rows[0].golib_summa) return { xato: XATO.BUYURTMA_TOPILMADI, xabar: 'Кимошди ютуғи топилмади' };
+    if (a.rows[0].tolandi) return { xato: XATO.BAJARIB_BOLMAYDI, xabar: 'Аллақачон тўланган' };
+    kerakli = Math.round(Number(a.rows[0].golib_summa) * 100);
   }
-  // Сумма тўғрими? (тийинда солиштирамиз)
-  if (params.amount !== kerakli) {
-    return xatoJavob(id, XATO.NOTOGRI_SUMMA, 'Сумма нотўғри');
+  // Сумма тўғрими? (тийинда, бутун сонда солиштирамиз)
+  if (Number(amount) !== kerakli) {
+    return { xato: XATO.NOTOGRI_SUMMA, xabar: 'Сумма нотўғри' };
   }
   // Аллақачон тўланганми?
   const ustun = n.tur === 'ride' ? 'ride_id' : n.tur === 'obuna' ? 'obuna_id' : 'reklama_id';
@@ -62,8 +62,17 @@ async function checkPerform(params, id) {
     [n.id]
   );
   if (tolangan.rows.length) {
-    return xatoJavob(id, XATO.BAJARIB_BOLMAYDI, 'Аллақачон тўланган');
+    return { xato: XATO.BAJARIB_BOLMAYDI, xabar: 'Аллақачон тўланган' };
   }
+  return { kerakli };
+}
+
+// 1. CheckPerformTransaction — тўлов мумкинми текшириш
+async function checkPerform(params, id) {
+  const n = nishon(params.account);
+  if (!n) return xatoJavob(id, XATO.BUYURTMA_TOPILMADI, 'Буюртма топилмади');
+  const t = await nishonTekshir(n, params.amount);
+  if (t.xato) return xatoJavob(id, t.xato, t.xabar);
   return muvaffaqiyat(id, { allow: true });
 }
 
@@ -82,6 +91,10 @@ async function create(params, id) {
 
   const n = nishon(params.account);
   if (!n) return xatoJavob(id, XATO.BUYURTMA_TOPILMADI, 'Буюртма топилмади');
+  // CheckPerform текширувини такрорлаймиз — нотўғри сумма ёки аллақачон фаол/тўланган
+  // нишонга транзакция яратилмасин (Payme протоколи талаби, сохта тўловдан ҳимоя).
+  const tek = await nishonTekshir(n, params.amount);
+  if (tek.xato) return xatoJavob(id, tek.xato, tek.xabar);
   const vaqt = Date.now();
   const natija = await query(
     `INSERT INTO transactions (ride_id, obuna_id, reklama_id, tizim, tashqi_id, summa, holat, yaratilgan_vaqt)
@@ -112,12 +125,15 @@ async function perform(params, id) {
     });
   }
 
-  const vaqt = Date.now();
-  await query(`UPDATE transactions SET holat = 'tolandi', amalga_oshgan_vaqt = $1 WHERE id = $2`, [vaqt, t.id]);
-  // Нишонга қараб: сафарни тўланган деб белгилаймиз ёки обунани фаоллаштирамиз
+  // Аввал нишонни фаоллаштирамиз (ҳаммаси идемпотент), СЎНГ транзакцияни 'tolandi'
+  // белгилаймиз. Шу тартибда — фаоллашиш узилса транзакция 'kutilmoqda' қолади ва
+  // Payme қайта уринганда фаоллашиш такрорланади. Акс тартибда 'tolandi' бўлиб қолиб,
+  // обуна фаоллашмай қоларди (қайта уринишда erta return бўлиб ўтиб кетарди).
   if (t.ride_id) await query(`UPDATE rides SET holat = 'yakunlandi' WHERE id = $1`, [t.ride_id]);
   if (t.obuna_id) await obunaFaollashtir(t.obuna_id);
   if (t.reklama_id) await reklamaFaollashtir(t.reklama_id);
+  const vaqt = Date.now();
+  await query(`UPDATE transactions SET holat = 'tolandi', amalga_oshgan_vaqt = $1 WHERE id = $2`, [vaqt, t.id]);
 
   return muvaffaqiyat(id, { transaction: String(t.id), perform_time: vaqt, state: HOLAT.TOLANDI });
 }

@@ -294,7 +294,7 @@ function Ichki({ user }) {
       rideId: b.id, haydovchi_ism: user.ism, haydovchi_narx: b.narx,
       reyting: Number(user.reyting) || 5, mashina: mashinaJamiMatn, min,
     });
-    setBuyurtmalar(buyurtmalar.filter((x) => x.id !== b.id));
+    setBuyurtmalar((oldin) => oldin.filter((x) => x.id !== b.id));
   };
 
   const oznarxYuborish = async () => {
