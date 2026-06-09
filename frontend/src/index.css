@@ -579,3 +579,74 @@ button.ios-row:active:not(:disabled) { opacity: 1; background: var(--fill); }
   .driver-status-btn { padding: 7px 12px !important; font-size: 13px !important; }
   .driver-header-btn { width: 32px !important; height: 32px !important; }
 }
+
+/* ===== PhoneInput (react-phone-number-input) — iOS услуби ===== */
+.PhoneInput {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0 16px;
+  background: transparent;
+}
+.PhoneInputCountry {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin-right: 10px;
+  padding: 8px 4px 8px 0;
+  color: var(--label);
+}
+.PhoneInputCountryIcon {
+  width: 26px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  box-shadow: 0 0 0 0.5px var(--separator);
+  overflow: hidden;
+  background: var(--fill);
+}
+.PhoneInputCountryIcon--border { box-shadow: 0 0 0 0.5px var(--separator); }
+.PhoneInputCountryIconImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.PhoneInputCountrySelectArrow {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 6px;
+  margin-top: -2px;
+  border-style: solid;
+  border-color: var(--secondary-label);
+  border-top-width: 0;
+  border-bottom-width: 1.2px;
+  border-left-width: 0;
+  border-right-width: 1.2px;
+  transform: rotate(45deg);
+  opacity: 0.85;
+}
+.PhoneInputCountrySelect {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  border: 0;
+  background: none;
+  z-index: 1;
+}
+.PhoneInputInput {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 14px 0;
+  border: 0;
+  background: transparent;
+  color: var(--label);
+  font-size: 17px;
+  outline: none;
+}
+.PhoneInputInput::placeholder { color: var(--tertiary-label); }
+.PhoneInput--focus .PhoneInputCountryIcon { box-shadow: 0 0 0 1px var(--tint); }
