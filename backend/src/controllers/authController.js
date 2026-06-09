@@ -46,7 +46,7 @@ const register = async (req, res) => {
     }
     // Халқаро формат (E.164): + ва 7–15 рақам. Дунёнинг исталган мамлакати.
     if (!/^\+\d{7,15}$/.test(String(telefon))) {
-      return res.status(400).json({ xato: 'Телефон рақамини халқаро форматда киритинг (масалан +998901234567)' });
+      return res.status(400).json({ xato: 'Телефон рақамини халқаро форматда киритинг (+ ва 7–15 рақам)' });
     }
     if (String(parol).length < 6) {
       return res.status(400).json({ xato: 'Парол камида 6 белгидан иборат бўлсин' });

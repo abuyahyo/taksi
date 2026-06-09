@@ -1,5 +1,8 @@
 // Логин/Регистрация формаси — admin/haydovchi/mijoz саҳифалари учун
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
+import ruLabels from 'react-phone-number-input/locale/ru.json';
+import enLabels from 'react-phone-number-input/locale/en.json';
 import { api } from '../services/api';
 import { useT } from '../i18n';
 import SozlamalarTugma from './SozlamalarTugma';
@@ -8,13 +11,16 @@ import { tgIchidami } from '../services/telegram';
 import { googleYoqilgan, googleTayyor, googleRender } from '../services/google';
 
 export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
-  const { t } = useT();
+  const { t, til } = useT();
   const [rejim, setRejim] = useState('login'); // login | register
   const [ism, setIsm] = useState('');
   const [telefon, setTelefon] = useState('');
   const [parol, setParol] = useState('');
   const [xato, setXato] = useState('');
   const [yuklanmoqda, setYuklanmoqda] = useState(false);
+
+  // Telefon picker учун давлат лейбллари (uz/uz-latn → en, ru → ru)
+  const telLabels = useMemo(() => (til === 'ru' ? ruLabels : enLabels), [til]);
 
   const sarlavha = sarlavhaKey ? t(sarlavhaKey) : (rejim === 'login' ? t('login.title') : t('login.register'));
   const ozRegister = rejim === 'register';
@@ -103,6 +109,11 @@ export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
   const yubor = async (e) => {
     e.preventDefault();
     setXato('');
+    // Телефон валидацияси — E.164 шакли, либфонрумbер бўйича
+    if (!telefon || !isValidPhoneNumber(String(telefon))) {
+      setXato(t('login.phoneInvalid'));
+      return;
+    }
     setYuklanmoqda(true);
     try {
       const yoʻl = ozRegister ? '/auth/register' : '/auth/login';
@@ -150,14 +161,15 @@ export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
             </div>
           )}
           <div style={st.maydon}>
-            <span style={st.ikon}><Ikonka nom="phone" size={18} /></span>
-            <input
-              style={st.input}
-              type="tel"
+            <PhoneInput
+              international
+              defaultCountry="UZ"
+              countryCallingCodeEditable={false}
+              labels={telLabels}
               placeholder={t('login.phone')}
               value={telefon}
-              onChange={(e) => setTelefon(e.target.value)}
-              required
+              onChange={(v) => setTelefon(v || '')}
+              autoComplete="tel"
             />
           </div>
           <div style={{ ...st.maydon, borderBottom: 'none' }}>
