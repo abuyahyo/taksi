@@ -73,7 +73,7 @@ export default function SozlamalarTugma({ style }) {
 
           {/* Тил */}
           <div style={st.sarlavha}>{t('akkaunt.lang')}</div>
-          {TILLAR_RUYXAT.map(([k, _q, toliq]) => {
+          {TILLAR_RUYXAT.map(([k, , toliq]) => {
             const tanlangan = til === k;
             return (
               <button

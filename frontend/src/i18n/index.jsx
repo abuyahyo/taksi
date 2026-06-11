@@ -23,14 +23,14 @@ export function I18nProvider({ children }) {
     try {
       const saqlangan = localStorage.getItem('til');
       if (saqlangan && TILLAR[saqlangan]) return saqlangan;
-    } catch {}
+    } catch {/* private mode — localStorage йўқ, тинч */}
     return brauserTil();
   });
 
   const setTil = (yangi) => {
     if (!TILLAR[yangi]) return;
     setTilState(yangi);
-    try { localStorage.setItem('til', yangi); } catch {}
+    try { localStorage.setItem('til', yangi); } catch {/* private mode — тинч */}
     if (typeof document !== 'undefined') document.documentElement.lang = yangi;
   };
 
@@ -52,6 +52,9 @@ export function I18nProvider({ children }) {
   return <I18nCtx.Provider value={{ til, setTil, t }}>{children}</I18nCtx.Provider>;
 }
 
+// Hook'ни алоҳида файлга кўчириш барча import'ларни бузарди — Fast Refresh
+// фақат HMR грануларлигига таъсир қилади, runtime'га эмас.
+// eslint-disable-next-line react-refresh/only-export-components
 export function useT() {
   const ctx = useContext(I18nCtx);
   if (!ctx) throw new Error('useT must be used inside <I18nProvider>');
@@ -59,6 +62,7 @@ export function useT() {
 }
 
 // Тил тугмаси — глобус ва жорий тил қисқартмаси, босилганда поповер ичида 4 та танлов.
+// eslint-disable-next-line react-refresh/only-export-components
 export const TILLAR_RUYXAT = [
   ['uz',      'Кир',  'Ўзбек (кирилл)'],
   ['uz-latn', 'Lat',  'Oʻzbek (lotin)'],
@@ -115,7 +119,7 @@ export function TilTanlovchi({ style }) {
             boxShadow: '0 8px 24px rgba(0,0,0,0.18), 0 0 0 0.5px var(--separator)',
           }}
         >
-          {TILLAR_RUYXAT.map(([k, _qisqa, toliq]) => {
+          {TILLAR_RUYXAT.map(([k, , toliq]) => {
             const tanlangan = til === k;
             return (
               <button

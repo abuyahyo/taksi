@@ -23,6 +23,8 @@ export default function YolovchiProfili({ onYopish, onYangilandi, mapNuqta }) {
         setIshManzil(data.ish_manzil || '');
       })
       .catch((err) => setXato(err.response?.data?.xato || t('common.error')));
+    // Фақат mount'да — t deps'га қўшилса тил алмашганда форма қайта юкланарди
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const saqla = async (qaysi) => {

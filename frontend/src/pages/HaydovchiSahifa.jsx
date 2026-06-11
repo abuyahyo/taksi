@@ -6,7 +6,8 @@ import { useSocket } from '../services/useSocket';
 import Kirish from '../components/Kirish';
 import Chat from '../components/Chat';
 import Baholash from '../components/Baholash';
-import MashinaProfili, { mashinaMatn } from '../components/MashinaProfili';
+import MashinaProfili from '../components/MashinaProfili';
+import { mashinaMatn } from '../utils/mashina';
 import HaydovchiKodi from '../components/HaydovchiKodi';
 import HaritaPreview from '../components/HaritaPreview';
 import { parseLatLng } from '../utils/geo';
@@ -79,30 +80,11 @@ function Ichki({ user }) {
   };
   const gpsTiklandi = () => { setGpsRad(false); gpsToastRef.current = false; };
 
-  const statsYukla = async () => {
-    try {
-      const { data } = await api.get('/driver/stats');
-      setStats(data);
-    } catch {}
-  };
-  const profilYukla = async () => {
-    try {
-      const { data } = await api.get('/driver/profile');
-      setMashina(data);
-    } catch {}
-  };
-  const obunaYukla = async () => {
-    try {
-      const { data } = await api.get('/driver/subscription');
-      setObuna(data.faol);
-    } catch {}
-  };
-  const onbYukla = async () => {
-    try {
-      const { data } = await api.get('/driver/onboarding');
-      setOnb(data);
-    } catch {}
-  };
+  // .then услуби — effect'дан чақирилганда setState синхрон бўлмайди
+  const statsYukla = () => api.get('/driver/stats').then(({ data }) => setStats(data)).catch(() => {/* тинч */});
+  const profilYukla = () => api.get('/driver/profile').then(({ data }) => setMashina(data)).catch(() => {/* тинч */});
+  const obunaYukla = () => api.get('/driver/subscription').then(({ data }) => setObuna(data.faol)).catch(() => {/* тинч */});
+  const onbYukla = () => api.get('/driver/onboarding').then(({ data }) => setOnb(data)).catch(() => {/* тинч */});
   useEffect(() => {
     statsYukla(); profilYukla(); obunaYukla(); onbYukla();
     ruxsatSora().then((ok) => { if (ok) pushObunaBol(); });
@@ -114,45 +96,6 @@ function Ichki({ user }) {
 
   const mashinaToldirilganmi = !!(mashina?.mashina_modeli && mashina?.mashina_raqami);
   const mashinaJamiMatn = mashinaMatn(mashina);
-
-  // Сафар фаол бўлганда — браузернинг geolocation API'си орқали жонли GPS юбориш
-  useEffect(() => {
-    if (!faolSafar) { setJoylashuvOchiqmi(false); return; }
-    if (!('geolocation' in navigator)) return;
-    const watchId = navigator.geolocation.watchPosition(
-      (pos) => {
-        setJoylashuvOchiqmi(true);
-        gpsTiklandi();
-        joriyJoyRef.current = [pos.coords.latitude, pos.coords.longitude];
-        yubor('joylashuv', { rideId: faolSafar.rideId, lat: pos.coords.latitude, lng: pos.coords.longitude });
-      },
-      (err) => { setJoylashuvOchiqmi(false); gpsXatosi(err); },
-      { enableHighAccuracy: true, maximumAge: 4000, timeout: 15000 }
-    );
-    return () => navigator.geolocation.clearWatch(watchId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [faolSafar]);
-
-  // Онлайн (сафарсиз) — жорий жойни кузатамиз, токи таклифда пикапгача ETA ҳисобланса
-  useEffect(() => {
-    if (!onlayn || faolSafar || !('geolocation' in navigator)) return;
-    const watchId = navigator.geolocation.watchPosition(
-      (pos) => { joriyJoyRef.current = [pos.coords.latitude, pos.coords.longitude]; gpsTiklandi(); },
-      gpsXatosi,
-      { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
-    );
-    return () => navigator.geolocation.clearWatch(watchId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onlayn, faolSafar]);
-
-  // Пикапгача ETA (дақиқа) — жорий жой ва буюртма пикап координатасидан (OSRM). Йўқ бўлса null.
-  const etaHisobla = async (b) => {
-    const pos = joriyJoyRef.current;
-    const pickup = Array.isArray(b.boshlanish_koord) ? b.boshlanish_koord : parseLatLng(b.boshlanish);
-    if (!pos || !pickup) return null;
-    const r = await yolHisobla([pos, pickup]);
-    return r && Number.isFinite(r.davomiylik_min) ? r.davomiylik_min : null;
-  };
 
   const { yubor } = useSocket({
     // Қайта уланганда (socket узилиб-уланса) ҳолатни тиклаймиз — акс ҳолда
@@ -222,6 +165,45 @@ function Ichki({ user }) {
       setPinKiritma('');
     },
   });
+
+  // Сафар фаол бўлганда — браузернинг geolocation API'си орқали жонли GPS юбориш
+  useEffect(() => {
+    if (!faolSafar || !('geolocation' in navigator)) return;
+    const watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        setJoylashuvOchiqmi(true);
+        gpsTiklandi();
+        joriyJoyRef.current = [pos.coords.latitude, pos.coords.longitude];
+        yubor('joylashuv', { rideId: faolSafar.rideId, lat: pos.coords.latitude, lng: pos.coords.longitude });
+      },
+      (err) => { setJoylashuvOchiqmi(false); gpsXatosi(err); },
+      { enableHighAccuracy: true, maximumAge: 4000, timeout: 15000 }
+    );
+    // Кузатув тўхтаганда (сафар тугади/ўзгарди) индикаторни ҳам ўчирамиз
+    return () => { navigator.geolocation.clearWatch(watchId); setJoylashuvOchiqmi(false); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [faolSafar]);
+
+  // Онлайн (сафарсиз) — жорий жойни кузатамиз, токи таклифда пикапгача ETA ҳисобланса
+  useEffect(() => {
+    if (!onlayn || faolSafar || !('geolocation' in navigator)) return;
+    const watchId = navigator.geolocation.watchPosition(
+      (pos) => { joriyJoyRef.current = [pos.coords.latitude, pos.coords.longitude]; gpsTiklandi(); },
+      gpsXatosi,
+      { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
+    );
+    return () => navigator.geolocation.clearWatch(watchId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onlayn, faolSafar]);
+
+  // Пикапгача ETA (дақиқа) — жорий жой ва буюртма пикап координатасидан (OSRM). Йўқ бўлса null.
+  const etaHisobla = async (b) => {
+    const pos = joriyJoyRef.current;
+    const pickup = Array.isArray(b.boshlanish_koord) ? b.boshlanish_koord : parseLatLng(b.boshlanish);
+    if (!pos || !pickup) return null;
+    const r = await yolHisobla([pos, pickup]);
+    return r && Number.isFinite(r.davomiylik_min) ? r.davomiylik_min : null;
+  };
 
   // Кутиш ҳолатида таймерни ҳар сонияда янгилаймиз (UI учун)
   useEffect(() => {

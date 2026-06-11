@@ -33,6 +33,9 @@ export default function MashinaProfili({ onYopish, onSaqlandi }) {
         setYuklanmoqda(false);
       })
       .catch((err) => { setXato(err.response?.data?.xato || t('common.error')); setYuklanmoqda(false); });
+    // Фақат mount'да — t deps'га қўшилса тил алмашганда форма қайта юкланиб,
+    // фойдаланувчи киритган ўзгаришлар ўчиб кетарди
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const saqlash = async (e) => {
@@ -155,13 +158,6 @@ export default function MashinaProfili({ onYopish, onSaqlandi }) {
       </div>
     </div>
   );
-}
-
-export function mashinaMatn(profil) {
-  if (!profil) return '';
-  const { mashina_modeli, mashina_rangi, mashina_raqami } = profil;
-  const ism = [mashina_modeli, mashina_rangi].filter(Boolean).join(' ');
-  return [ism, mashina_raqami].filter(Boolean).join(' · ');
 }
 
 const st = {

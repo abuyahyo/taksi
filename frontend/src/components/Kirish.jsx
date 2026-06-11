@@ -68,6 +68,9 @@ export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
   // Telegram Login Widget — глобал callback + script инжекция
   useEffect(() => {
     if (!tgWidgetKoʻrsatish || !tgWidgetRef.current) return;
+    // Ref'ни ўзгарувчига кўчирамиз — cleanup пайтида ref.current ўзгарган
+    // бўлиши мумкин (react-hooks/exhaustive-deps огоҳлантириши)
+    const widgetEl = tgWidgetRef.current;
     // Глобал callback — widget script шуни чақиради
     window.onTelegramAuth = async (auth) => {
       setXato(''); setYuklanmoqda(true);
@@ -98,9 +101,9 @@ export default function Kirish({ kerakliRol, sarlavhaKey, onKirildi }) {
     s.setAttribute('data-onauth', 'onTelegramAuth(user)');
     s.setAttribute('data-request-access', 'write');
     s.setAttribute('data-radius', '12');
-    tgWidgetRef.current.appendChild(s);
+    widgetEl.appendChild(s);
     return () => {
-      try { tgWidgetRef.current?.removeChild(s); } catch {}
+      try { widgetEl.removeChild(s); } catch {/* аллақачон ўчирилган — тинч */}
       delete window.onTelegramAuth;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

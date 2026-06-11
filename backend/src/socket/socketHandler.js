@@ -19,6 +19,34 @@ const safarTakliflari = new Map();
 const maqsadliTaymerlar = new Map();
 const MAQSADLI_KUTISH_MS = 60_000; // 60 сония
 
+// Socket event'лари учун тезлик чеклови (спам/DOS'дан ҳимоя) — ҳар socket,
+// ҳар event тури учун ойнали ҳисоблагич. HTTP'даги rateLimit.js socket
+// қатламини қамраб ололмайди, шу учун бу ерда алоҳида.
+// Ҳолат socket.data ичида — узилганда ўз-ўзидан тозаланади.
+const TEZLIK_DEFOLT = { soni: 20, oyna_ms: 10_000 };
+const TEZLIK_LIMITLAR = {
+  joylashuv: { soni: 40, oyna_ms: 10_000 }, // жонли GPS — тез-тез келади
+};
+function tezlikOshdimi(socket, hodisa) {
+  const lim = TEZLIK_LIMITLAR[hodisa] || TEZLIK_DEFOLT;
+  const endi = Date.now();
+  const t = socket.data.tezlik || (socket.data.tezlik = {});
+  const y = t[hodisa];
+  if (!y || endi - y.boshi > lim.oyna_ms) {
+    t[hodisa] = { boshi: endi, soni: 1 };
+    return false;
+  }
+  y.soni += 1;
+  if (y.soni <= lim.soni) return false;
+  // Ойна ичида фақат бир марта огоҳлантирамиз — огоҳлантириш ҳам спамга айланмасин
+  if (!y.ogoh) {
+    y.ogoh = true;
+    socket.emit('xato', { sabab: 'Жуда кўп сўров — бироз кутинг' });
+    console.warn(`⏳ Socket тезлик чеклови: user=${socket.data.userId || 'guest'} hodisa=${hodisa}`);
+  }
+  return true;
+}
+
 // Ҳайдовчи рейтинги пасайганда шаффоф чора қўллаш — баҳолашдан кейин чақирилади.
 //   reytingQator = { reyting, soni }
 // 'ogoh' → реcurring огоҳлантириш байроғи + реал-вақт хабар.
@@ -44,7 +72,8 @@ async function reytingChorasiQolla(io, haydovchiId, reytingQator) {
     );
     if (r.rowCount > 0) {
       // Ҳайдовчини офлайн қиламиз ва хабар берамиз — шаффофлик (сабабни кўради)
-      await query(`UPDATE drivers SET holati = 'offline' WHERE user_id = $1`, [haydovchiId]).catch(() => {});
+      await query(`UPDATE drivers SET holati = 'offline' WHERE user_id = $1`, [haydovchiId])
+        .catch((e) => console.error('haydovchi offline yozish xato:', e.message));
       io.to(`user_${haydovchiId}`).emit('hisob_bloklandi', { sabab });
     }
   } catch (err) {
@@ -79,8 +108,10 @@ module.exports = (io) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         socket.data.userId = decoded.id;
         socket.data.rol = decoded.rol;
-      } catch {
-        // ноto'g'ri токен — меҳмон сифатида давом этамиз
+      } catch (err) {
+        // ноto'g'ri токен — меҳмон сифатида давом этамиз, лекин из қолдирамиз
+        // (токен сохталаштириш уринишлари жим ўтиб кетмасин)
+        console.warn(`🔑 Socket JWT рад этилди (${err.message}) — меҳмон сифатида уланди`);
       }
     }
     next();
@@ -88,6 +119,12 @@ module.exports = (io) => {
 
   io.on('connection', (socket) => {
     console.log('🔌 Уланди:', socket.id, socket.data.userId ? `(user ${socket.data.userId})` : '(meҳмon)');
+
+    // Тезлик чеклови — ҳар келган event пакетига (лимитдан ошса пакет ташланади)
+    socket.use((packet, next) => {
+      if (tezlikOshdimi(socket, packet[0])) return;
+      next();
+    });
 
     // Шахсий хона — фойдаланувчига аниқ йўналтирилган ҳодисалар учун
     // (масалан, танлангач уни сафар хонасига сервер томонидан қўшиш).

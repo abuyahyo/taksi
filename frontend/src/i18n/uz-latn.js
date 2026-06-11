@@ -610,4 +610,8 @@ export default {
   'akkaunt.lang':        'Til',
   'theme.light':         'Yorugʻ',
   'theme.dark':          'Tungi',
+
+  // 404
+  'notfound.text':       'Bunday sahifa topilmadi',
+  'notfound.home':       'Bosh sahifaga qaytish',
 };

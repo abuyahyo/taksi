@@ -539,4 +539,93 @@ export default {
   'akkaunt.settings':    'Settings',
   'akkaunt.theme':       'Theme',
   'akkaunt.lang':        'Language',
+
+  // KYC ҳужжатлари (қўшимча)
+  'kyc.license':         'Driver’s license',
+  'kyc.mashina_old':     'Car from the front',
+  'kyc.mashina_plate':   'License plate (close-up)',
+
+  // Ҳайдовчи онбординги
+  'onb.title':           'Become a driver',
+  'onb.intro':           'Complete the steps below to become a Manzil driver. We take no commission — only a subscription.',
+  'onb.progress':        '{tugadi}/{jami} steps completed',
+  'onb.step':            'Step {n}/{jami}',
+  'onb.next':            'Next',
+  'onb.back':            'Back',
+  'onb.submit':          'Submit application',
+  'onb.openWizard':      'Continue onboarding',
+  'onb.statusPending':   'Your application is under review. You will get a response soon.',
+  'onb.statusRejected':  'Application rejected',
+  'onb.statusFix':       'Re-upload',
+  'onb.gateTitle':       'Online status is locked',
+  'onb.gateHint':        'You cannot receive orders until onboarding is complete and an admin approves you. We are transparent: any issues are shown with a reason.',
+  'onb.complete':        'All steps are done. Ready to submit.',
+  'onb.s.shaxsiy':       'Personal details',
+  'onb.s.shaxsiyHint':   'Your date of birth and passport photo',
+  'onb.s.gpro':          'License',
+  'onb.s.gproHint':      'Driver’s license — number, expiry date, photo',
+  'onb.s.mashina':       'Car',
+  'onb.s.mashinaHint':   'Car details and photos',
+  'onb.s.ariza':         'Selfie and application',
+  'onb.s.arizaHint':     'Confirm yourself and the application',
+  'onb.f.dob':           'Date of birth',
+  'onb.f.licenseNum':    'License number',
+  'onb.f.licenseNumPh':  'AB1234567',
+  'onb.f.licenseExp':    'Expiry date',
+  'onb.f.carYear':       'Car year',
+  'onb.f.carYearPh':     'e.g. 2019',
+  'onb.errNeedAll':      'Fill in all fields to finish this step',
+  'onb.errNeedDoc':      'Upload the document photo to finish this step',
+
+  // Машина профили (қўшимча)
+  'car.year':            'Car year',
+  'car.yearPh':          'e.g. 2019',
+  'car.driverDetails':   'Driver details',
+  'car.dob':             'Date of birth',
+  'car.licenseNum':      'License number',
+  'car.licenseExp':      'License expiry',
+
+  // Админ KYC
+  'admin.tab.kyc':       'KYC queue',
+  'admin.kycEmpty':      'No applications awaiting approval',
+  'admin.driverDetails': 'Driver details',
+  'admin.licenseShort':  'DL',
+  'admin.carYearShort':  'Car year',
+  'admin.dobShort':      'Date of birth',
+  'admin.docsCount':     '{soni} documents',
+
+  // PWA ўрнатиш баннери
+  'install.title':       'Install the app',
+  'install.body':        'Install Manzil on your phone — it opens faster and works offline too.',
+  'install.action':      'Install',
+
+  // Сақланган манзиллар (қўшимча)
+  'addr.titleAdd':       'New address',
+  'addr.titleEdit':      'Edit address',
+  'addr.titleHome':      'Save home address',
+  'addr.titleWork':      'Save work address',
+  'addr.nameLabel':      'Name',
+  'addr.addrLabel':      'Address',
+  'addr.useGps':         'My current location',
+  'addr.addHome':        'Add home address',
+  'addr.addWork':        'Add work address',
+  'addr.delete':         'Delete',
+  'addr.deleteConfirm':  'Delete “{nom}”?',
+  'addr.edit':           'Edit',
+
+  // Йўловчи бош экрани (қўшимча)
+  'pass.openMap':        'View on map',
+  'pass.repeatRide':     'Repeat',
+  'pass.lastRide':       'Your last ride',
+  'pass.lastPaid':       'paid',
+  'pass.tariffs':        'Tariffs',
+  'pass.matchPrice':     'At the price you expect',
+
+  // Тема
+  'theme.light':         'Light',
+  'theme.dark':          'Dark',
+
+  // 404
+  'notfound.text':       'Page not found',
+  'notfound.home':       'Back to home',
 };

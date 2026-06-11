@@ -26,6 +26,8 @@ export default function UlashilganSahifa() {
     axios.get(`/api/share/${kalit}`)
       .then(({ data }) => setSafar(data))
       .catch((err) => setXato(err.response?.data?.xato || t('common.error')));
+    // t фақат хато матнида — тил алмашганда сафарни қайта юклашга ҳожат йўқ
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kalit]);
 
   // Socket — реал вақт GPS ва ҳолат ўзгариши

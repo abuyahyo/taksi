@@ -59,7 +59,7 @@ export default function OrnatishBanner() {
   };
 
   const yop = () => {
-    try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch {}
+    try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch {/* private mode — тинч */}
     setKoʻrinmoqda(false);
   };
 

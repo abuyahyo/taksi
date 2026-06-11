@@ -46,7 +46,6 @@ export default function YolovchiSahifa() {
   const [tugash, setTugash] = useState(null);
   const [boshlanishManzil, setBoshlanishManzil] = useState('');
   const [tugashManzil, setTugashManzil] = useState('');
-  const [tanlovRejimi, setTanlovRejimi] = useState('boshlanish');
   const [oraliqlar, setOraliqlar] = useState([]); // [{ nuqta:[lat,lng], manzil }] — манзил(лар), охиргиси якуний
   const [aniqYol, setAniqYol] = useState(null); // { masofa_km, davomiylik_min, yol_chizigi, taxminiy } — OSRM реал йўл
   // Yandex услуби — харита маркази (пин остидаги нуқта ва манзил)
@@ -104,22 +103,26 @@ export default function YolovchiSahifa() {
     api.get('/passenger/addresses').then(({ data }) => setSaqlanganlar(data)).catch(() => {});
     api.get('/passenger/last-ride').then(({ data }) => setOxirgiSafar(data)).catch(() => {});
     api.get('/passenger/favorites').then(({ data }) => setSevimlilar(data)).catch(() => {});
-  }, [user?.id]);
+  }, [user]);
 
   // QR deep-link (?haydovchi=<kod>) — ҳайдовчи QR'ини скан қилиб киргандa
   // код билан севимли қўшиш модалини очамиз. Меҳмон бўлса аввал киришни сўраймиз.
   useEffect(() => {
     const k = urlParam('haydovchi');
     if (!k) return;
-    if (user) setKodQosh({ boshlangichKod: k });
-    else setKirishOchiq(true);
-  }, [user?.id]);
+    // Микротаскка кечиктирамиз — effect танасида sync setState бўлмасин
+    queueMicrotask(() => {
+      if (user) setKodQosh({ boshlangichKod: k });
+      else setKirishOchiq(true);
+    });
+  }, [user]);
 
   // Қидирув таймери (Uber услуби — фойдаланувчи қанча кутаётганини кўриш)
   useEffect(() => {
-    if (bosqich !== 'kutish' || !qidiruvBoshlandi) { setHozirSek(0); return; }
+    if (bosqich !== 'kutish' || !qidiruvBoshlandi) return;
     const id = setInterval(() => setHozirSek(Math.floor((Date.now() - qidiruvBoshlandi) / 1000)), 1000);
-    return () => clearInterval(id);
+    // Кутишдан чиқилганда таймер тўхтайди ва ҳисоблагич нолланади
+    return () => { clearInterval(id); setHozirSek(0); };
   }, [bosqich, qidiruvBoshlandi]);
 
   // Сақланган манзилни ўчириш — confirm билан
@@ -157,7 +160,6 @@ export default function YolovchiSahifa() {
       } catch { /* координата матни қолади */ }
       if (bekor) return;
       setOraliqlar([{ nuqta: [dlat, dlng], manzil }]);
-      setTanlovRejimi('boshlanish');
       setBosqich('manzil');
     })();
     return () => { bekor = true; };
@@ -170,7 +172,6 @@ export default function YolovchiSahifa() {
   const [qidiruvMatn, setQidiruvMatn] = useState('');
   const [qidiruvNatija, setQidiruvNatija] = useState([]);
   const [qidiruvYuk, setQidiruvYuk] = useState(false);
-  const [joyYuklanmoqda, setJoyYuklanmoqda] = useState(false);
   const [xaritaTanlov, setXaritaTanlov] = useState(false); // харитадан танлаш overlay
 
   // Харитадан танланган нуқтани тасдиқлаш (актив майдонга қараб)
@@ -204,20 +205,13 @@ export default function YolovchiSahifa() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // "Мени топ" — жорий жойни pickup қилиб олиш
-  const meniTop = async () => {
-    setJoyYuklanmoqda(true);
-    const p = await joylashuvOl();
-    if (p) await pickupYoz(p);
-    setJoyYuklanmoqda(false);
-  };
-
-  // Қидирув debounce (Nominatim)
+  // Қидирув debounce (Nominatim) — қисқа матнда тозалаш ҳам таймер ичида
+  // (effect танасида sync setState бўлмасин)
   useEffect(() => {
     if (!qidiruvOchiq) return;
-    const q = qidiruvMatn.trim();
-    if (q.length < 2) { setQidiruvNatija([]); return; }
     const timer = setTimeout(async () => {
+      const q = qidiruvMatn.trim();
+      if (q.length < 2) { setQidiruvNatija([]); return; }
       setQidiruvYuk(true);
       try {
         const { data } = await api.get(`/geocode?q=${encodeURIComponent(q)}&til=${til}`);
@@ -330,7 +324,6 @@ export default function YolovchiSahifa() {
     // pickup (boshlanish) сақланади — фойдаланувчи яна қидиришда қайта киритмасин
     setTugash(null);
     setTugashManzil('');
-    setTanlovRejimi('boshlanish');
     setQidiruvOchiq(false);
     setQidiruvMatn('');
     setOraliqlar([]);
@@ -363,39 +356,6 @@ export default function YolovchiSahifa() {
       setMarkazManzilYuk(false);
     }, 450);
   };
-
-  // Пин остидаги нуқтани тасдиқлаш — бошланиш ёки манзил (оралиқ) қўшиш
-  const markaznidanTanla = () => {
-    if (!markazNuqta) return;
-    if (tanlovRejimi === 'boshlanish') {
-      setBoshlanish(markazNuqta);
-      setBoshlanishManzil(markazManzil);
-      setTanlovRejimi('tugash');
-    } else {
-      // Манзилни рўйхатга қўшамиз (кўп манзил — оралиқ нуқталар)
-      setOraliqlar((eski) => [...eski, { nuqta: markazNuqta, manzil: markazManzil }]);
-    }
-  };
-
-  // "Давом этиш" — манзил(лар) танлангач нарх босқичига ўтамиз.
-  // OSRM'дан реал йўл масофаси+ETA оламиз; натижа келгунча Haversine билан нархни кўрсатамиз.
-  const manzillarTasdiqla = async () => {
-    if (oraliqlar.length === 0) return;
-    const oxirgi = oraliqlar[oraliqlar.length - 1];
-    setTugash(oxirgi.nuqta);
-    setTugashManzil(oxirgi.manzil);
-    setNarx(tavsiyaHisobi(yolMasofa(), tarif)); // дастлабки (тахминий) нарх
-    setBosqich('narx');
-
-    const nuqtalar = [boshlanish, ...oraliqlar.map((o) => o.nuqta)].filter(Boolean);
-    const natija = await yolHisobla(nuqtalar);
-    if (natija && Number.isFinite(natija.masofa_km)) {
-      setAniqYol(natija);
-      setNarx(tavsiyaHisobi(natija.masofa_km, tarif)); // реал масофа бўйича нархни аниқлаймиз
-    }
-  };
-
-  const oraliqOchir = (i) => { setAniqYol(null); setOraliqlar((eski) => eski.filter((_, j) => j !== i)); };
 
   // Тўлиқ йўл масофаси — бошланиш → манзил1 → ... → охирги
   const yolMasofa = () => {
@@ -446,13 +406,16 @@ export default function YolovchiSahifa() {
     catch { return s; }
   };
 
-  // Буюртма бериш — socket орқали ҳайдовчиларга юборилади
+  // Буюртма бериш — socket орқали ҳайдовчиларга юборилади.
+  // Фақат onClick'дан чақирилади — Date.now бу ерда хавфсиз (render эмас).
   const buyurtmaBerish = () => {
     tebrat(TEBRANISH.yengil);
+    // eslint-disable-next-line react-hooks/purity
     const taklifId = Date.now(); // вақтинча — сервер DB id'ни қайтариб buyurtma_yaratildi'да юборади
     setRideId(null);
     setTakliflar([]);
     setMaqsadliSorov(null);
+    // eslint-disable-next-line react-hooks/purity
     setQidiruvBoshlandi(Date.now()); // Uber услубида сонияни ҳисоблаш учун
     setBosqich('kutish');
     yubor('yangi_buyurtma', {

@@ -7,7 +7,10 @@ import { socket } from '../services/api';
 // (Бу муҳим: бошида null бўлган state'лар кейин ўзгаргач, eski closure уларни кўрмасди.)
 export function useSocket(hodisalar = {}) {
   const ref = useRef(hodisalar);
-  ref.current = hodisalar;
+  // Ҳар render'дан кейин энг янги closure'ни сақлаймиз (render пайтида ref'га
+  // ёзиш мумкин эмас — react-hooks/refs). Socket event'лари async келади,
+  // шу учун commit'дан кейин янгиланиш етарли.
+  useEffect(() => { ref.current = hodisalar; });
 
   useEffect(() => {
     if (!socket.connected) socket.connect();

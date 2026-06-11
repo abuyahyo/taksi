@@ -29,13 +29,16 @@ const { auksionlarniTekshir } = require('./controllers/reklamaController');
 const app = express();
 const server = http.createServer(app);
 
-// CORS — продакшнда фақат ўз frontend манзилимизга очамиз
+// CORS — продакшнда фақат ўз frontend манзилимизга очамиз.
+// FRONTEND_URL берилмаса: dev'да барчага очиқ (қулайлик), продакшнда ЁПИҚ
+// (fail-closed) — same-origin сўровлар ишлайверади (browser CORS'ни фақат
+// кросс-доменга қўллайди), бегона origin'лар эса тўсилади.
+const produkshn = process.env.NODE_ENV === 'production';
 const allowedOrigins = process.env.FRONTEND_URL
   ? process.env.FRONTEND_URL.split(',').map(s => s.trim())
-  : '*';
-// Продакшнда FRONTEND_URL белгиланмаса CORS барча манзилга очиқ қолади — огоҳлантирамиз.
-if (process.env.NODE_ENV === 'production' && !process.env.FRONTEND_URL) {
-  console.warn('⚠️  FRONTEND_URL белгиланмаган — CORS барча манзилларга очиқ (*). Продакшнда ўз доменингизни қўйинг.');
+  : (produkshn ? false : '*');
+if (produkshn && !process.env.FRONTEND_URL) {
+  console.warn('⚠️  FRONTEND_URL белгиланмаган — CORS ёпиқ (фақат same-origin ишлайди). Кросс-домен frontend бўлса FRONTEND_URL қўйинг.');
 }
 
 // Socket.io созлаш
@@ -158,25 +161,35 @@ function maxfiyKalitTekshir() {
 maxfiyKalitTekshir();
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`🚀 Сервер ${PORT} портда ишламоқда`);
+
+// Аввал миграция, кейин listen — сўровлар эски схемага тушмасин (race'ни ёпамиз).
+// Миграция хатоси серверни тўхтатмайди (uy serveri — мавжудлик муҳим), фақат лог.
+async function ishgaTushir() {
   // Миграцияларни автомат, идемпотент юритамиз — "schema drift" хавфини йўқотади
   // (CLAUDE.md). AUTO_MIGRATE=0 билан ўчириш мумкин (қўлда бошқарилса).
   if (process.env.AUTO_MIGRATE !== '0') {
-    const { pool } = require('./config/db');
-    const { migratsiyalarniYurit } = require('./config/migrate');
-    migratsiyalarniYurit(pool).catch((e) => console.error('Авто-миграция хатоси:', e.message));
+    try {
+      const { pool } = require('./config/db');
+      const { migratsiyalarniYurit } = require('./config/migrate');
+      await migratsiyalarniYurit(pool);
+    } catch (e) {
+      console.error('Авто-миграция хатоси:', e.message);
+    }
   }
-  // Telegram бот буйруқлари менюсини ўрнатамиз (токен бўлса; жим, fire-and-forget)
-  require('./controllers/telegramBotController').komandalarOrnat();
-  // Реклама кимошдиларини текшириб турамиз — тугаганини ёпиб, ғолибни аниқлаймиз
-  // ва келаси ой учун очиқ кимошди бўлишини таъминлаймиз (лазий + соатлик).
-  auksionlarniTekshir();
-  setInterval(auksionlarniTekshir, 60 * 60 * 1000);
+  server.listen(PORT, () => {
+    console.log(`🚀 Сервер ${PORT} портда ишламоқда`);
+    // Telegram бот буйруқлари менюсини ўрнатамиз (токен бўлса; жим, fire-and-forget)
+    require('./controllers/telegramBotController').komandalarOrnat();
+    // Реклама кимошдиларини текшириб турамиз — тугаганини ёпиб, ғолибни аниқлаймиз
+    // ва келаси ой учун очиқ кимошди бўлишини таъминлаймиз (лазий + соатлик).
+    auksionlarniTekshir();
+    setInterval(auksionlarniTekshir, 60 * 60 * 1000);
 
-  // Тўлов мувофиқлаштируви — обуна билан тўлов ҳолати номувофиқ қолса тузатамиз
-  // (webhook/тармоқ узилиши оқибати). Лазий + соатлик.
-  const { obunalarniSolishtir } = require('./controllers/tolovController');
-  obunalarniSolishtir().catch((e) => console.error('Тўлов солиштириш хатоси:', e.message));
-  setInterval(() => obunalarniSolishtir().catch(() => {}), 60 * 60 * 1000);
-});
+    // Тўлов мувофиқлаштируви — обуна билан тўлов ҳолати номувофиқ қолса тузатамиз
+    // (webhook/тармоқ узилиши оқибати). Лазий + соатлик.
+    const { obunalarniSolishtir } = require('./controllers/tolovController');
+    obunalarniSolishtir().catch((e) => console.error('Тўлов солиштириш хатоси:', e.message));
+    setInterval(() => obunalarniSolishtir().catch((e) => console.error('Тўлов солиштириш хатоси:', e.message)), 60 * 60 * 1000);
+  });
+}
+ishgaTushir();

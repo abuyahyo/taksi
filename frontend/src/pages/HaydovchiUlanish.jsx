@@ -47,12 +47,12 @@ function Ichki() {
   const [saqlanmoqda, setSaqlanmoqda] = useState(false);
   const [yuklanmoqda, setYuklanmoqda] = useState(true);
 
-  const yukla = async () => {
-    try {
-      const [p, o] = await Promise.all([
-        api.get('/driver/profile'),
-        api.get('/driver/onboarding'),
-      ]);
+  // .then услуби — effect ичидан чақирилганда setState синхрон бўлмайди
+  const yukla = () =>
+    Promise.all([
+      api.get('/driver/profile'),
+      api.get('/driver/onboarding'),
+    ]).then(([p, o]) => {
       setProfil({
         mashina_modeli: p.data.mashina_modeli || '',
         mashina_raqami: p.data.mashina_raqami || '',
@@ -65,12 +65,12 @@ function Ichki() {
       setOnb(o.data);
       // Аллақачон тасдиқланган бўлса — кутиб ўтиришнинг ҳожати йўқ
       if (o.data.tasdiqlangan) navigate('/haydovchi', { replace: true });
-    } catch (err) {
+    }).catch((err) => {
       toast.error(err.response?.data?.xato || t('common.error'));
-    }
-    setYuklanmoqda(false);
-  };
-  useEffect(() => { yukla(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
+    }).finally(() => setYuklanmoqda(false));
+  // Фақат mount'да юкланади
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { yukla(); }, []);
 
   const ozgartir = (k) => (e) => setProfil({ ...profil, [k]: e.target.value });
 

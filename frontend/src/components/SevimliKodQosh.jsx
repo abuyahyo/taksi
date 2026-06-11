@@ -44,8 +44,11 @@ export default function SevimliKodQosh({ boshlangichKod = '', onQoshildi, onYopi
 
   // QR deep-link билан очилганда — кодни дарров қидирамиз; ҳамда олдингиларни юклаймиз
   useEffect(() => {
-    if (boshlangichKod && boshlangichKod.length >= 4) qidir(boshlangichKod);
+    // Микротаскка кечиктирамиз — qidir бошида sync setState бор (set-state-in-effect)
+    if (boshlangichKod && boshlangichKod.length >= 4) queueMicrotask(() => qidir(boshlangichKod));
     api.get('/passenger/past-drivers').then(({ data }) => setOldingilar(data)).catch(() => {});
+    // Фақат mount'да — deep-link коди очилишда бир марта қидирилади
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Севимлига қўшиш — ҳар иккала манбадан (қидирув натижаси ёки олдинги рўйхат)
@@ -66,7 +69,9 @@ export default function SevimliKodQosh({ boshlangichKod = '', onQoshildi, onYopi
 
   const mashinaMatn = (h) => [h.mashina_modeli, h.mashina_rangi, h.mashina_raqami].filter(Boolean).join(' · ');
 
-  const Qator = ({ h, izoh }) => (
+  // Оддий render-функция (компонент ЭМАС) — render ичида компонент яратиш
+  // ҳар сафар state'ни ўчирарди (react-hooks/static-components)
+  const qatorChiz = (h, izoh) => (
     <div style={st.karta}>
       <div style={st.avatar}>{h.ism?.[0] || <Ikonka nom="user" size={20} />}</div>
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -104,7 +109,7 @@ export default function SevimliKodQosh({ boshlangichKod = '', onQoshildi, onYopi
           </button>
         </div>
 
-        {topilgan && <div style={{ marginBottom: 14 }}><Qator h={topilgan} izoh={mashinaMatn(topilgan)} /></div>}
+        {topilgan && <div style={{ marginBottom: 14 }}>{qatorChiz(topilgan, mashinaMatn(topilgan))}</div>}
 
         {/* Олдинги ҳайдовчилар — фақат ўзи сафар қилганлар */}
         <div style={st.pastSarlavha}>{t('favcode.past')}</div>
@@ -113,7 +118,7 @@ export default function SevimliKodQosh({ boshlangichKod = '', onQoshildi, onYopi
         ) : (
           <div style={st.pastRoyxat}>
             {oldingilar.map((h) => (
-              <Qator key={h.haydovchi_id} h={h} izoh={t('favcode.rides', { n: h.safar_soni })} />
+              <div key={h.haydovchi_id}>{qatorChiz(h, t('favcode.rides', { n: h.safar_soni }))}</div>
             ))}
           </div>
         )}

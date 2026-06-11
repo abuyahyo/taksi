@@ -22,6 +22,8 @@ export default function Ulashish({ rideId, onYopish }) {
         setYuklanmoqda(false);
       })
       .catch((err) => { setXato(err.response?.data?.xato || t('common.error')); setYuklanmoqda(false); });
+    // t фақат хато матнида — тил алмашганда линкни қайта яратишга ҳожат йўқ
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rideId]);
 
   const koʻchir = async () => {

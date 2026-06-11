@@ -20,6 +20,7 @@ const XizmatlarSahifa  = lazy(() => import('./pages/XizmatlarSahifa'));
 const AkkauntSahifa    = lazy(() => import('./pages/AkkauntSahifa'));
 const UlashilganSahifa = lazy(() => import('./pages/UlashilganSahifa'));
 const ReklamaSahifa    = lazy(() => import('./pages/ReklamaSahifa'));
+const TopilmadiSahifa  = lazy(() => import('./pages/TopilmadiSahifa'));
 
 function Yuklanmoqda() {
   return (
@@ -48,6 +49,8 @@ export default function App() {
             <Route path="/akkaunt" element={<AkkauntSahifa />} />
             <Route path="/reklama" element={<ReklamaSahifa />} />
             <Route path="/k/:kalit" element={<UlashilganSahifa />} />
+            {/* Нотўғри манзил — бўш экран эмас, 404 фолбэк */}
+            <Route path="*" element={<TopilmadiSahifa />} />
           </Routes>
         </Suspense>
         </XatoChegarasi>
