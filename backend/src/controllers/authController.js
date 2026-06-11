@@ -36,7 +36,7 @@ const tokenYaratish = (user) => {
 // РЎЙХАТДАН ЎТИШ
 const register = async (req, res) => {
   try {
-    const { ism, telefon, parol, rol } = req.body;
+    const { ism, telefon, parol, rol, referral_kodi } = req.body;
 
     if (!ism || !telefon || !parol) {
       return res.status(400).json({ xato: 'Барча майдонларни тўлдиринг' });
@@ -79,6 +79,16 @@ const register = async (req, res) => {
          VALUES ($1, 'trial', 0, NOW() + INTERVAL '7 days')`,
         [user.id]
       );
+    }
+
+    // Таклиф коди киритилган бўлса — боғлаймиз (бонус пуллик обунада берилади).
+    // Хато бўлса рўйхатдан ўтишни тўхтатмаймиз (ихтиёрий).
+    if (referral_kodi) {
+      try {
+        await require('./referalController').taklifBoglash(user.id, referral_kodi);
+      } catch (e) {
+        console.error('referral boglash xato:', e.message);
+      }
     }
 
     const token = tokenYaratish(user);

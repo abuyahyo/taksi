@@ -5,6 +5,8 @@ const { obunaFaolmi } = require('../controllers/subscriptionController');
 const { yuborFoydalanuvchiga, yuborRolga } = require('../controllers/pushController');
 const { botFoydalanuvchiga, botRolga } = require('../controllers/telegramBotController');
 const { kutishHaqiHisobla } = require('../utils/kutishHaqi');
+const { pinYarat, pinTogri } = require('../utils/pin');
+const { reytingChorasi } = require('../utils/reyting');
 
 // Фаол буюртмалар: rideId -> buyurtma ma'lumoti
 const faolBuyurtmalar = new Map();
@@ -16,6 +18,39 @@ const safarTakliflari = new Map();
 // (ҳайдовчи белгиланган вақт ичида жавоб бермаса йўловчидан "барчага очайми?" сўралади)
 const maqsadliTaymerlar = new Map();
 const MAQSADLI_KUTISH_MS = 60_000; // 60 сония
+
+// Ҳайдовчи рейтинги пасайганда шаффоф чора қўллаш — баҳолашдан кейин чақирилади.
+//   reytingQator = { reyting, soni }
+// 'ogoh' → реcurring огоҳлантириш байроғи + реал-вақт хабар.
+// 'blok' → шаффоф автомат блок (сабаб ёзилади; ҳайдовчи login/socketда кўради).
+async function reytingChorasiQolla(io, haydovchiId, reytingQator) {
+  try {
+    const { chora, sabab } = reytingChorasi(reytingQator.reyting, reytingQator.soni);
+    if (chora === 'yoq') {
+      // Тузалган бўлса огоҳ байроғини олиб ташлаймиз (идемпотент)
+      await query(`UPDATE users SET reyting_ogoh = FALSE WHERE id = $1 AND reyting_ogoh = TRUE`, [haydovchiId]);
+      return;
+    }
+    if (chora === 'ogoh') {
+      await query(`UPDATE users SET reyting_ogoh = TRUE WHERE id = $1`, [haydovchiId]);
+      io.to(`user_${haydovchiId}`).emit('reyting_ogoh', { sabab });
+      return;
+    }
+    // 'blok' — фақат ҳали блокланмаган бўлса (қайта-қайта ёзмаслик учун)
+    const r = await query(
+      `UPDATE users SET bloklangan = TRUE, blok_sababi = $2, blok_vaqti = NOW(), reyting_ogoh = TRUE
+         WHERE id = $1 AND bloklangan = FALSE RETURNING id`,
+      [haydovchiId, sabab]
+    );
+    if (r.rowCount > 0) {
+      // Ҳайдовчини офлайн қиламиз ва хабар берамиз — шаффофлик (сабабни кўради)
+      await query(`UPDATE drivers SET holati = 'offline' WHERE user_id = $1`, [haydovchiId]).catch(() => {});
+      io.to(`user_${haydovchiId}`).emit('hisob_bloklandi', { sabab });
+    }
+  } catch (err) {
+    console.error('reytingChorasiQolla xato:', err.message);
+  }
+}
 
 module.exports = (io) => {
   // Муайян ҳайдовчи ҳозир онлайн (ва обунаси текширилган)ми? —
@@ -103,7 +138,7 @@ module.exports = (io) => {
             mijoz_reyting = Number(u.rows[0].reyting);
           }
         }
-        const pin = String(Math.floor(1000 + Math.random() * 9000)); // 4 хонали машина PIN-коди
+        const pin = pinYarat(); // 4 хонали машина PIN-коди
         const tarif = ['ekonom', 'komfort', 'dostavka'].includes(buyurtma.tarif) ? buyurtma.tarif : 'ekonom';
         // Буюртма опциялари — серверда тозалаб JSONB сифатида сақлаймиз
         const o = buyurtma.opsiyalar || {};
@@ -449,7 +484,7 @@ module.exports = (io) => {
       if (data.holat === 'yolda') {
         const p = await query(`SELECT pin FROM rides WHERE id = $1`, [data.rideId]);
         const haqiqiyPin = p.rows[0]?.pin;
-        if (haqiqiyPin && String(data.pin || '') !== String(haqiqiyPin)) {
+        if (!pinTogri(haqiqiyPin, data.pin)) {
           socket.emit('pin_xato', { rideId: data.rideId, sabab: 'PIN нотўғри' });
           return;
         }
@@ -689,14 +724,22 @@ module.exports = (io) => {
         }
 
         // Баҳоланганнинг users.reyting'и — олинган барча баҳоларнинг ўртачаси
-        await query(
+        const yangiReyting = await query(
           `UPDATE users SET reyting = (
              SELECT COALESCE(ROUND(AVG(ball)::numeric, 1), 5.0)
              FROM ratings WHERE baholanuvchi_id = $1
-           ) WHERE id = $1`,
+           ) WHERE id = $1
+           RETURNING reyting,
+             (SELECT COUNT(*) FROM ratings WHERE baholanuvchi_id = $1) AS soni`,
           [baholanuvchi]
         );
         console.log(`⭐ Баҳо #${data.rideId}: ${ball}/5 (${baholovchi} → ${baholanuvchi})`);
+
+        // Сифат назорати — фақат ҳайдовчига (баҳоланган ҳайдовчи бўлса). Шаффоф чора:
+        // огоҳлантириш ёки автомат блок (сабаб ёзилади, ҳайдовчи кўради — 3,6-банд).
+        if (baholanuvchi === haydovchi_id && yangiReyting.rows[0]) {
+          await reytingChorasiQolla(io, baholanuvchi, yangiReyting.rows[0]);
+        }
       } catch (err) {
         console.error('baholash xato:', err.message);
       }

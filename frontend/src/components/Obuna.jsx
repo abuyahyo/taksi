@@ -5,6 +5,7 @@ import { useT } from '../i18n';
 import { useToast } from './Toast';
 import Ikonka from './Ikonka';
 import Sheet from './Sheet';
+import Taklif from './Taklif';
 
 export default function Obuna({ onYopish, onYangilandi }) {
   const { t, til } = useT();
@@ -156,6 +157,9 @@ export default function Obuna({ onYopish, onYangilandi }) {
                 );
               })}
             </div>
+
+            {/* Таклиф дастури — дўстни таклиф қилиб бонус обуна кунлари ютиш */}
+            <Taklif />
           </>
         )}
     </Sheet>

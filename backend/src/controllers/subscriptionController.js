@@ -120,6 +120,36 @@ async function obunaFaollashtir(obunaId) {
       WHERE id = $1`,
     [obunaId, o.user_id, kun]
   );
+
+  // Таклиф бонуси — биринчи ПУЛЛИК обуна фаоллашганда таклиф қилувчи ва қилинган
+  // иккаласи бонус кунлар олади. Лазий require — циркуляр боғланишни четлайди.
+  if (o.turi !== 'trial') {
+    try {
+      require('./referalController').taklifBonusBer(o.user_id);
+    } catch (e) {
+      console.error('taklif bonus xato:', e.message);
+    }
+  }
+  return true;
+}
+
+// Фойдаланувчига бонус обуна кунларини қўшиш — фаол обуна муддатини узайтиради,
+// фаол обуна йўқ бўлса янги 'faol' бонус обуна яратади. Таклиф дастури ишлатади.
+async function obunaKunQosh(userId, kun, turi = 'bonus') {
+  if (!Number.isFinite(Number(kun)) || kun <= 0) return false;
+  const faol = await faolObuna(userId);
+  if (faol) {
+    await query(
+      `UPDATE obunalar SET tugash_sana = tugash_sana + ($2 || ' days')::INTERVAL WHERE id = $1`,
+      [faol.id, kun]
+    );
+  } else {
+    await query(
+      `INSERT INTO obunalar (user_id, turi, summa, tugash_sana, holat)
+       VALUES ($1, $2, 0, NOW() + ($3 || ' days')::INTERVAL, 'faol')`,
+      [userId, turi, kun]
+    );
+  }
   return true;
 }
 
@@ -129,4 +159,4 @@ async function obunaFaolmi(userId) {
   return !!o;
 }
 
-module.exports = { holatim, sotibOlish, faolObuna, obunaFaolmi, obunaFaollashtir, PAKETLAR };
+module.exports = { holatim, sotibOlish, faolObuna, obunaFaolmi, obunaFaollashtir, obunaKunQosh, PAKETLAR };

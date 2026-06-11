@@ -12,6 +12,9 @@ CREATE TABLE IF NOT EXISTS users (
   parol_hash VARCHAR(255),              -- Telegram/Google кириш учун парол шарт эмас
   rol VARCHAR(20) NOT NULL DEFAULT 'mijoz', -- mijoz, haydovchi, admin
   reyting NUMERIC(2,1) DEFAULT 5.0,
+  reyting_ogoh BOOLEAN DEFAULT FALSE,   -- паст рейтинг огоҳлантириши (сифат назорати)
+  referral_kodi VARCHAR(10) UNIQUE,     -- таклиф дастури коди (дўстни таклиф қил)
+  taklif_qilgan_id INTEGER,             -- кимнинг коди билан келди (FK кейинроқ)
   haydovchi_kodi VARCHAR(8) UNIQUE,     -- ҳайдовчи уникал коди (код/QR орқали севимлига қўшиш)
   -- Йўловчининг сақланган манзиллари (тез-тез манзил танлаш учун)
   home_manzil TEXT,
@@ -304,6 +307,39 @@ CREATE INDEX IF NOT EXISTS idx_topilma_haydovchi ON topilmalar(haydovchi_id);
 CREATE INDEX IF NOT EXISTS idx_topilma_ride      ON topilmalar(ride_id);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_topilma_ochiq
   ON topilmalar(ride_id) WHERE holat IN ('soraldi', 'topildi', 'kelishildi');
+
+-- Таклиф (referral) дастури — кодини берган ва ишлатган бонус олади
+CREATE TABLE IF NOT EXISTS referallar (
+  id SERIAL PRIMARY KEY,
+  taklif_qilgan_id   INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  taklif_qilingan_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  bonus_kun          INTEGER NOT NULL DEFAULT 0,
+  holat              VARCHAR(20) NOT NULL DEFAULT 'kutilmoqda', -- kutilmoqda | berildi
+  yaratilgan         TIMESTAMP DEFAULT NOW(),
+  bonus_vaqti        TIMESTAMP,
+  UNIQUE(taklif_qilingan_id)
+);
+CREATE INDEX IF NOT EXISTS idx_referal_taklifchi ON referallar(taklif_qilgan_id);
+
+-- Низо (dispute) — тугаган сафар юзасидан шикоят, админ ҳал қилади
+CREATE TABLE IF NOT EXISTS nizolar (
+  id SERIAL PRIMARY KEY,
+  ride_id        INTEGER NOT NULL REFERENCES rides(id) ON DELETE CASCADE,
+  shikoyatchi_id INTEGER NOT NULL REFERENCES users(id),
+  qarshi_id      INTEGER REFERENCES users(id),
+  tur            VARCHAR(20) NOT NULL,
+  matn           TEXT NOT NULL,
+  holat          VARCHAR(20) NOT NULL DEFAULT 'ochiq', -- ochiq | korildi | hal | rad
+  admin_javob    TEXT,
+  hal_qilgan_id  INTEGER REFERENCES users(id),
+  yaratilgan     TIMESTAMP DEFAULT NOW(),
+  hal_vaqti      TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_nizo_holat       ON nizolar(holat);
+CREATE INDEX IF NOT EXISTS idx_nizo_shikoyatchi ON nizolar(shikoyatchi_id);
+CREATE INDEX IF NOT EXISTS idx_nizo_ride        ON nizolar(ride_id);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_nizo_ochiq
+  ON nizolar(ride_id, shikoyatchi_id) WHERE holat IN ('ochiq', 'korildi');
 
 -- Барча public жадвалларда RLS ёқиш (Supabase авто Data API'дан ҳимоя).
 -- Backend `postgres` роли (эга/BYPASSRLS) билан уланади — таъсир йўқ; anon/authenticated = DENY.
