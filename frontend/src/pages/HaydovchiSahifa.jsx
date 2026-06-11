@@ -172,6 +172,15 @@ function Ichki({ user }) {
       setOnlayn(false);
       navigate('/haydovchi/ulanish');
     },
+    // Рейтинг пасайди — шаффоф огоҳлантириш (сабаб сервердан келади)
+    reyting_ogoh: ({ sabab }) => {
+      toast.error(sabab, { muddat: 9000 });
+    },
+    // Рейтинг жуда паст — ҳисоб вақтинча блокланди (шаффоф, сабаб билан)
+    hisob_bloklandi: ({ sabab }) => {
+      toast.error(sabab, { muddat: 12000 });
+      setOnlayn(false);
+    },
     buyurtma_keldi: (b) => {
       // Дубликатсиз — маqsadли буюртма барчага очилса яна келиши мумкин
       setBuyurtmalar((oldin) => (oldin.some((x) => x.id === b.id) ? oldin.map((x) => (x.id === b.id ? b : x)) : [...oldin, b]));

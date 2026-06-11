@@ -25,4 +25,15 @@ const { royxat: sosRoyxat, qabul: sosQabul } = require('../controllers/sosContro
 router.get('/sos', sosRoyxat);
 router.post('/sos/:id/qabul', sosQabul);
 
+// Низо (шикоят) — кўриб чиқиш ва ҳал қилиш
+const { adminRoyxat: nizoRoyxat, adminHal: nizoHal } = require('../controllers/nizoController');
+router.get('/nizolar', nizoRoyxat);
+router.post('/nizo/:id/hal', nizoHal);
+
+// Тўлов — рўйхат, мувофиқлаштириш ва қайтариш
+const { royxat: tolovRoyxat, solishtirIshga, qaytar: tolovQaytar } = require('../controllers/tolovController');
+router.get('/tolovlar', tolovRoyxat);
+router.post('/tolov/solishtir', solishtirIshga);
+router.post('/tolov/:id/qaytar', tolovQaytar);
+
 module.exports = router;

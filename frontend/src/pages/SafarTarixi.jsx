@@ -8,6 +8,7 @@ import { SkeletKarta } from '../components/Skelet';
 import { useT } from '../i18n';
 import Ikonka from '../components/Ikonka';
 import BuyumQoldi from '../components/BuyumQoldi';
+import Shikoyat from '../components/Shikoyat';
 
 export default function SafarTarixi() {
   const navigate = useNavigate();
@@ -32,6 +33,8 @@ function Ichki({ user, onOrqaga, onChiqish }) {
   const [xato, setXato] = useState('');
   const [topilmalar, setTopilmalar] = useState({}); // ride_id → топилма сўрови
   const [modalRide, setModalRide] = useState(null); // {ride, topilma} — очиқ ойна
+  const [nizolar, setNizolar] = useState({}); // ride_id → шикоят (мавжуд бўлса)
+  const [shikoyatRide, setShikoyatRide] = useState(null); // {ride, nizo} — шикоят ойнаси
 
   useEffect(() => {
     api.get('/rides/me')
@@ -44,7 +47,20 @@ function Ichki({ user, onOrqaga, onChiqish }) {
       // yangilangan DESC келади — teskari қилиб энг янгиси картада қолсин
       .then(({ data }) => setTopilmalar(Object.fromEntries(data.slice().reverse().map((x) => [x.ride_id, x]))))
       .catch(() => {});
+    api.get('/nizo/meniki')
+      .then(({ data }) => setNizolar(Object.fromEntries(data.slice().reverse().map((x) => [x.ride_id, x]))))
+      .catch(() => {});
   }, []);
+
+  // Шикоят юборилгач/янгилангач рўйхатни янгилаймиз
+  const nizoYangilandi = (nz) => setNizolar((oldin) => ({ ...oldin, [nz.ride_id]: nz }));
+
+  // Шикоят мумкинми (тугаган ёки бекор қилинган, 72 соат ичида)
+  const shikoyatMumkinmi = (r) => {
+    if (!['yakunlandi', 'bekor_qilindi'].includes(r.holat)) return false;
+    const asos = r.yakun_vaqti || r.yaratilgan;
+    return asos && (Date.now() - new Date(asos).getTime()) / 3600000 <= 72;
+  };
 
   // Буюм-сўров ойнаси ўзгариш қайтарганда рўйхатни янгилаймиз
   const topilmaYangilandi = (tp) => setTopilmalar((oldin) => ({ ...oldin, [tp.ride_id]: tp }));
@@ -144,6 +160,24 @@ function Ichki({ user, onOrqaga, onChiqish }) {
                     );
                     return null;
                   })()}
+                  {(() => {
+                    const nz = nizolar[r.id];
+                    if (nz) {
+                      const hal = nz.holat === 'hal' || nz.holat === 'rad';
+                      return (
+                        <button style={st.shikoyatTugma} onClick={() => setShikoyatRide({ ride: r, nizo: nz })}>
+                          <Ikonka nom={hal ? 'check' : 'alert'} size={15} />{' '}
+                          {hal ? t('dispute.statusHal') : t('dispute.statusOchiq')}
+                        </button>
+                      );
+                    }
+                    if (shikoyatMumkinmi(r)) return (
+                      <button style={st.shikoyatTugma} onClick={() => setShikoyatRide({ ride: r, nizo: null })}>
+                        <Ikonka nom="alert" size={15} /> {t('dispute.button')}
+                      </button>
+                    );
+                    return null;
+                  })()}
                 </div>
               );
             })}
@@ -167,6 +201,15 @@ function Ichki({ user, onOrqaga, onChiqish }) {
           />
         );
       })()}
+
+      {shikoyatRide && (
+        <Shikoyat
+          ride={shikoyatRide.ride}
+          mavjud={shikoyatRide.nizo}
+          onYopish={() => setShikoyatRide(null)}
+          onYuborildi={nizoYangilandi}
+        />
+      )}
     </div>
   );
 }
@@ -198,4 +241,5 @@ const st = {
   hamroh: { display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 14, color: 'var(--secondary-label)' },
   narx: { fontSize: 16, fontWeight: 700 },
   buyumTugma: { width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 12, padding: 10, borderRadius: 'var(--r-md)', background: 'var(--fill)', color: 'var(--tint)', fontSize: 14, fontWeight: 600 },
+  shikoyatTugma: { width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 8, padding: 10, borderRadius: 'var(--r-md)', background: 'transparent', color: 'var(--secondary-label)', fontSize: 14, fontWeight: 600, border: '0.5px solid var(--separator)' },
 };

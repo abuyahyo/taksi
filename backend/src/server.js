@@ -23,6 +23,7 @@ const pushRoutes = require('./routes/pushRoutes');
 const telegramRoutes = require('./routes/telegramRoutes');
 const reklamaRoutes = require('./routes/reklamaRoutes');
 const topilmaRoutes = require('./routes/topilmaRoutes');
+const nizoRoutes = require('./routes/nizoRoutes');
 const { auksionlarniTekshir } = require('./controllers/reklamaController');
 
 const app = express();
@@ -81,6 +82,7 @@ app.use('/api/push', pushRoutes);
 app.use('/api/telegram', telegramRoutes);
 app.use('/api/reklama', reklamaRoutes);
 app.use('/api/topilma', topilmaRoutes);
+app.use('/api/nizo', nizoRoutes);
 
 // Мос келмаган API йўли — HTML эмас, JSON 404 қайтарамиз
 app.use('/api', (req, res) => {
@@ -158,10 +160,23 @@ maxfiyKalitTekshir();
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`🚀 Сервер ${PORT} портда ишламоқда`);
+  // Миграцияларни автомат, идемпотент юритамиз — "schema drift" хавфини йўқотади
+  // (CLAUDE.md). AUTO_MIGRATE=0 билан ўчириш мумкин (қўлда бошқарилса).
+  if (process.env.AUTO_MIGRATE !== '0') {
+    const { pool } = require('./config/db');
+    const { migratsiyalarniYurit } = require('./config/migrate');
+    migratsiyalarniYurit(pool).catch((e) => console.error('Авто-миграция хатоси:', e.message));
+  }
   // Telegram бот буйруқлари менюсини ўрнатамиз (токен бўлса; жим, fire-and-forget)
   require('./controllers/telegramBotController').komandalarOrnat();
   // Реклама кимошдиларини текшириб турамиз — тугаганини ёпиб, ғолибни аниқлаймиз
   // ва келаси ой учун очиқ кимошди бўлишини таъминлаймиз (лазий + соатлик).
   auksionlarniTekshir();
   setInterval(auksionlarniTekshir, 60 * 60 * 1000);
+
+  // Тўлов мувофиқлаштируви — обуна билан тўлов ҳолати номувофиқ қолса тузатамиз
+  // (webhook/тармоқ узилиши оқибати). Лазий + соатлик.
+  const { obunalarniSolishtir } = require('./controllers/tolovController');
+  obunalarniSolishtir().catch((e) => console.error('Тўлов солиштириш хатоси:', e.message));
+  setInterval(() => obunalarniSolishtir().catch(() => {}), 60 * 60 * 1000);
 });

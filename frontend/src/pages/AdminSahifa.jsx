@@ -43,6 +43,12 @@ function AdminIchki({ onChiqish }) {
   const [reklamaKamp, setReklamaKamp] = useState(null); // реклама кампаниялар (модерация)
   const [reklamaRad, setReklamaRad] = useState(null);   // рад этилаётган кампания id
   const [reklamaSabab, setReklamaSabab] = useState('');
+  const [nizolar, setNizolar] = useState(null);         // шикоятлар
+  const [nizoHal, setNizoHal] = useState(null);         // { id, holat } — ҳал қилинаётган шикоят
+  const [nizoJavob, setNizoJavob] = useState('');
+  const [tolovlar, setTolovlar] = useState(null);       // транзакциялар
+  const [tolovQaytar, setTolovQaytar] = useState(null); // қайтарилаётган тўлов id
+  const [tolovSabab, setTolovSabab] = useState('');
 
   const yukla = async () => {
     try {
@@ -167,12 +173,53 @@ function AdminIchki({ onChiqish }) {
     setHujjatModal(null);
   };
 
-  // Реклама кампаниялари — таб очилганда юклаймиз
+  // Реклама/шикоят/тўлов — таб очилганда юклаймиз
   useEffect(() => {
     if (tab === 'reklama' && reklamaKamp == null) {
       api.get('/reklama/admin/royxat').then(({ data }) => setReklamaKamp(data)).catch(() => {});
     }
+    if (tab === 'nizo' && nizolar == null) {
+      api.get('/admin/nizolar').then(({ data }) => setNizolar(data)).catch(() => {});
+    }
+    if (tab === 'tolov' && tolovlar == null) {
+      api.get('/admin/tolovlar').then(({ data }) => setTolovlar(data)).catch(() => {});
+    }
   }, [tab]);
+
+  // Шикоятни ҳал қилиш (изоҳ мажбурий — шаффофлик)
+  const nizoniHal = async (id, holat, javob) => {
+    try {
+      await api.post(`/admin/nizo/${id}/hal`, { holat, javob });
+      setNizolar((eski) => eski.map((n) => (n.id === id ? { ...n, holat, admin_javob: javob } : n)));
+      toast.success(t('dispute.statusHal'));
+      setNizoHal(null); setNizoJavob('');
+    } catch (err) {
+      toast.error(err.response?.data?.xato || t('common.error'));
+    }
+  };
+
+  // Тўловни қайтариш (сабаб мажбурий)
+  const tolovniQaytar = async (id, sabab) => {
+    try {
+      await api.post(`/admin/tolov/${id}/qaytar`, { sabab });
+      setTolovlar((eski) => eski.map((tx) => (tx.id === id ? { ...tx, holat: 'bekor' } : tx)));
+      toast.success(t('tolov.refunded'));
+      setTolovQaytar(null); setTolovSabab('');
+    } catch (err) {
+      toast.error(err.response?.data?.xato || t('common.error'));
+    }
+  };
+
+  // Тўловларни солиштириш (номувофиқликни топиб тузатиш)
+  const tolovSolishtir = async () => {
+    try {
+      const { data } = await api.post('/admin/tolov/solishtir');
+      toast.success(`${data.tuzatilgan} тузатилди · ${data.ogohlar.length} огоҳ`);
+      api.get('/admin/tolovlar').then(({ data }) => setTolovlar(data)).catch(() => {});
+    } catch (err) {
+      toast.error(err.response?.data?.xato || t('common.error'));
+    }
+  };
 
   const reklamaModeratsiya = async (id, holat, sabab) => {
     try {
@@ -220,6 +267,8 @@ function AdminIchki({ onChiqish }) {
             ['users',      t('admin.tab.users')],
             ['kyc',        t('admin.tab.kyc') + (Array.isArray(kycQueue) && kycQueue.filter((q) => q.tasdiq_holati === 'kutilmoqda').length ? ` (${kycQueue.filter((q) => q.tasdiq_holati === 'kutilmoqda').length})` : '')],
             ['rides',      t('admin.tab.rides')],
+            ['nizo',       t('admin.tab.nizo') + (Array.isArray(nizolar) && nizolar.filter((n) => ['ochiq', 'korildi'].includes(n.holat)).length ? ` (${nizolar.filter((n) => ['ochiq', 'korildi'].includes(n.holat)).length})` : '')],
+            ['tolov',      t('admin.tab.tolov')],
             ['reklama',    t('admin.tab.reklama') + (Array.isArray(reklamaKamp) && reklamaKamp.filter((r) => r.holat === 'kutilmoqda').length ? ` (${reklamaKamp.filter((r) => r.holat === 'kutilmoqda').length})` : '')],
           ].map(([k, n]) => (
             <button key={k} className="ios-seg" data-on={tab === k} onClick={() => setTab(k)}>{n}</button>
@@ -371,6 +420,80 @@ function AdminIchki({ onChiqish }) {
                         <button style={st.rekTasdiq} onClick={() => reklamaModeratsiya(r.id, 'tasdiqlangan')}>{t('admin.approve')}</button>
                         <button style={st.rekRad} onClick={() => { setReklamaRad(r.id); setReklamaSabab(''); }}>{t('admin.reject')}</button>
                       </div>
+                    )
+                  )}
+                </div>
+              ))}
+            </div>
+          )
+        )}
+
+        {tab === 'nizo' && (
+          nizolar == null ? <Yuklanmoqda /> : nizolar.length === 0 ? <Bosh matn={t('admin.tab.nizo')} /> : (
+            <div style={st.royxat} className="royxat-anim">
+              {nizolar.map((n) => {
+                const ochiq = ['ochiq', 'korildi'].includes(n.holat);
+                return (
+                  <div key={n.id} style={st.rideKarta}>
+                    <div style={st.rideYuqori}>
+                      <span style={st.rideId}>#{n.ride_id} · {t(`dispute.type.${n.tur}`)}</span>
+                      <span style={{ ...st.holatBelgi, ...(ochiq ? st.holatSariq : st.holatYashil) }}>
+                        {ochiq ? t('dispute.statusOchiq') : (n.holat === 'rad' ? t('dispute.statusRad') : t('dispute.statusHal'))}
+                      </span>
+                    </div>
+                    <div style={st.rideMeta}>{n.shikoyatchi_ism || '—'} → {n.qarshi_ism || '—'}</div>
+                    <div style={st.nizoMatn}>{n.matn}</div>
+                    {n.admin_javob && <div style={st.nizoJavob}>{t('dispute.adminJavob')}: {n.admin_javob}</div>}
+                    {ochiq && (
+                      nizoHal === n.id ? (
+                        <div style={st.nizoHalBox}>
+                          <input style={st.input} value={nizoJavob} onChange={(e) => setNizoJavob(e.target.value)} placeholder={t('dispute.adminJavob')} autoFocus />
+                          <div style={st.nizoAmal}>
+                            <button style={st.rekTasdiq} disabled={!nizoJavob.trim()} onClick={() => nizoniHal(n.id, 'hal', nizoJavob.trim())}>{t('dispute.statusHal')}</button>
+                            <button style={st.rekRad} disabled={!nizoJavob.trim()} onClick={() => nizoniHal(n.id, 'rad', nizoJavob.trim())}>{t('dispute.statusRad')}</button>
+                            <button style={st.rekBekor} onClick={() => { setNizoHal(null); setNizoJavob(''); }}>{t('common.cancel')}</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <button style={st.buyumTugma} onClick={() => { setNizoHal(n.id); setNizoJavob(''); }}>{t('admin.approve')}</button>
+                      )
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )
+        )}
+
+        {tab === 'tolov' && (
+          tolovlar == null ? <Yuklanmoqda /> : (
+            <div style={st.royxat} className="royxat-anim">
+              <button style={st.solishtirTugma} onClick={tolovSolishtir}>{t('admin.tab.tolov')} ⟳</button>
+              {tolovlar.length === 0 ? <Bosh matn={t('admin.tab.tolov')} /> : tolovlar.map((tx) => (
+                <div key={tx.id} style={st.rideKarta}>
+                  <div style={st.rideYuqori}>
+                    <span style={st.rideId}>#{tx.id} · {tx.tizim}</span>
+                    <span style={{ ...st.holatBelgi, ...(tx.holat === 'tolandi' ? st.holatYashil : tx.holat === 'bekor' ? st.holatKulrang : st.holatSariq) }}>
+                      {tx.holat}
+                    </span>
+                  </div>
+                  <div style={st.rideMeta}>
+                    {(Number(tx.summa) / 100).toLocaleString()} {t('wait.sum')}
+                    {tx.user_ism ? ` · ${tx.user_ism}` : ''}
+                    {tx.obuna_turi ? ` · ${tx.obuna_turi}` : ''}
+                    {tx.obuna_id ? ` · обуна: ${tx.obuna_holat || '—'}` : ''}
+                  </div>
+                  {tx.holat === 'tolandi' && (
+                    tolovQaytar === tx.id ? (
+                      <div style={st.nizoHalBox}>
+                        <input style={st.input} value={tolovSabab} onChange={(e) => setTolovSabab(e.target.value)} placeholder={t('admin.rejectReason')} autoFocus />
+                        <div style={st.nizoAmal}>
+                          <button style={st.rekRad} disabled={!tolovSabab.trim()} onClick={() => tolovniQaytar(tx.id, tolovSabab.trim())}>{t('tolov.refund')}</button>
+                          <button style={st.rekBekor} onClick={() => { setTolovQaytar(null); setTolovSabab(''); }}>{t('common.cancel')}</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button style={st.buyumTugma} onClick={() => { setTolovQaytar(tx.id); setTolovSabab(''); }}>{t('tolov.refund')}</button>
                     )
                   )}
                 </div>
@@ -554,6 +677,13 @@ const st = {
   holatBelgi: { padding: '3px 10px', borderRadius: 'var(--r-full)', fontSize: 12, fontWeight: 600 },
   holatYashil: { background: 'rgba(52,199,89,0.16)', color: 'var(--yashil)' },
   holatSariq: { background: 'rgba(255,149,0,0.16)', color: 'var(--amber)' },
+  holatKulrang: { background: 'var(--fill)', color: 'var(--secondary-label)' },
+  nizoMatn: { fontSize: 14, color: 'var(--label)', marginTop: 8, whiteSpace: 'pre-wrap' },
+  nizoJavob: { fontSize: 13, color: 'var(--kok)', marginTop: 6, background: 'rgba(0,122,255,0.08)', padding: 8, borderRadius: 'var(--r-sm)' },
+  nizoHalBox: { marginTop: 10 },
+  nizoAmal: { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' },
+  buyumTugma: { width: '100%', marginTop: 10, padding: 9, borderRadius: 'var(--r-md)', background: 'var(--fill)', color: 'var(--tint)', fontSize: 14, fontWeight: 600 },
+  solishtirTugma: { alignSelf: 'flex-start', padding: '8px 14px', borderRadius: 'var(--r-md)', background: 'var(--fill)', color: 'var(--tint)', fontSize: 13, fontWeight: 600, marginBottom: 4 },
   rideYol: { fontSize: 15, fontWeight: 500 },
   rideMeta: { fontSize: 13, color: 'var(--secondary-label)', marginTop: 4 },
   rekKarta: { display: 'flex', gap: 12, alignItems: 'flex-start', background: 'var(--surface)', padding: 12, borderRadius: 'var(--r-lg)', boxShadow: 'var(--shadow-1)' },
