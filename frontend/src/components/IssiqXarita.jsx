@@ -26,15 +26,13 @@ export default function IssiqXarita({ onYopish }) {
   const [sahifalar, setSahifalar] = useState([]);
   const [yuklanmoqda, setYuklanmoqda] = useState(true);
 
-  const yukla = async () => {
-    try {
-      const { data } = await api.get('/heatmap');
-      setSahifalar(data);
-    } catch {/* тинч */}
-    setYuklanmoqda(false);
-  };
-
   useEffect(() => {
+    const yukla = () => {
+      api.get('/heatmap')
+        .then(({ data }) => setSahifalar(data))
+        .catch(() => {/* тинч */})
+        .finally(() => setYuklanmoqda(false));
+    };
     yukla();
     const id = setInterval(yukla, 30000); // ҳар 30с янги маълумот
     return () => clearInterval(id);

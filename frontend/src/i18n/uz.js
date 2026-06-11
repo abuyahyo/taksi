@@ -618,4 +618,8 @@ export default {
   'akkaunt.lang':        'Тил',
   'theme.light':         'Ёруғ',
   'theme.dark':          'Тунги',
+
+  // 404
+  'notfound.text':       'Бундай саҳифа топилмади',
+  'notfound.home':       'Бош саҳифага қайтиш',
 };

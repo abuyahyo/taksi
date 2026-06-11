@@ -50,28 +50,29 @@ function AdminIchki({ onChiqish }) {
   const [tolovQaytar, setTolovQaytar] = useState(null); // қайтарилаётган тўлов id
   const [tolovSabab, setTolovSabab] = useState('');
 
-  const yukla = async () => {
-    try {
+  // .then услуби — effect ичидан чақирилганда setState синхрон бўлмайди
+  const yukla = () =>
+    Promise.all([
+      api.get('/admin/statistika'),
+      api.get('/admin/foydalanuvchilar'),
+      api.get('/admin/buyurtmalar'),
+      api.get('/admin/kyc-queue'),
+    ]).then(([s, u, r, k]) => {
       setXato('');
-      const [s, u, r, k] = await Promise.all([
-        api.get('/admin/statistika'),
-        api.get('/admin/foydalanuvchilar'),
-        api.get('/admin/buyurtmalar'),
-        api.get('/admin/kyc-queue'),
-      ]);
       setStat(s.data);
       setUsers(u.data);
       setRides(r.data);
       setKycQueue(k.data);
-    } catch (err) {
+    }).catch((err) => {
       if (err.response?.status === 401 || err.response?.status === 403) {
         onChiqish();
       } else {
         setXato(err.response?.data?.xato || t('common.error'));
       }
-    }
-  };
+    });
 
+  // Фақат mount'да юкланади
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { yukla(); }, []);
 
   // SOS — жонли қабул қилиш
@@ -87,11 +88,13 @@ function AdminIchki({ onChiqish }) {
       toast.error(`🆘 SOS! ${sig.yuboruvchi_ism || sig.rol} — сафар #${sig.rideId || '?'}`, { muddat: 10000 });
       // Браузер уведомление ҳам — таб ёпиқ бўлса
       if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-        try { new Notification('🆘 SOS', { body: `${sig.yuboruvchi_ism} (${sig.rol})`, tag: 'sos-' + sig.id }); } catch {}
+        try { new Notification('🆘 SOS', { body: `${sig.yuboruvchi_ism} (${sig.rol})`, tag: 'sos-' + sig.id }); } catch {/* рухсат йўқ — тинч */}
       }
     };
     socket.on('sos_keldi', tinglovchi);
     return () => socket.off('sos_keldi', tinglovchi);
+    // Socket обунаси фақат mount'да — toast барқарор, deps'га керак эмас
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const sosQabul = async (id) => {
@@ -184,7 +187,7 @@ function AdminIchki({ onChiqish }) {
     if (tab === 'tolov' && tolovlar == null) {
       api.get('/admin/tolovlar').then(({ data }) => setTolovlar(data)).catch(() => {});
     }
-  }, [tab]);
+  }, [tab, reklamaKamp, nizolar, tolovlar]);
 
   // Шикоятни ҳал қилиш (изоҳ мажбурий — шаффофлик)
   const nizoniHal = async (id, holat, javob) => {

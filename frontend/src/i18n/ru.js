@@ -610,4 +610,8 @@ export default {
   'akkaunt.lang':        'Язык',
   'theme.light':         'Светлая',
   'theme.dark':          'Тёмная',
+
+  // 404
+  'notfound.text':       'Такая страница не найдена',
+  'notfound.home':       'Вернуться на главную',
 };

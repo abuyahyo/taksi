@@ -29,6 +29,8 @@ export default function HaydovchiKodi({ onYopish }) {
       })
       .catch((err) => { if (!bekor) setXato(err.response?.data?.xato || t('common.error')); });
     return () => { bekor = true; };
+    // Фақат mount'да юкланади; t фақат хато матнида — қайта юклашга арзимайди
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const havola = kod ? `${window.location.origin}/yolovchi?haydovchi=${kod}` : '';

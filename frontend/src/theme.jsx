@@ -39,6 +39,9 @@ export function TemaProvider({ children }) {
   return <TemaCtx.Provider value={{ tema, setTema, almashtir }}>{children}</TemaCtx.Provider>;
 }
 
+// Hook'ни алоҳида файлга кўчириш барча import'ларни бузарди — Fast Refresh
+// фақат HMR грануларлигига таъсир қилади, runtime'га эмас.
+// eslint-disable-next-line react-refresh/only-export-components
 export function useTema() {
   const ctx = useContext(TemaCtx);
   if (!ctx) throw new Error('useTema must be used inside <TemaProvider>');

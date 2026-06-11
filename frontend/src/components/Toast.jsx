@@ -69,6 +69,9 @@ function rangi(tur) {
   return 'var(--kok)';
 }
 
+// Hook'ни алоҳида файлга кўчириш барча import'ларни бузарди — Fast Refresh
+// фақат HMR грануларлигига таъсир қилади, runtime'га эмас.
+// eslint-disable-next-line react-refresh/only-export-components
 export function useToast() {
   const ctx = useContext(ToastCtx);
   if (!ctx) throw new Error('useToast <ToastProvider> ичида ишлатилиши керак');

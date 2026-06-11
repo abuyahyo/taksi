@@ -50,6 +50,8 @@ function Ichki({ user, onOrqaga, onChiqish }) {
     api.get('/nizo/meniki')
       .then(({ data }) => setNizolar(Object.fromEntries(data.slice().reverse().map((x) => [x.ride_id, x]))))
       .catch(() => {});
+    // Фақат mount'да юкланади; onChiqish/t фақат хато йўлида ишлатилади
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Шикоят юборилгач/янгилангач рўйхатни янгилаймиз
@@ -59,6 +61,8 @@ function Ichki({ user, onOrqaga, onChiqish }) {
   const shikoyatMumkinmi = (r) => {
     if (!['yakunlandi', 'bekor_qilindi'].includes(r.holat)) return false;
     const asos = r.yakun_vaqti || r.yaratilgan;
+    // Date.now атайлаб — 72 соат ойнаси ҳар render'да янгидан текширилсин
+    // eslint-disable-next-line react-hooks/purity
     return asos && (Date.now() - new Date(asos).getTime()) / 3600000 <= 72;
   };
 
@@ -69,6 +73,8 @@ function Ichki({ user, onOrqaga, onChiqish }) {
   const buyumMumkinmi = (r, menMijoz) => {
     if (!menMijoz || r.holat !== 'yakunlandi' || !r.haydovchi_id) return false;
     const asos = r.yakun_vaqti || r.qabul_vaqti || r.yaratilgan;
+    // Date.now атайлаб — 48 соат ойнаси ҳар render'да янгидан текширилсин
+    // eslint-disable-next-line react-hooks/purity
     return asos && (Date.now() - new Date(asos).getTime()) / 3600000 <= 48;
   };
 

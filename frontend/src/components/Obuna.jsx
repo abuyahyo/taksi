@@ -17,17 +17,15 @@ export default function Obuna({ onYopish, onYangilandi }) {
   const [tolov, setTolov] = useState(null);       // { obunaId, turi, summa }
   const [tolovYubor, setTolovYubor] = useState(false);
 
-  const yukla = async () => {
-    try {
-      const { data } = await api.get('/driver/subscription');
-      setHolat(data);
-      return data;
-    } catch (err) {
-      toast.error(err.response?.data?.xato || t('common.error'));
-    } finally {
-      setYuklanmoqda(false);
-    }
-  };
+  // .then услуби — effect ичидан чақирилганда setState синхрон бўлмайди
+  // (react-hooks/set-state-in-effect). Қайтган promise data билан resolve бўлади.
+  const yukla = () =>
+    api.get('/driver/subscription')
+      .then(({ data }) => { setHolat(data); return data; })
+      .catch((err) => { toast.error(err.response?.data?.xato || t('common.error')); })
+      .finally(() => setYuklanmoqda(false));
+  // Фақат mount'да юкланади — yukla ҳар render'да янги, deps'га қўшилмайди
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { yukla(); }, []);
 
   // Пакет танлаш — обуна БЕРИЛМАЙДИ, фақат кутилаётган обуна яратилади. Сўнг тўлов.

@@ -13,12 +13,14 @@ export default function ManzilQidirish({ onTanlandi, placeholder, rejimMatn }) {
   const refWrap = useRef(null);
 
   // Debounce — фойдаланувчи ёзишни тугатса 250мс кейин қидириш
+  // (қисқа матнда тозалаш ҳам таймер ичида — effect танасида setState йўқ)
   useEffect(() => {
-    if (matn.trim().length < 2) { setNatijalar([]); return; }
     const timer = setTimeout(async () => {
+      const q = matn.trim();
+      if (q.length < 2) { setNatijalar([]); return; }
       setYuklanmoqda(true);
       try {
-        const { data } = await api.get(`/geocode?q=${encodeURIComponent(matn.trim())}&til=${til}`);
+        const { data } = await api.get(`/geocode?q=${encodeURIComponent(q)}&til=${til}`);
         setNatijalar(data);
         setOchiq(true);
       } catch {/* тинч ўтиш */}

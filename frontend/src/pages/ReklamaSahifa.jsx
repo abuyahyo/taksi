@@ -1,6 +1,6 @@
 // Реклама кимошди саҳифаси (рекламачи) — кампания яратиш, очиқ кўтарилувчи
 // кимошдида таклиф қилиш, ютганда тўлаш. Битта жой/ой — энг юқори таклиф ютади.
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useT } from '../i18n';
@@ -107,7 +107,7 @@ function Ichki() {
         yukla();
       } else {
         const { data } = await api.post('/payment/url', { reklamaId: yutuq.id, tizim, returnUrl: window.location.href });
-        window.location.href = data.url;
+        window.location.assign(data.url); // тўлов саҳифасига ўтиш
       }
     } catch (err) {
       toast.error(err.response?.data?.xato || t('common.error'));

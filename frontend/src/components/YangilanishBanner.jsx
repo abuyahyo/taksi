@@ -1,12 +1,14 @@
 // PWA: янги версия тайёр бўлганда — кичик баннер кўрсатамиз
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { useT } from '../i18n';
 import Ikonka from './Ikonka';
 
 export default function YangilanishBanner() {
   const { t } = useT();
-  const [koʻrinmoqda, setKoʻrinmoqda] = useState(false);
+  // Кўриниш ҳосила (derived) — алоҳида effect+state керак эмас:
+  // янгиланиш керак ва фойдаланувчи ёпмаган бўлса кўрсатамиз
+  const [yopilgan, setYopilgan] = useState(false);
 
   const {
     needRefresh: [yangilanishKerak, setYangilanishKerak],
@@ -20,11 +22,7 @@ export default function YangilanishBanner() {
     },
   });
 
-  useEffect(() => {
-    if (yangilanishKerak) setKoʻrinmoqda(true);
-  }, [yangilanishKerak]);
-
-  if (!koʻrinmoqda) return null;
+  if (!yangilanishKerak || yopilgan) return null;
 
   return (
     <div style={st.banner} className="glass">
@@ -35,7 +33,7 @@ export default function YangilanishBanner() {
       >{t('pwa.update')}</button>
       <button
         style={st.yopish}
-        onClick={() => { setKoʻrinmoqda(false); setYangilanishKerak(false); }}
+        onClick={() => { setYopilgan(true); setYangilanishKerak(false); }}
         aria-label="close"
       ><Ikonka nom="x" size={15} /></button>
     </div>
