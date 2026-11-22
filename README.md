@@ -1,3 +1,8 @@
+> **Manzil — Full-Stack Real-Time Taxi App**
+> A complete ride-hailing platform built from scratch. Features: real-time GPS tracking (Socket.io), custom fare negotiation, integrated payments (Payme/Click), and a transparent user-blocking system.
+> **Tech Stack:** Node.js, Express, React, Supabase (PostgreSQL), Socket.io, Leaflet.
+
+
 # 🚕 Manzil — нархни ўзингиз белгилайдиган такси дастури
 
 Веб-дастур: йўловчи нархни ўзи таклиф қилади, ҳайдовчилар рози бўлади ёки ўз нархини беради. Дастурнинг ўзига хос томони — **бошқа иловалардаги камчиликлар ечилган** ва уларда йўқ функциялар қўшилган.
